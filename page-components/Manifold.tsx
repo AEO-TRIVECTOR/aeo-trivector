@@ -144,23 +144,27 @@ function Pillar({ icon, title, descriptor, delay }: PillarProps) {
 }
 
 export default function Manifold() {
-  // Check if arriving from event horizon crossing
-  const fromEventHorizon = typeof window !== 'undefined' && sessionStorage.getItem('fromEventHorizon') === 'true';
-  const [showGhostHorizon, setShowGhostHorizon] = useState(fromEventHorizon);
-  
+  // Ghost horizon effect state (SSR-safe initialization)
+  const [showGhostHorizon, setShowGhostHorizon] = useState(false);
+
   // Mouse tracking for particle interaction
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  
-  // Ghost horizon dissolves after 600ms, then clear flag
+
+  // Check if arriving from event horizon crossing (client-side only)
   useEffect(() => {
-    if (fromEventHorizon) {
-      const timer = setTimeout(() => {
-        setShowGhostHorizon(false);
-        sessionStorage.removeItem('fromEventHorizon');
-      }, 600);
-      return () => clearTimeout(timer);
+    if (typeof window !== 'undefined') {
+      const fromEventHorizon = sessionStorage.getItem('fromEventHorizon') === 'true';
+      if (fromEventHorizon) {
+        setShowGhostHorizon(true);
+        // Ghost horizon dissolves after 600ms, then clear flag
+        const timer = setTimeout(() => {
+          setShowGhostHorizon(false);
+          sessionStorage.removeItem('fromEventHorizon');
+        }, 600);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [fromEventHorizon]);
+  }, []);
   
   // Track mouse movement for particle interaction
   useEffect(() => {
