@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   transpilePackages: ['three'],
-  // Disable trailing slashes for cleaner URLs
-  trailingSlash: false,
+  // Enable trailing slashes for static export compatibility
+  trailingSlash: true,
 }
 
 export default nextConfig
