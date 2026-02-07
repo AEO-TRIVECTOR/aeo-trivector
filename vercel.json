@@ -1,4 +1,7 @@
 {
+  "framework": null,
+  "outputDirectory": "out",
+  "buildCommand": "pnpm build",
   "redirects": [
     {
       "source": "/:path*",
