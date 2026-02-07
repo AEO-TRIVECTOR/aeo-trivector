@@ -48,7 +48,7 @@ function Section({ title, children, delay }: SectionProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div 
-        className="relative rounded-2xl p-12 transition-all duration-700"
+        className="relative rounded-2xl p-12 transition-all duration-700 text-center"
         style={{
           background: 'rgba(0, 0, 0, 0.4)',
           backdropFilter: 'blur(12px)',

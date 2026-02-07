@@ -244,7 +244,7 @@ export default function Entry() {
       </div>
 
       {/* Content Container - Elegant Vertical Layout */}
-      <div className="absolute inset-0 flex flex-col items-center pt-8 md:pt-12 lg:pt-16">
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
         
         {/* Title and Subtitle Container */}
         <div className="relative z-30 text-center flex flex-col items-center gap-16 md:gap-24 lg:gap-32">
@@ -291,11 +291,11 @@ export default function Entry() {
           </AnimatePresence>
         </div>
 
-        {/* Flexible spacer */}
-        <div className="flex-1 min-h-[8rem]" />
+        {/* Spacer */}
+        <div className="h-24" />
 
         {/* Enter CTA */}
-        <div className="relative z-30 text-center mb-16 md:mb-24">
+        <div className="relative z-30 text-center w-full flex justify-center">
           <AnimatePresence>
             {!approaching && ready && (
               <motion.div

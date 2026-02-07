@@ -52,7 +52,7 @@ function FAQItem({ question, answer, isOpen, onToggle, delay }: FAQItemProps) {
       className="cursor-pointer"
     >
       <div 
-        className="relative rounded-2xl p-8 transition-all duration-700"
+        className="relative rounded-2xl p-8 transition-all duration-700 text-center"
         style={{
           background: 'rgba(0, 0, 0, 0.4)',
           backdropFilter: 'blur(12px)',
