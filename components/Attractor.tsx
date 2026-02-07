@@ -115,7 +115,7 @@ export function Attractor({
     <points ref={mesh}>
       <primitive object={geometry} />
       <pointsMaterial 
-        size={0.15} 
+        size={0.35} 
         vertexColors
         transparent 
         opacity={opacity} 

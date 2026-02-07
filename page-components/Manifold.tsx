@@ -29,7 +29,7 @@ function AttractorGroup({ mousePosition }: { mousePosition: { x: number, y: numb
 
   return (
     <group ref={groupRef}>
-      <Attractor count={15000} opacity={0.6} speed={1} />
+      <Attractor count={25000} opacity={0.85} speed={1} />
     </group>
   );
 }
@@ -198,7 +198,7 @@ export default function Manifold() {
     <div className="min-h-screen relative overflow-hidden bg-black">
       {/* Lorenz Attractor Background */}
       <div className="fixed inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 30], fov: 75 }}>
+        <Canvas camera={{ position: [0, 0, 18], fov: 75 }}>
           <AttractorGroup mousePosition={mousePosition} />
         </Canvas>
       </div>
@@ -221,9 +221,9 @@ export default function Manifold() {
       )}
 
       {/* Fixed Navigation Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center mix-blend-difference">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center">
         <a href="/">
-          <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-[#FFD700] transition-colors duration-500">
+          <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-[#FFD700] transition-colors duration-500" style={{ color: 'rgba(255, 215, 0, 0.9)', textShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
             AEO TRIVECTOR
           </div>
         </a>

@@ -214,6 +214,21 @@ export default function Entry() {
         style={{ opacity: darkness }}
       />
       
+      {/* Navigation Header */}
+      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center">
+        <a href="/">
+          <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-[#FFD700] transition-colors duration-500" style={{ color: 'rgba(255, 215, 0, 0.9)', textShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
+            AEO TRIVECTOR
+          </div>
+        </a>
+        <div className="flex gap-4 md:gap-8 font-mono text-xs tracking-widest uppercase" style={{ opacity: 0.85 }}>
+          <a href="/manifold/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">VISION</a>
+          <a href="/research/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">RESEARCH</a>
+          <a href="/about/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">ABOUT</a>
+          <a href="/contact/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">CONTACT</a>
+        </div>
+      </nav>
+
       {/* Black Hole Visualization - Full Screen Background */}
       <div className="absolute inset-0">
         <AccretionDiskVisualization 
@@ -246,8 +261,8 @@ export default function Entry() {
                   className={`font-serif tracking-[0.2em] text-[#FCD34D] transition-all duration-1000 whitespace-nowrap ${hovering ? 'tracking-[0.25em]' : ''}`} 
                   style={{ 
                     fontSize: 'clamp(1.5rem, 5vw, 4.5rem)',
-                    textShadow: '0 0 40px rgba(252, 211, 77, 0.4), 0 0 80px rgba(252, 211, 77, 0.2)',
-                    fontWeight: 300,
+                    textShadow: '0 0 50px rgba(252, 211, 77, 0.6), 0 0 100px rgba(252, 211, 77, 0.3), 0 0 150px rgba(252, 211, 77, 0.15)',
+                    fontWeight: 400,
                   }}
                 >
                   AEO TRIVECTOR
@@ -260,11 +275,12 @@ export default function Entry() {
                   transition={{ duration: 1, delay: 0.5 }}
                 >
                   <div
-                    className="font-sans font-light tracking-[0.3em] md:tracking-[0.5em] text-[#3B82F6] uppercase whitespace-nowrap"
+                    className="font-sans tracking-[0.3em] md:tracking-[0.5em] text-[#3B82F6] uppercase whitespace-nowrap"
                     style={{ 
                       fontSize: 'clamp(0.6rem, 1.5vw, 1rem)',
-                      textShadow: '0 0 20px rgba(96, 165, 250, 0.5)',
+                      textShadow: '0 0 30px rgba(96, 165, 250, 0.7), 0 0 60px rgba(96, 165, 250, 0.4)',
                       letterSpacing: '0.5em',
+                      fontWeight: 400,
                     }}
                   >
                     {hovering ? "INTERPRETABILITY BY CONSTRUCTION" : "ATTRACTOR ARCHITECTURE"}
