@@ -159,6 +159,8 @@ export default function Mathematics() {
                 textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.7)',
                 letterSpacing: '0.15em',
                 fontWeight: 300,
+                textAlign: 'center',
+                width: '100%',
               }}
             >
               The Formalism

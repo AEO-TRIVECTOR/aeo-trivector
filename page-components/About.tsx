@@ -135,6 +135,8 @@ export default function About() {
                   textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.7)',
                   letterSpacing: '0.15em',
                   fontWeight: 300,
+                  textAlign: 'center',
+                  width: '100%',
                 }}
               >
                 The Founder
@@ -148,6 +150,8 @@ export default function About() {
                     color: 'rgba(255, 215, 0, 0.9)',
                     textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 4px 24px rgba(0,0,0,0.7)',
                     letterSpacing: '0.1em',
+                    textAlign: 'center',
+                    width: '100%',
                   }}
                 >
                   Jared Dunahay
