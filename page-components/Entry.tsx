@@ -20,7 +20,7 @@ export default function Entry() {
     }
 
     // Show content after brief delay
-    const timer = setTimeout(() => setReady(true), 2500)
+    const timer = setTimeout(() => setReady(true), 1000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -133,7 +133,7 @@ export default function Entry() {
                   opacity: ready ? 1 : 0,
                   scale: ready ? 1 : 0.9
                 }}
-                transition={{ duration: 0.8, delay: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
                 className="pointer-events-auto inline-block"
               >
                 <button
