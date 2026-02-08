@@ -94,7 +94,7 @@ function Pillar({ icon, title, descriptor, delay }: PillarProps) {
         />
 
         {/* Content */}
-        <div className="relative flex flex-col items-center text-center space-y-6">
+        <div className="relative flex flex-col items-center space-y-6" style={{ textAlign: 'center', width: '100%' }}>
           {/* Icon */}
           <motion.div
             className="text-5xl"
@@ -252,6 +252,8 @@ export default function Manifold() {
               textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.7)',
               letterSpacing: '0.1em',
               fontWeight: 300,
+              textAlign: 'center',
+              width: '100%',
             }}
           >
             AEO TRIVECTOR
@@ -265,6 +267,8 @@ export default function Manifold() {
               color: 'rgba(255, 215, 0, 0.8)',
               textShadow: '0 2px 8px rgba(0,0,0,0.9)',
               letterSpacing: '0.3em',
+              textAlign: 'center',
+              width: '100%',
             }}
           >
             Attractor Architecture
