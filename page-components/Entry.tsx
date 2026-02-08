@@ -27,8 +27,13 @@ export default function Entry() {
 
       {/* Centered Content */}
       <div 
-        className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none"
+        className="absolute z-10 pointer-events-none"
         style={{
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '90%',
+          maxWidth: '1200px',
           opacity: visible ? 1 : 0,
           transition: 'opacity 1s ease-in-out'
         }}
@@ -50,7 +55,7 @@ export default function Entry() {
 
         {/* Subtitle */}
         <div 
-          className="font-sans uppercase mb-12"
+          className="font-sans uppercase mb-12 text-center"
           style={{
             fontSize: 'clamp(0.75rem, 2vw, 1.25rem)',
             letterSpacing: '0.5em',
@@ -63,9 +68,10 @@ export default function Entry() {
         </div>
 
         {/* Enter Button */}
-        <button
-          onClick={handleEnter}
-          className="px-12 py-4 border-2 text-white font-mono uppercase tracking-widest transition-all duration-300 hover:bg-white/10 pointer-events-auto"
+        <div className="text-center">
+          <button
+            onClick={handleEnter}
+            className="px-12 py-4 border-2 text-white font-mono uppercase tracking-widest transition-all duration-300 hover:bg-white/10 pointer-events-auto"
           style={{
             borderColor: '#60A5FA',
             fontSize: '0.875rem',
@@ -75,7 +81,8 @@ export default function Entry() {
           }}
         >
           ENTER
-        </button>
+          </button>
+        </div>
       </div>
     </div>
   )
