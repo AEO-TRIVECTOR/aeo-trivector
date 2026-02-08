@@ -77,10 +77,9 @@ export default function Entry() {
       {/* Centered Content Container - Using Absolute Positioning */}
       <div className="absolute inset-0 z-30 pointer-events-none">
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0 }}
           animate={{ 
-            opacity: approaching ? 0 : (ready ? 1 : 0), 
-            y: approaching ? -20 : (ready ? 0 : -20) 
+            opacity: approaching ? 0 : (ready ? 1 : 0)
           }}
           transition={{ duration: approaching ? 2 : 1.5, ease: "easeInOut" }}
           className="absolute"
