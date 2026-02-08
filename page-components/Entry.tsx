@@ -6,13 +6,7 @@ import AccretionDisk from '@/components/accretion-disk-visualization'
 
 export default function Entry() {
   const router = useRouter()
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    // Simple fade-in after component mounts
-    const timer = setTimeout(() => setVisible(true), 500)
-    return () => clearTimeout(timer)
-  }, [])
+  const [visible, setVisible] = useState(true)
 
   const handleEnter = () => {
     router.push('/manifold/')
