@@ -76,23 +76,23 @@ export default function Entry() {
 
       {/* Centered Content Container - Using Absolute Positioning */}
       <div className="absolute inset-0 z-30 pointer-events-none">
-        <AnimatePresence>
-          {!approaching && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: ready ? 1 : 0, y: ready ? 0 : -20 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="absolute"
-              style={{
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '90%',
-                maxWidth: '1200px',
-                textAlign: 'center'
-              }}
-            >
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ 
+            opacity: approaching ? 0 : (ready ? 1 : 0), 
+            y: approaching ? -20 : (ready ? 0 : -20) 
+          }}
+          transition={{ duration: approaching ? 2 : 1.5, ease: "easeInOut" }}
+          className="absolute"
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: '1200px',
+            textAlign: 'center'
+          }}
+        >
               {/* Title */}
               <h1 
                 className={`font-serif text-[#FCD34D] transition-all duration-1000 mb-8 md:mb-12`}
@@ -147,9 +147,7 @@ export default function Entry() {
                   ENTER
                 </button>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   )
