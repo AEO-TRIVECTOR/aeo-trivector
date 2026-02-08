@@ -45,6 +45,10 @@ export default function Entry() {
       {/* Accretion Disk Background - Full Screen */}
       <div className="absolute inset-0 z-0">
         <AccretionDisk />
+        {/* Debug: Show if AccretionDisk fails to render */}
+        <div className="absolute top-4 left-4 text-white/50 text-xs font-mono z-50">
+          v{Date.now() % 10000}
+        </div>
       </div>
 
       {/* Darkness Overlay for Approaching Animation */}
