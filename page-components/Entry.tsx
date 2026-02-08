@@ -247,7 +247,7 @@ export default function Entry() {
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
         
         {/* Title and Subtitle Container */}
-        <div className="relative z-30 text-center flex flex-col items-center gap-16 md:gap-24 lg:gap-32">
+        <div className="relative z-30 text-center flex flex-col items-center gap-16 md:gap-24 lg:gap-32 w-full">
           <AnimatePresence>
             {!approaching && (
               <motion.div
@@ -258,7 +258,7 @@ export default function Entry() {
               >
                 {/* Main Title */}
                 <h1 
-                  className={`font-serif tracking-[0.2em] text-[#FCD34D] transition-all duration-1000 whitespace-nowrap ${hovering ? 'tracking-[0.25em]' : ''}`} 
+                  className={`font-serif tracking-[0.2em] text-[#FCD34D] transition-all duration-1000 ${hovering ? 'tracking-[0.25em]' : ''}`} 
                   style={{ 
                     fontSize: 'clamp(1.5rem, 5vw, 4.5rem)',
                     textShadow: '0 0 50px rgba(252, 211, 77, 0.6), 0 0 100px rgba(252, 211, 77, 0.3), 0 0 150px rgba(252, 211, 77, 0.15)',
@@ -275,7 +275,7 @@ export default function Entry() {
                   transition={{ duration: 1, delay: 0.5 }}
                 >
                   <div
-                    className="font-sans tracking-[0.3em] md:tracking-[0.5em] text-[#3B82F6] uppercase whitespace-nowrap"
+                    className="font-sans tracking-[0.3em] md:tracking-[0.5em] text-[#3B82F6] uppercase"
                     style={{ 
                       fontSize: 'clamp(0.6rem, 1.5vw, 1rem)',
                       textShadow: '0 0 30px rgba(96, 165, 250, 0.7), 0 0 60px rgba(96, 165, 250, 0.4)',
