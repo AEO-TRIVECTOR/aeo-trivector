@@ -19,7 +19,7 @@ export default function Entry() {
   }
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
+    <div className="fixed inset-0 w-full h-full overflow-hidden bg-black">
       {/* Black Hole Background */}
       <div className="absolute inset-0 z-0">
         <AccretionDisk />
