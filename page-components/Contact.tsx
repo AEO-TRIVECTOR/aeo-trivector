@@ -64,7 +64,7 @@ export default function Contact() {
   return (
     <div className="min-h-screen relative overflow-hidden bg-black">
       <div className="fixed inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 18], fov: 75 }}>
+        <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
           <AttractorGroup mousePosition={mousePosition} />
         </Canvas>
       </div>
