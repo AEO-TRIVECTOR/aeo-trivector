@@ -21,13 +21,13 @@ export default function Entry() {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
       {/* Black Hole Background */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-0">
         <AccretionDisk />
       </div>
 
       {/* Centered Content */}
       <div 
-        className="absolute inset-0 flex flex-col items-center justify-center"
+        className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none"
         style={{
           opacity: visible ? 1 : 0,
           transition: 'opacity 1s ease-in-out'
@@ -65,7 +65,7 @@ export default function Entry() {
         {/* Enter Button */}
         <button
           onClick={handleEnter}
-          className="px-12 py-4 border-2 text-white font-mono uppercase tracking-widest transition-all duration-300 hover:bg-white/10"
+          className="px-12 py-4 border-2 text-white font-mono uppercase tracking-widest transition-all duration-300 hover:bg-white/10 pointer-events-auto"
           style={{
             borderColor: '#60A5FA',
             fontSize: '0.875rem',
