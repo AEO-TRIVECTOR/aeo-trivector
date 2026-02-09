@@ -237,7 +237,7 @@ export default function Manifold() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative flex flex-col items-center justify-center px-6 py-24" style={{ minHeight: 'auto', zIndex: 20 }}>
+      <div className="relative flex flex-col items-center justify-center px-6 py-24" style={{ minHeight: 'auto' }}>
         {/* Large AEO TRIVECTOR Heading */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
