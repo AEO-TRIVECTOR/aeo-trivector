@@ -198,7 +198,7 @@ export default function Manifold() {
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: '#000' }}>
       {/* Lorenz Attractor Background */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 40 }}>
         <Canvas camera={{ position: [0, 0, 7], fov: 90 }}>
           <AttractorGroup mousePosition={mousePosition} />
         </Canvas>
@@ -237,7 +237,7 @@ export default function Manifold() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-6 py-24" style={{ minHeight: 'auto' }}>
+      <div className="relative flex flex-col items-center justify-center px-6 py-24" style={{ minHeight: 'auto', zIndex: 20 }}>
         {/* Large AEO TRIVECTOR Heading */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
