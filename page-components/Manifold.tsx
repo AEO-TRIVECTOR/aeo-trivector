@@ -222,7 +222,7 @@ export default function Manifold() {
       )}
 
       {/* Fixed Navigation Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-center items-center gap-8">
         <a href="/">
           <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-[#FFD700] transition-colors duration-500" style={{ color: 'rgba(255, 215, 0, 0.9)', textShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
             AEO TRIVECTOR

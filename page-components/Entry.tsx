@@ -13,7 +13,7 @@ export default function Entry() {
   return (
     <div className="fixed inset-0 w-full h-full overflow-hidden bg-black">
       {/* Black Hole Background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0" style={{ width: '100%', height: '100%' }}>
         <AccretionDisk />
       </div>
 
