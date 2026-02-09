@@ -20,7 +20,7 @@ export default function Entry() {
       overflow: 'hidden',
       background: '#000'
     }}>
-      {/* Black Hole Background - Force Full Viewport */}
+      {/* Black Hole Background - Full Viewport */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -35,7 +35,31 @@ export default function Entry() {
         </div>
       </div>
 
-      {/* Centered Content Overlay */}
+      {/* Title - Above Black Hole */}
+      <div style={{
+        position: 'absolute',
+        top: '10%',
+        left: 0,
+        width: '100%',
+        zIndex: 10,
+        textAlign: 'center',
+        padding: '0 1rem'
+      }}>
+        <h1 style={{
+          fontSize: 'clamp(2rem, 8vw, 5rem)',
+          fontWeight: 300,
+          letterSpacing: '0.2em',
+          textAlign: 'center',
+          textShadow: '0 0 40px rgba(255, 215, 0, 0.5)',
+          color: '#FFD700',
+          fontFamily: 'Cormorant Garamond, serif',
+          margin: 0
+        }}>
+          AEO TRIVECTOR
+        </h1>
+      </div>
+
+      {/* Centered Content - Over Black Hole */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -50,21 +74,6 @@ export default function Entry() {
         zIndex: 10,
         pointerEvents: 'none'
       }}>
-        {/* Title */}
-        <h1 style={{
-          fontSize: 'clamp(2rem, 8vw, 5rem)',
-          fontWeight: 300,
-          letterSpacing: '0.2em',
-          textAlign: 'center',
-          textShadow: '0 0 40px rgba(255, 215, 0, 0.5)',
-          color: '#FFD700',
-          marginBottom: '1rem',
-          width: '100%',
-          fontFamily: 'Cormorant Garamond, serif'
-        }}>
-          AEO TRIVECTOR
-        </h1>
-
         {/* Subtitle */}
         <div style={{
           fontSize: 'clamp(0.75rem, 2vw, 1.25rem)',
@@ -80,35 +89,33 @@ export default function Entry() {
           Attractor Architecture
         </div>
 
-        {/* Enter Button */}
-        <div style={{ width: '100%', textAlign: 'center' }}>
-          <button
-            onClick={handleEnter}
-            style={{
-              padding: '1rem 3rem',
-              border: '2px solid #60A5FA',
-              background: 'transparent',
-              color: 'white',
-              fontSize: '0.875rem',
-              letterSpacing: '0.3em',
-              textTransform: 'uppercase',
-              textShadow: '0 0 10px rgba(96, 165, 250, 0.5)',
-              boxShadow: '0 0 20px rgba(96, 165, 250, 0.3)',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              pointerEvents: 'auto',
-              fontFamily: 'JetBrains Mono, monospace'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-            }}
-          >
-            ENTER
-          </button>
-        </div>
+        {/* Enter Button - No Border, Underline on Hover */}
+        <button
+          onClick={handleEnter}
+          style={{
+            padding: '1rem 3rem',
+            border: 'none',
+            borderBottom: '2px solid transparent',
+            background: 'transparent',
+            color: '#60A5FA',
+            fontSize: '0.875rem',
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            textShadow: '0 0 10px rgba(96, 165, 250, 0.5)',
+            cursor: 'pointer',
+            transition: 'border-color 0.3s',
+            pointerEvents: 'auto',
+            fontFamily: 'JetBrains Mono, monospace'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderBottomColor = '#60A5FA'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderBottomColor = 'transparent'
+          }}
+        >
+          ENTER
+        </button>
       </div>
     </div>
   )

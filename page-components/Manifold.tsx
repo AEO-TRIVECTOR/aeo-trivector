@@ -199,7 +199,7 @@ export default function Manifold() {
     <div className="min-h-screen relative overflow-hidden bg-black">
       {/* Lorenz Attractor Background */}
       <div className="fixed inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
+        <Canvas camera={{ position: [0, 0, 7], fov: 90 }}>
           <AttractorGroup mousePosition={mousePosition} />
         </Canvas>
       </div>
