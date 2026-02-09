@@ -105,7 +105,9 @@ export default function Entry() {
             cursor: 'pointer',
             transition: 'border-color 0.3s',
             pointerEvents: 'auto',
-            fontFamily: 'JetBrains Mono, monospace'
+            fontFamily: 'JetBrains Mono, monospace',
+            textIndent: '0.3em',
+            display: 'block'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderBottomColor = '#60A5FA'

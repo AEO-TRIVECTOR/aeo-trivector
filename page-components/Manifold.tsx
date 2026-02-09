@@ -196,7 +196,7 @@ export default function Manifold() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: '#000' }}>
       {/* Lorenz Attractor Background */}
       <div className="fixed inset-0 z-0">
         <Canvas camera={{ position: [0, 0, 7], fov: 90 }}>

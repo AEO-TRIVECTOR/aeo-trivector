@@ -5,9 +5,9 @@ export default function Footer() {
     <footer 
       className="relative z-20 border-t px-6 py-12"
       style={{
-        background: 'rgba(59, 130, 246, 0.05)',
+        background: 'transparent',
         borderColor: 'rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(4px)',
+        backdropFilter: 'none',
       }}
     >
       <div className="max-w-7xl mx-auto">
