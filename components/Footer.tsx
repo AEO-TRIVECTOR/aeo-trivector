@@ -11,9 +11,10 @@ export default function Footer() {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+        {/* Mobile: Single column centered, Desktop: 3 columns */}
+        <div className="flex flex-col items-center text-center md:grid md:grid-cols-3 md:text-left gap-8 md:gap-12">
           {/* Column 1: Company Info */}
-          <div className="space-y-2">
+          <div className="space-y-2 md:items-start items-center flex flex-col">
             <div 
               className="font-serif text-lg tracking-wider font-bold"
               style={{
@@ -40,8 +41,8 @@ export default function Footer() {
           </div>
 
           {/* Column 2: Links */}
-          <div className="space-y-2">
-            <div className="font-mono text-xs tracking-widest uppercase text-gray-400 space-y-2">
+          <div className="space-y-2 flex flex-col items-center md:items-start">
+            <div className="font-mono text-xs tracking-widest uppercase text-gray-400 space-y-2 flex flex-col items-center md:items-start">
               <div>
                 <a 
                   href="/about/" 
@@ -80,7 +81,7 @@ export default function Footer() {
           </div>
 
           {/* Column 3: Tagline */}
-          <div className="flex items-end justify-start md:justify-end">
+          <div className="flex items-center justify-center md:items-end md:justify-end">
             <div 
               className="font-mono text-xs tracking-[0.3em] uppercase"
               style={{
