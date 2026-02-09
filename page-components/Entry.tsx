@@ -106,7 +106,7 @@ export default function Entry() {
             transition: 'border-color 0.3s',
             pointerEvents: 'auto',
             fontFamily: 'JetBrains Mono, monospace',
-            textIndent: '-0.15em',
+            paddingRight: '0.3em',
             display: 'block'
           }}
           onMouseEnter={(e) => {

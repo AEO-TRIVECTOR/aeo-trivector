@@ -214,7 +214,7 @@ export default function Manifold() {
         height: '100%',
         zIndex: 0
       }}>
-        <Canvas camera={{ position: [0, 0, 7], fov: 90 }} style={{ width: '100%', height: '100%' }}>
+        <Canvas camera={{ position: [0, 0, 12], fov: 75 }} style={{ width: '100%', height: '100%' }}>
           <AttractorGroup mousePosition={mousePosition} />
         </Canvas>
       </div>
@@ -237,7 +237,7 @@ export default function Manifold() {
       )}
 
       {/* Fixed Navigation Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-center items-center gap-8">
+      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8">
         <a href="/">
           <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-[#FFD700] transition-colors duration-500" style={{ color: 'rgba(255, 215, 0, 0.9)', textShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
             AEO TRIVECTOR
