@@ -57,9 +57,10 @@ export default function Entry() {
         </div>
 
         {/* Enter Button */}
-        <button
-          onClick={handleEnter}
-          style={{
+        <div style={{ width: '100%', textAlign: 'center' }}>
+          <button
+            onClick={handleEnter}
+            style={{
             padding: '1rem 3rem',
             border: '2px solid #60A5FA',
             background: 'transparent',
@@ -83,6 +84,7 @@ export default function Entry() {
         >
           ENTER
         </button>
+        </div>
       </div>
     </div>
   )
