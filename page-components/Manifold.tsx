@@ -463,7 +463,7 @@ export default function Manifold() {
         {/* Footer - Absolutely Positioned at z-10 */}
         <div style={{
           position: 'absolute',
-          bottom: 0,
+          top: '120vh',
           left: 0,
           width: '100%',
           zIndex: 10,
@@ -473,7 +473,7 @@ export default function Manifold() {
         </div>
 
         {/* Spacer to enable scrolling */}
-        <div style={{ height: '150vh' }} />
+        <div style={{ height: '200vh' }} />
       </div>
     </div>
   );
