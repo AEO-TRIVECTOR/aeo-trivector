@@ -53,6 +53,7 @@ function Pillar({ icon, title, descriptor, delay }: PillarProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative group"
+      style={{ pointerEvents: 'auto' }}
     >
       {/* Translucent glass panel with gold glow */}
       <div 
@@ -202,10 +203,10 @@ export default function Manifold() {
       left: 0,
       width: '100vw',
       height: '100vh',
-      overflow: 'auto',
+      overflow: 'hidden',
       background: '#000'
     }}>
-      {/* Lorenz Attractor Background - Full Viewport */}
+      {/* Lorenz Attractor Background - Full Viewport at z-0 */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -225,95 +226,255 @@ export default function Manifold() {
           initial={{ opacity: 0.3 }}
           animate={{ opacity: 0 }}
           transition={{ duration: 0.6 }}
-          className="fixed inset-0 z-5 pointer-events-none flex items-center justify-center"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 5,
+            pointerEvents: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
         >
           <div 
-            className="w-96 h-96 rounded-full border-2 border-white/20"
             style={{
+              width: '24rem',
+              height: '24rem',
+              borderRadius: '50%',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
               boxShadow: '0 0 100px rgba(255, 255, 255, 0.3), inset 0 0 100px rgba(255, 255, 255, 0.1)'
             }}
           />
         </motion.div>
       )}
 
-      {/* Fixed Navigation Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8">
-        <a href="/">
-          <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-[#FFD700] transition-colors duration-500" style={{ color: 'rgba(255, 215, 0, 0.9)', textShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
+      {/* Fixed Navigation Header - z-50 */}
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '1rem',
+        pointerEvents: 'auto'
+      }}>
+        <a href="/" style={{ pointerEvents: 'auto' }}>
+          <div style={{
+            fontSize: '1.25rem',
+            fontFamily: 'Cormorant Garamond, serif',
+            letterSpacing: '0.05em',
+            fontWeight: 700,
+            cursor: 'pointer',
+            color: 'rgba(255, 215, 0, 0.9)',
+            textShadow: '0 0 20px rgba(255, 215, 0, 0.3)',
+            transition: 'color 0.5s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#FFD700'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 215, 0, 0.9)'}
+          >
             AEO TRIVECTOR
           </div>
         </a>
-        <div className="flex gap-4 md:gap-8 font-mono text-xs tracking-widest uppercase opacity-70">
-          <a href="/manifold" className="relative pb-1 py-2 border-b border-[#FFD700] text-[#FFD700] transition-all duration-300">VISION</a>
-          <a href="/research" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">RESEARCH</a>
-          <a href="/about" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">ABOUT</a>
-          <a href="/contact" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">CONTACT</a>
+        <div style={{
+          display: 'flex',
+          gap: '2rem',
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: '0.75rem',
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          opacity: 0.7
+        }}>
+          <a href="/manifold" style={{ 
+            position: 'relative',
+            paddingBottom: '0.25rem',
+            paddingTop: '0.5rem',
+            paddingLeft: '0.5rem',
+            paddingRight: '0.5rem',
+            borderBottom: '1px solid #FFD700',
+            color: '#FFD700',
+            transition: 'all 0.3s',
+            textDecoration: 'none',
+            pointerEvents: 'auto'
+          }}>VISION</a>
+          <a href="/research" style={{ 
+            position: 'relative',
+            paddingBottom: '0.25rem',
+            paddingTop: '0.5rem',
+            paddingLeft: '0.5rem',
+            paddingRight: '0.5rem',
+            borderBottom: '1px solid rgba(59, 130, 246, 0.5)',
+            color: 'rgba(255, 255, 255, 0.7)',
+            transition: 'all 0.3s',
+            textDecoration: 'none',
+            pointerEvents: 'auto'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderBottomColor = '#FFD700';
+            e.currentTarget.style.color = '#FFD700';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderBottomColor = 'rgba(59, 130, 246, 0.5)';
+            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+          }}
+          >RESEARCH</a>
+          <a href="/about" style={{ 
+            position: 'relative',
+            paddingBottom: '0.25rem',
+            paddingTop: '0.5rem',
+            paddingLeft: '0.5rem',
+            paddingRight: '0.5rem',
+            borderBottom: '1px solid rgba(59, 130, 246, 0.5)',
+            color: 'rgba(255, 255, 255, 0.7)',
+            transition: 'all 0.3s',
+            textDecoration: 'none',
+            pointerEvents: 'auto'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderBottomColor = '#FFD700';
+            e.currentTarget.style.color = '#FFD700';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderBottomColor = 'rgba(59, 130, 246, 0.5)';
+            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+          }}
+          >ABOUT</a>
+          <a href="/contact" style={{ 
+            position: 'relative',
+            paddingBottom: '0.25rem',
+            paddingTop: '0.5rem',
+            paddingLeft: '0.5rem',
+            paddingRight: '0.5rem',
+            borderBottom: '1px solid rgba(59, 130, 246, 0.5)',
+            color: 'rgba(255, 255, 255, 0.7)',
+            transition: 'all 0.3s',
+            textDecoration: 'none',
+            pointerEvents: 'auto'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderBottomColor = '#FFD700';
+            e.currentTarget.style.color = '#FFD700';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderBottomColor = 'rgba(59, 130, 246, 0.5)';
+            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
+          }}
+          >CONTACT</a>
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Scrollable Content Container - NO z-index, NO background */}
       <div style={{
-        position: 'relative',
-        zIndex: 10,
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '6rem 1.5rem'
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        pointerEvents: 'none'
       }}>
-        {/* Large AEO TRIVECTOR Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="text-center mb-20"
-        >
-          <h1 
-            className="font-serif text-6xl md:text-7xl lg:text-8xl tracking-wider mb-6"
-            style={{
+        {/* Title Section - Absolutely Positioned at z-10 */}
+        <div style={{
+          position: 'absolute',
+          top: '20vh',
+          left: 0,
+          width: '100%',
+          zIndex: 10,
+          textAlign: 'center',
+          padding: '0 1.5rem',
+          pointerEvents: 'none'
+        }}>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          >
+            <h1 style={{
+              fontFamily: 'Cormorant Garamond, serif',
+              fontSize: 'clamp(3rem, 10vw, 6rem)',
+              letterSpacing: '0.1em',
+              marginBottom: '1.5rem',
               color: 'rgba(255, 255, 255, 0.95)',
               textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.7)',
-              letterSpacing: '0.1em',
               fontWeight: 300,
               textAlign: 'center',
-              width: '100%',
-            }}
-          >
-            AEO TRIVECTOR
-          </h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.7 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="font-mono text-sm tracking-widest uppercase"
-            style={{
-              color: 'rgba(255, 215, 0, 0.8)',
-              textShadow: '0 2px 8px rgba(0,0,0,0.9)',
-              letterSpacing: '0.3em',
-              textAlign: 'center',
-              width: '100%',
-            }}
-          >
-            Attractor Architecture
-          </motion.p>
-        </motion.div>
-
-        {/* Three Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl w-full">
-          {pillars.map((pillar, index) => (
-            <Pillar
-              key={index}
-              icon={pillar.icon}
-              title={pillar.title}
-              descriptor={pillar.descriptor}
-              delay={0.5 + index * 0.2}
-            />
-          ))}
+              margin: 0
+            }}>
+              AEO TRIVECTOR
+            </h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.7 }}
+              transition={{ duration: 1, delay: 0.3 }}
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                color: 'rgba(255, 215, 0, 0.8)',
+                textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+                textAlign: 'center',
+                marginTop: '0.5rem'
+              }}
+            >
+              Attractor Architecture
+            </motion.p>
+          </motion.div>
         </div>
-      </div>
 
-      <Footer />
+        {/* Three Pillars - Absolutely Positioned at z-10 */}
+        <div style={{
+          position: 'absolute',
+          top: '45vh',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          maxWidth: '80rem',
+          padding: '0 1.5rem',
+          zIndex: 10,
+          pointerEvents: 'none'
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '2rem',
+            width: '100%'
+          }}>
+            {pillars.map((pillar, index) => (
+              <Pillar
+                key={index}
+                icon={pillar.icon}
+                title={pillar.title}
+                descriptor={pillar.descriptor}
+                delay={0.5 + index * 0.2}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Footer - Absolutely Positioned at z-10 */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          zIndex: 10,
+          pointerEvents: 'auto'
+        }}>
+          <Footer />
+        </div>
+
+        {/* Spacer to enable scrolling */}
+        <div style={{ height: '150vh' }} />
+      </div>
     </div>
   );
 }

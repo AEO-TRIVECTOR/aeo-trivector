@@ -106,8 +106,8 @@ export default function Entry() {
             transition: 'border-color 0.3s',
             pointerEvents: 'auto',
             fontFamily: 'JetBrains Mono, monospace',
-            paddingRight: '0.3em',
-            display: 'block'
+            display: 'inline-block',
+            transform: 'translateX(-0.15em)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderBottomColor = '#60A5FA'
