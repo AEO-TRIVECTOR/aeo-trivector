@@ -10,9 +10,9 @@ export default function Footer() {
         backdropFilter: 'none',
       }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
         {/* Always centered layout */}
-        <div className="flex flex-col items-center text-center gap-8">
+        <div className="flex flex-col items-center text-center gap-8" style={{ width: '100%', maxWidth: '100%' }}>
           {/* Company Info */}
           <div className="space-y-2 flex flex-col items-center">
             <div 
