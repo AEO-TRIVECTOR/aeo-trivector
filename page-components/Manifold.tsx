@@ -206,13 +206,13 @@ export default function Manifold() {
       overflow: 'hidden',
       background: '#000'
     }}>
-      {/* Lorenz Attractor Background - Full Viewport at z-0 */}
+      {/* Lorenz Attractor Background - Fixed Full Viewport at z-0 */}
       <div style={{
-        position: 'absolute',
+        position: 'fixed',
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
+        width: '100vw',
+        height: '100vh',
         zIndex: 0
       }}>
         <Canvas camera={{ position: [0, 0, 12], fov: 75 }} style={{ width: '100%', height: '100%' }}>

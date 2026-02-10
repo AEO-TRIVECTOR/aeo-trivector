@@ -99,15 +99,13 @@ export default function Entry() {
             background: 'transparent',
             color: '#60A5FA',
             fontSize: '0.875rem',
-            letterSpacing: '0.3em',
             textTransform: 'uppercase',
             textShadow: '0 0 10px rgba(96, 165, 250, 0.5)',
             cursor: 'pointer',
             transition: 'border-color 0.3s',
             pointerEvents: 'auto',
             fontFamily: 'JetBrains Mono, monospace',
-            display: 'inline-block',
-            transform: 'translateX(-0.15em)'
+            display: 'inline-block'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderBottomColor = '#60A5FA'
