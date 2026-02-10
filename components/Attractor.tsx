@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -15,12 +15,33 @@ export function Attractor({
   opacity = 0.6,
   speed = 0.5 
 }: AttractorProps) {
+  // SSR-safe checks
+  const [isMobile, setIsMobile] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isTabVisible, setIsTabVisible] = useState(true);
+
+  useEffect(() => {
+    // Mobile detection
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    
+    // Reduced motion preference
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(motionQuery.matches);
+    const handleMotionChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    motionQuery.addEventListener('change', handleMotionChange);
+
+    // Tab visibility - pause animation when hidden
+    const handleVisibility = () => setIsTabVisible(document.visibilityState === 'visible');
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      motionQuery.removeEventListener('change', handleMotionChange);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
+
   // Optimize particle count for mobile devices
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   const optimizedCount = isMobile ? Math.min(count, 3000) : count;
-  
-  // Detect reduced motion preference
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   
   const mesh = useRef<THREE.Points>(null);
   
@@ -69,16 +90,15 @@ export function Attractor({
       pts.push(new THREE.Vector3(x, y, z));
       
       // Determine color based on which plane the point is most aligned with
-      // Calculate normalized distances from each plane
       const absX = Math.abs(x);
       const absY = Math.abs(y);
       const absZ = Math.abs(z);
       const total = absX + absY + absZ;
       
       // Weights for each plane based on coordinate magnitudes
-      const weightXY = (absX + absY) / (2 * total); // XY plane (z is small)
-      const weightXZ = (absX + absZ) / (2 * total); // XZ plane (y is small)
-      const weightYZ = (absY + absZ) / (2 * total); // YZ plane (x is small)
+      const weightXY = (absX + absY) / (2 * total);
+      const weightXZ = (absX + absZ) / (2 * total);
+      const weightYZ = (absY + absZ) / (2 * total);
       
       // Blend colors based on weights
       const color = new THREE.Color();
@@ -99,13 +119,35 @@ export function Attractor({
     return geo;
   }, [points, colors]);
 
+  // Create circular particle texture once
+  const particleTexture = useMemo(() => {
+    if (typeof document === 'undefined') return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Draw circle with soft edges
+    const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 32, 32);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+
   useFrame((state) => {
-    if (mesh.current && !prefersReducedMotion) {
-      // Rotate the entire attractor slowly (disabled for reduced motion)
+    if (mesh.current && !prefersReducedMotion && isTabVisible) {
+      // Rotate the entire attractor slowly
       mesh.current.rotation.y += 0.002 * speed;
       mesh.current.rotation.z += 0.001 * speed;
       
-      // Subtle breathing effect (disabled for reduced motion)
+      // Subtle breathing effect
       // Base scale of 6.0 to make attractor fill screen immersively, plus breathing
       const baseScale = 6.0;
       const breathingScale = baseScale + Math.sin(state.clock.elapsedTime * 0.5) * 0.25;
@@ -124,26 +166,7 @@ export function Attractor({
         sizeAttenuation 
         blending={THREE.AdditiveBlending}
         depthWrite={false}
-        map={useMemo(() => {
-          // Create circular texture for particles
-          const canvas = document.createElement('canvas');
-          canvas.width = 32;
-          canvas.height = 32;
-          const ctx = canvas.getContext('2d')!;
-          
-          // Draw circle with soft edges
-          const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
-          gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-          gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
-          gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-          
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, 32, 32);
-          
-          const texture = new THREE.CanvasTexture(canvas);
-          texture.needsUpdate = true;
-          return texture;
-        }, [])}
+        map={particleTexture}
       />
     </points>
   );

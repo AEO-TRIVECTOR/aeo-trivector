@@ -98,7 +98,7 @@ export default function Footer() {
               </div>
               <div>
                 <a 
-                  href="https://github.com/AEO-TRIVECTOR" 
+                  href="https://github.com/AEO-TRIVECTOR/trivector-research" 
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: 'rgb(156, 163, 175)', textDecoration: 'none', transition: 'color 0.3s' }}
@@ -139,6 +139,29 @@ export default function Footer() {
               />
               <span>https://orcid.org/0009-0004-5735-2872</span>
             </a>
+          </div>
+
+          {/* Attractor Torus Visual */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img
+              src="/images/attractor-torus.png"
+              alt="Attractor Torus - Geometric visualization of attractor architecture"
+              style={{
+                width: '120px',
+                height: 'auto',
+                opacity: 0.8,
+                filter: 'drop-shadow(0 0 20px rgba(96, 165, 250, 0.3))',
+                transition: 'opacity 0.5s, filter 0.5s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.filter = 'drop-shadow(0 0 30px rgba(255, 215, 0, 0.5))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '0.8';
+                e.currentTarget.style.filter = 'drop-shadow(0 0 20px rgba(96, 165, 250, 0.3))';
+              }}
+            />
           </div>
 
           {/* Tagline */}

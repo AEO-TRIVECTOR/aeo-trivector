@@ -167,33 +167,28 @@ export default function About() {
                 </p>
               </div>
 
-              {/* Geometric Motif */}
+              {/* Attractor Torus Visual */}
               <div className="flex justify-center pt-12">
                 <motion.div
                   animate={{
-                    scale: [1, 1.15, 1],
-                    opacity: [0.5, 0.8, 0.5],
+                    scale: [1, 1.03, 1],
+                    opacity: [0.85, 1, 0.85],
                   }}
                   transition={{
-                    duration: 4,
+                    duration: 6,
                     repeat: Infinity,
                     ease: "easeInOut"
                   }}
-                  className="relative"
                 >
-                  {/* Central node */}
-                  <div 
-                    className="w-3 h-3 rounded-full"
+                  <img
+                    src="/images/attractor-torus.png"
+                    alt="Attractor Torus - Geometric visualization of attractor architecture"
                     style={{
-                      background: '#FFD700',
-                      boxShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4)',
+                      width: '280px',
+                      height: 'auto',
+                      filter: 'drop-shadow(0 0 30px rgba(96, 165, 250, 0.4))',
                     }}
                   />
-                  
-                  {/* Orbital rings */}
-                  <div className="absolute inset-0 -m-6 border border-[#FFD700]/30 rounded-full" />
-                  <div className="absolute inset-0 -m-10 border border-[#FFD700]/20 rounded-full" />
-                  <div className="absolute inset-0 -m-14 border border-[#FFD700]/10 rounded-full" />
                 </motion.div>
               </div>
             </div>
