@@ -90,6 +90,7 @@ export default function Entry() {
         </div>
 
         {/* Enter Button - No Border, Underline on Hover */}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <button
           onClick={handleEnter}
           style={{
@@ -118,6 +119,7 @@ export default function Entry() {
         >
           ENTER
         </button>
+        </div>
       </div>
     </div>
   )

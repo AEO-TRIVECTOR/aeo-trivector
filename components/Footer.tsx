@@ -3,50 +3,75 @@
 export default function Footer() {
   return (
     <footer 
-      className="relative z-20 border-t px-6 py-12"
       style={{
+        position: 'relative',
+        zIndex: 20,
+        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+        padding: '3rem 1.5rem',
         background: 'transparent',
-        borderColor: 'rgba(255, 255, 255, 0.05)',
         backdropFilter: 'none',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
       }}
     >
-      <div className="max-w-7xl mx-auto" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-        {/* Always centered layout */}
-        <div className="flex flex-col items-center text-center gap-8" style={{ width: '100%', maxWidth: '100%' }}>
+      <div style={{ 
+        maxWidth: '80rem', 
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          textAlign: 'center', 
+          gap: '2rem',
+          width: '100%'
+        }}>
           {/* Company Info */}
-          <div className="space-y-2 flex flex-col items-center">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
             <div 
-              className="font-serif text-lg tracking-wider font-bold"
               style={{
+                fontFamily: 'Cormorant Garamond, serif',
+                fontSize: '1.125rem',
+                letterSpacing: '0.05em',
+                fontWeight: 700,
                 color: 'rgba(255, 215, 0, 0.9)',
                 textShadow: '0 0 20px rgba(255, 215, 0, 0.3)',
               }}
             >
               AEO TRIVECTOR LLC
             </div>
-            <div className="font-mono text-xs text-gray-400">
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem', color: 'rgb(156, 163, 175)' }}>
               © 2025-2026
             </div>
-            <div className="font-mono text-xs text-gray-400">
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem', color: 'rgb(156, 163, 175)' }}>
               <a 
                 href="mailto:link@trivector.ai" 
-                className="hover:text-[#FFD700] transition-colors duration-300"
+                style={{ color: 'rgb(156, 163, 175)', textDecoration: 'none', transition: 'color 0.3s' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#FFD700'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(156, 163, 175)'}
               >
                 link@trivector.ai
               </a>
             </div>
-            <div className="font-mono text-xs text-gray-400">
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem', color: 'rgb(156, 163, 175)' }}>
               New Hampshire, USA
             </div>
           </div>
 
           {/* Links */}
-          <div className="space-y-2 flex flex-col items-center">
-            <div className="font-mono text-xs tracking-widest uppercase text-gray-400 space-y-2 flex flex-col items-center">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgb(156, 163, 175)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
               <div>
                 <a 
                   href="/about/" 
-                  className="hover:text-[#FFD700] transition-colors duration-300"
+                  style={{ color: 'rgb(156, 163, 175)', textDecoration: 'none', transition: 'color 0.3s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#FFD700'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(156, 163, 175)'}
                 >
                   About
                 </a>
@@ -54,7 +79,9 @@ export default function Footer() {
               <div>
                 <a 
                   href="/research/" 
-                  className="hover:text-[#FFD700] transition-colors duration-300"
+                  style={{ color: 'rgb(156, 163, 175)', textDecoration: 'none', transition: 'color 0.3s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#FFD700'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(156, 163, 175)'}
                 >
                   Research
                 </a>
@@ -62,7 +89,9 @@ export default function Footer() {
               <div>
                 <a 
                   href="/contact/" 
-                  className="hover:text-[#FFD700] transition-colors duration-300"
+                  style={{ color: 'rgb(156, 163, 175)', textDecoration: 'none', transition: 'color 0.3s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#FFD700'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(156, 163, 175)'}
                 >
                   Contact
                 </a>
@@ -72,7 +101,9 @@ export default function Footer() {
                   href="https://github.com/AEO-TRIVECTOR" 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#FFD700] transition-colors duration-300"
+                  style={{ color: 'rgb(156, 163, 175)', textDecoration: 'none', transition: 'color 0.3s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#FFD700'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(156, 163, 175)'}
                 >
                   GitHub
                 </a>
@@ -81,14 +112,25 @@ export default function Footer() {
           </div>
 
           {/* ORCID Badge */}
-          <div className="flex items-center justify-center">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <a
               id="cy-effective-orcid-url"
-              className="inline-flex items-center gap-2 font-mono text-xs text-gray-400 hover:text-[#FFD700] transition-colors duration-300"
               href="https://orcid.org/0009-0004-5735-2872"
               target="orcid.widget"
               rel="me noopener noreferrer"
-              style={{ verticalAlign: 'top' }}
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '0.5rem', 
+                fontFamily: 'JetBrains Mono, monospace', 
+                fontSize: '0.75rem', 
+                color: 'rgb(156, 163, 175)', 
+                textDecoration: 'none',
+                transition: 'color 0.3s',
+                verticalAlign: 'top'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#FFD700'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'rgb(156, 163, 175)'}
             >
               <img
                 src="https://orcid.org/sites/default/files/images/orcid_16x16.png"
@@ -100,10 +142,13 @@ export default function Footer() {
           </div>
 
           {/* Tagline */}
-          <div className="flex items-center justify-center">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div 
-              className="font-mono text-xs tracking-[0.3em] uppercase"
               style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.75rem',
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
                 color: 'rgba(96, 165, 250, 0.7)',
                 textShadow: '0 0 20px rgba(96, 165, 250, 0.3)',
               }}
