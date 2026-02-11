@@ -9,6 +9,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://aeo-trivector.vercel.app'),
   title: {
     default: 'AEO Trivector - Attractor Architecture',
     template: '%s | AEO Trivector',
@@ -24,11 +25,23 @@ export const metadata: Metadata = {
     siteName: 'AEO Trivector',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: '/images/attractor-torus.png',
+        width: 1200,
+        height: 630,
+        alt: 'AEO Trivector Lorenz-inspired attractor visual',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AEO Trivector - Attractor Architecture',
     description: 'Geometric foundations for interpretable AI.',
+    images: ['/images/attractor-torus.png'],
+  },
+  alternates: {
+    canonical: '/',
   },
   robots: {
     index: true,

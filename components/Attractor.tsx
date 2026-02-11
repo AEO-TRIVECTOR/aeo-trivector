@@ -44,6 +44,7 @@ export function Attractor({
   const optimizedCount = isMobile ? Math.min(count, 3000) : count;
   
   const mesh = useRef<THREE.Points>(null);
+  const materialRef = useRef<THREE.PointsMaterial>(null);
   
   // Generate initial points for the Lorenz Attractor with color data
   const { points, colors } = useMemo(() => {
@@ -141,6 +142,14 @@ export function Attractor({
     return texture;
   }, []);
 
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+      particleTexture?.dispose();
+      materialRef.current?.dispose();
+    };
+  }, [geometry, particleTexture]);
+
   useFrame((state) => {
     if (mesh.current && !prefersReducedMotion && isTabVisible) {
       // Rotate the entire attractor slowly
@@ -159,6 +168,7 @@ export function Attractor({
     <points ref={mesh}>
       <primitive object={geometry} />
       <pointsMaterial 
+        ref={materialRef}
         size={0.35} 
         vertexColors
         transparent 
