@@ -30,14 +30,10 @@ function AttractorGroup({
         return
       }
 
-      // Gentle rotation based on time
       groupRef.current.rotation.y = state.clock.elapsedTime * 0.05
-
-      // Scale pulsing
       const scale = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05
       groupRef.current.scale.set(scale, scale, scale)
 
-      // Subtle mouse-responsive tilt (lerp for smoothness)
       const targetRotationX = mousePositionRef.current.y * 0.1
       const targetRotationZ = mousePositionRef.current.x * 0.1
       groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.05
@@ -73,11 +69,9 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
       onFocus={() => setIsHovered(true)}
       onBlur={() => setIsHovered(false)}
       className="relative group"
-      style={{ pointerEvents: 'auto' }}
       tabIndex={0}
       aria-label={`${title}: ${descriptor}`}
     >
-      {/* Translucent glass panel with gold glow */}
       <div
         className="relative rounded-2xl p-12 transition-all duration-700 ease-out"
         style={{
@@ -90,7 +84,6 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
           transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
         }}
       >
-        {/* Gold corner glow */}
         <div
           className="absolute top-0 right-0 w-32 h-32 rounded-tr-2xl pointer-events-none transition-opacity duration-700"
           style={{
@@ -99,7 +92,6 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
           }}
         />
 
-        {/* Breathing light band */}
         <motion.div
           className="absolute inset-0 rounded-2xl pointer-events-none"
           animate={
@@ -120,9 +112,7 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
           }}
         />
 
-        {/* Content */}
         <div className="relative flex flex-col items-center space-y-6" style={{ textAlign: 'center', width: '100%' }}>
-          {/* Icon */}
           <motion.div
             className="text-5xl"
             animate={{
@@ -138,7 +128,6 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
             {icon}
           </motion.div>
 
-          {/* Title */}
           <h3
             className="font-serif text-2xl tracking-wider uppercase"
             style={{
@@ -151,7 +140,6 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
             {title}
           </h3>
 
-          {/* Descriptor */}
           <motion.p
             className="text-base leading-relaxed max-w-xs"
             animate={{
@@ -181,7 +169,6 @@ const interactiveLinkStyle: CSSProperties = {
   color: 'rgba(255, 255, 255, 0.7)',
   transition: 'all 0.3s',
   textDecoration: 'none',
-  pointerEvents: 'auto' as const,
 }
 
 export default function Manifold() {
@@ -189,7 +176,6 @@ export default function Manifold() {
   const [isWebGLSupported, setIsWebGLSupported] = useState(true)
   const [isTabVisible, setIsTabVisible] = useState(true)
 
-  // Check if arriving from event horizon crossing
   const fromEventHorizon = typeof window !== 'undefined' && sessionStorage.getItem('fromEventHorizon') === 'true'
   const [showGhostHorizon, setShowGhostHorizon] = useState(fromEventHorizon)
 
@@ -197,7 +183,6 @@ export default function Manifold() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('webgl2') || canvas.getContext('webgl')
     setIsWebGLSupported(Boolean(context))
@@ -205,16 +190,11 @@ export default function Manifold() {
 
   useEffect(() => {
     if (typeof document === 'undefined') return
-
     const handleVisibility = () => setIsTabVisible(document.visibilityState === 'visible')
     document.addEventListener('visibilitychange', handleVisibility)
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibility)
-    }
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
-  // Ghost horizon dissolves after 600ms, then clear flag
   useEffect(() => {
     if (fromEventHorizon) {
       const timer = setTimeout(() => {
@@ -225,10 +205,8 @@ export default function Manifold() {
     }
   }, [fromEventHorizon])
 
-  // Track pointer movement for particle interaction without triggering React rerenders.
   useEffect(() => {
     if (typeof window === 'undefined') return
-
     const pointerQuery = window.matchMedia('(pointer: fine)')
     if (!pointerQuery.matches) return
 
@@ -247,68 +225,39 @@ export default function Manifold() {
     const handlePointerMove = (e: PointerEvent) => {
       latestX = e.clientX
       latestY = e.clientY
-
       if (rafId === null) {
         rafId = window.requestAnimationFrame(updateMouseRef)
       }
     }
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true })
-
     return () => {
       window.removeEventListener('pointermove', handlePointerMove)
-      if (rafId !== null) {
-        window.cancelAnimationFrame(rafId)
-      }
+      if (rafId !== null) window.cancelAnimationFrame(rafId)
     }
   }, [])
 
   const pillars = useMemo(
     () => [
-      {
-        icon: '△',
-        title: 'Structure',
-        descriptor: 'Geometric foundations for stable systems.',
-      },
-      {
-        icon: '◯',
-        title: 'Dynamics',
-        descriptor: 'How attractors encode and transform.',
-      },
-      {
-        icon: '◇',
-        title: 'Integration',
-        descriptor: 'Self-encoding through spectral geometry.',
-      },
+      { icon: '△', title: 'Structure', descriptor: 'Geometric foundations for stable systems.' },
+      { icon: '◯', title: 'Dynamics', descriptor: 'How attractors encode and transform.' },
+      { icon: '◇', title: 'Integration', descriptor: 'Self-encoding through spectral geometry.' },
     ],
     []
   )
 
   const particleCount = useMemo(() => {
     if (typeof window === 'undefined') return 10000
-
     const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches
     const cpuThreads = navigator.hardwareConcurrency || 4
-
     if (reduceMotion) return 4000
     if (isCoarsePointer || cpuThreads <= 4) return 8000
-
     return 25000
   }, [reduceMotion])
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        background: '#000',
-      }}
-    >
-      {/* Lorenz Attractor Background - Fixed Full Viewport at z-0 */}
+    <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
+      {/* Lorenz Attractor Background - Fixed Full Viewport */}
       <div
         style={{
           position: 'fixed',
@@ -324,7 +273,6 @@ export default function Manifold() {
             camera={{ position: [0, 0, 12], fov: 75 }}
             dpr={[1, 1.5]}
             gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
-            style={{ width: '100%', height: '100%' }}
           >
             <AttractorGroup
               mousePositionRef={mousePositionRef}
@@ -385,7 +333,7 @@ export default function Manifold() {
         </motion.div>
       )}
 
-      {/* Fixed Navigation Header - z-50 */}
+      {/* Fixed Navigation Header */}
       <nav
         aria-label="Primary"
         style={{
@@ -400,10 +348,9 @@ export default function Manifold() {
           justifyContent: 'center',
           alignItems: 'center',
           gap: '1rem',
-          pointerEvents: 'auto',
         }}
       >
-        <Link href="/" style={{ pointerEvents: 'auto' }}>
+        <Link href="/">
           <span
             style={{
               fontSize: '1.25rem',
@@ -453,30 +400,19 @@ export default function Manifold() {
         </div>
       </nav>
 
-      {/* Scrollable Content Container - NO z-index, NO background */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          pointerEvents: 'none',
-        }}
-      >
-        {/* Title Section - Absolutely Positioned at z-10 */}
+      {/* Scrollable Content - uses normal document flow */}
+      <div style={{ position: 'relative', zIndex: 10, pointerEvents: 'none' }}>
+        {/* Title Section */}
         <div
           style={{
-            position: 'absolute',
-            top: '20vh',
-            left: 0,
-            width: '100%',
-            zIndex: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
             textAlign: 'center',
             padding: '0 1.5rem',
-            pointerEvents: 'none',
+            paddingTop: '20vh',
+            paddingBottom: '4rem',
           }}
         >
           <motion.div
@@ -489,7 +425,6 @@ export default function Manifold() {
                 fontFamily: 'Cormorant Garamond, serif',
                 fontSize: 'clamp(3rem, 10vw, 6rem)',
                 letterSpacing: '0.1em',
-                marginBottom: '1.5rem',
                 color: 'rgba(255, 255, 255, 0.95)',
                 textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.7)',
                 fontWeight: 300,
@@ -511,7 +446,7 @@ export default function Manifold() {
                 color: 'rgba(255, 215, 0, 0.8)',
                 textShadow: '0 2px 8px rgba(0,0,0,0.9)',
                 textAlign: 'center',
-                marginTop: '0.5rem',
+                marginTop: '1rem',
               }}
             >
               Attractor Architecture
@@ -519,18 +454,13 @@ export default function Manifold() {
           </motion.div>
         </div>
 
-        {/* Three Pillars - Absolutely Positioned at z-10 */}
+        {/* Three Pillars */}
         <div
           style={{
-            position: 'absolute',
-            top: '45vh',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '100%',
-            maxWidth: '80rem',
+            display: 'flex',
+            justifyContent: 'center',
             padding: '0 1.5rem',
-            zIndex: 10,
-            pointerEvents: 'none',
+            paddingBottom: '6rem',
           }}
         >
           <div
@@ -539,6 +469,8 @@ export default function Manifold() {
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '2rem',
               width: '100%',
+              maxWidth: '80rem',
+              pointerEvents: 'auto',
             }}
           >
             {pillars.map((pillar, index) => (
@@ -554,22 +486,10 @@ export default function Manifold() {
           </div>
         </div>
 
-        {/* Footer - Absolutely Positioned at z-10 */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '120vh',
-            left: 0,
-            width: '100%',
-            zIndex: 10,
-            pointerEvents: 'auto',
-          }}
-        >
+        {/* Footer */}
+        <div style={{ pointerEvents: 'auto' }}>
           <Footer />
         </div>
-
-        {/* Spacer to enable scrolling */}
-        <div style={{ height: '200vh' }} />
       </div>
     </div>
   )

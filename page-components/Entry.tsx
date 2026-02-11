@@ -49,6 +49,7 @@ export default function Entry() {
           fontSize: 'clamp(2rem, 8vw, 5rem)',
           fontWeight: 300,
           letterSpacing: '0.2em',
+          paddingLeft: '0.2em',
           textAlign: 'center',
           textShadow: '0 0 40px rgba(255, 215, 0, 0.5)',
           color: '#FFD700',
@@ -78,6 +79,7 @@ export default function Entry() {
         <div style={{
           fontSize: 'clamp(0.75rem, 2vw, 1.25rem)',
           letterSpacing: '0.5em',
+          paddingLeft: '0.5em',
           textAlign: 'center',
           color: '#60A5FA',
           textShadow: '0 0 20px rgba(96, 165, 250, 0.5)',
