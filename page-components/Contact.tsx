@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Attractor } from '@/components/Attractor';
 import { motion } from 'framer-motion';
+import { StickyGlassHeader } from '@/components/StickyGlassHeader';
 import * as THREE from 'three';
 import Footer from '@/components/Footer';
 
@@ -100,7 +101,7 @@ function AttractorBackground({ mousePosition }: { mousePosition: { x: number, y:
 
   return (
     <group ref={groupRef}>
-      <Attractor count={15000} opacity={0.5} speed={1} />
+      <Attractor count={15000} opacity={0.85} speed={1} />
     </group>
   );
 }
@@ -122,6 +123,9 @@ export default function Contact() {
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
+      {/* Header */}
+      <StickyGlassHeader />
+
       {/* Lorenz Attractor Background - Ghost Horizon */}
       <div className="fixed inset-0 z-0">
         <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
