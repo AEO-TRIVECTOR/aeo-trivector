@@ -22,11 +22,15 @@ export function StickyGlassHeader() {
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out"
       style={{
-        background: scrolled ? 'rgba(5, 5, 5, 0.85)' : 'rgba(5, 5, 5, 0.6)',
-        backdropFilter: scrolled ? 'blur(30px) saturate(180%)' : 'blur(20px) saturate(150%)',
-        WebkitBackdropFilter: scrolled ? 'blur(30px) saturate(180%)' : 'blur(20px) saturate(150%)',
-        borderBottom: scrolled ? '1px solid rgba(252, 211, 77, 0.3)' : '1px solid rgba(252, 211, 77, 0.1)',
-        boxShadow: scrolled ? '0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(252, 211, 77, 0.1)' : '0 4px 16px rgba(0, 0, 0, 0.2)',
+        background: scrolled 
+          ? 'linear-gradient(to bottom, rgba(5, 5, 5, 0.3), rgba(5, 5, 5, 0.25))' 
+          : 'linear-gradient(to bottom, rgba(5, 5, 5, 0.2), rgba(5, 5, 5, 0.15))',
+        backdropFilter: scrolled ? 'blur(40px) saturate(200%)' : 'blur(30px) saturate(180%)',
+        WebkitBackdropFilter: scrolled ? 'blur(40px) saturate(200%)' : 'blur(30px) saturate(180%)',
+        borderBottom: scrolled ? '1px solid rgba(252, 211, 77, 0.4)' : '1px solid rgba(252, 211, 77, 0.2)',
+        boxShadow: scrolled 
+          ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(252, 211, 77, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)' 
+          : '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
       }}
     >
       <div className="max-w-[1280px] mx-auto px-[60px] py-5 flex justify-between items-center">
