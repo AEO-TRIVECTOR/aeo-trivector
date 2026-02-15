@@ -272,7 +272,7 @@ export default function Research() {
               transition={{ duration: 0.8, delay: index * 0.1 }}
               onMouseEnter={() => setHoveredNode(index)}
               onMouseLeave={() => setHoveredNode(null)}
-              className="relative rounded-2xl p-10 backdrop-blur-xl border transition-all duration-500"
+              className="relative rounded-2xl p-10 border transition-all duration-500"
               style={{
                 background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
                 borderColor: hoveredNode === index ? 'rgba(252, 211, 77, 0.3)' : 'rgba(252, 211, 77, 0.15)',

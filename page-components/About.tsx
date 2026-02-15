@@ -231,7 +231,7 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="relative rounded-2xl p-10 backdrop-blur-xl border border-[#FCD34D]/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+            className="relative rounded-2xl p-10 border border-[#FCD34D]/20"
             style={{
               background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
               boxShadow: '0 0 30px rgba(252, 211, 77, 0.1), inset 0 0 50px rgba(252, 211, 77, 0.03)',
@@ -253,7 +253,7 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative rounded-2xl p-10 backdrop-blur-xl border border-[#FCD34D]/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+            className="relative rounded-2xl p-10 border border-[#FCD34D]/20"
             style={{
               background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
               boxShadow: '0 0 30px rgba(252, 211, 77, 0.1), inset 0 0 50px rgba(252, 211, 77, 0.03)',

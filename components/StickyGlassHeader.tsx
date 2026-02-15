@@ -20,14 +20,14 @@ export function StickyGlassHeader() {
 
   return (
     <header
-      className={`
-        fixed top-0 left-0 right-0 z-50
-        transition-all duration-300 ease-out
-        ${scrolled 
-          ? 'bg-[#050505]/70 backdrop-blur-xl border-b border-[#FCD34D]/20 shadow-[0_4px_30px_rgba(252,211,77,0.05)]' 
-          : 'bg-[#050505]/30 backdrop-blur-none border-b border-transparent'
-        }
-      `}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out"
+      style={{
+        background: scrolled ? 'rgba(5, 5, 5, 0.95)' : 'rgba(5, 5, 5, 0.7)',
+        backdropFilter: scrolled ? 'blur(20px)' : 'blur(10px)',
+        WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'blur(10px)',
+        borderBottom: scrolled ? '1px solid rgba(252, 211, 77, 0.2)' : '1px solid transparent',
+        boxShadow: scrolled ? '0 4px 30px rgba(252, 211, 77, 0.05)' : 'none',
+      }}
     >
       <div className="max-w-[1280px] mx-auto px-[60px] py-5 flex justify-between items-center">
         {/* Logo */}

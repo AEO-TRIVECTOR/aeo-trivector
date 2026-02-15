@@ -250,7 +250,7 @@ export default function FAQ() {
             >
               <div
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="relative rounded-2xl p-8 backdrop-blur-xl border cursor-pointer transition-all duration-500"
+                className="relative rounded-2xl p-8 border cursor-pointer transition-all duration-500"
                 style={{
                   background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
                   borderColor: openIndex === index ? 'rgba(252, 211, 77, 0.3)' : 'rgba(252, 211, 77, 0.15)',
