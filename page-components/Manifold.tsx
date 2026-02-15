@@ -76,9 +76,10 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
       <div
         className="relative rounded-2xl p-12 transition-all duration-700 ease-out"
         style={{
-          background: 'rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
           boxShadow: isHovered
             ? '0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 60px rgba(255, 215, 0, 0.1)'
             : '0 0 20px rgba(255, 215, 0, 0.15), inset 0 0 30px rgba(255, 215, 0, 0.05)',
@@ -309,7 +310,7 @@ export default function Manifold() {
           position: 'fixed',
           inset: 0,
           zIndex: 5,
-          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 0%, rgba(59,130,246,0.01) 50%, transparent 100%)',
+          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(59,130,246,0.05) 50%, rgba(0,0,0,0.02) 100%)',
           pointerEvents: 'none'
         }}
       />

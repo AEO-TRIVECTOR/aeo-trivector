@@ -195,7 +195,7 @@ export default function About() {
           position: 'fixed',
           inset: 0,
           zIndex: 5,
-          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 0%, rgba(59,130,246,0.01) 50%, transparent 100%)',
+          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(59,130,246,0.05) 50%, rgba(0,0,0,0.02) 100%)',
           pointerEvents: 'none'
         }}
       />

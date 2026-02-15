@@ -22,11 +22,11 @@ export function StickyGlassHeader() {
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out"
       style={{
-        background: scrolled ? 'rgba(5, 5, 5, 0.95)' : 'rgba(5, 5, 5, 0.7)',
-        backdropFilter: scrolled ? 'blur(20px)' : 'blur(10px)',
-        WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'blur(10px)',
-        borderBottom: scrolled ? '1px solid rgba(252, 211, 77, 0.2)' : '1px solid transparent',
-        boxShadow: scrolled ? '0 4px 30px rgba(252, 211, 77, 0.05)' : 'none',
+        background: scrolled ? 'rgba(5, 5, 5, 0.85)' : 'rgba(5, 5, 5, 0.6)',
+        backdropFilter: scrolled ? 'blur(30px) saturate(180%)' : 'blur(20px) saturate(150%)',
+        WebkitBackdropFilter: scrolled ? 'blur(30px) saturate(180%)' : 'blur(20px) saturate(150%)',
+        borderBottom: scrolled ? '1px solid rgba(252, 211, 77, 0.3)' : '1px solid rgba(252, 211, 77, 0.1)',
+        boxShadow: scrolled ? '0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(252, 211, 77, 0.1)' : '0 4px 16px rgba(0, 0, 0, 0.2)',
       }}
     >
       <div className="max-w-[1280px] mx-auto px-[60px] py-5 flex justify-between items-center">
