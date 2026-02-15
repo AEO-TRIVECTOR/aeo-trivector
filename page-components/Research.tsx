@@ -274,7 +274,7 @@ export default function Research() {
               onMouseLeave={() => setHoveredNode(null)}
               className="relative rounded-2xl p-10 backdrop-blur-xl border transition-all duration-500"
               style={{
-                background: 'rgba(255, 255, 255, 0.03)',
+                background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
                 borderColor: hoveredNode === index ? 'rgba(252, 211, 77, 0.3)' : 'rgba(252, 211, 77, 0.15)',
                 boxShadow: hoveredNode === index
                   ? '0 0 40px rgba(252, 211, 77, 0.2), inset 0 0 60px rgba(252, 211, 77, 0.05)'

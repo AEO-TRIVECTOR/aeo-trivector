@@ -252,7 +252,7 @@ export default function FAQ() {
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 className="relative rounded-2xl p-8 backdrop-blur-xl border cursor-pointer transition-all duration-500"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
                   borderColor: openIndex === index ? 'rgba(252, 211, 77, 0.3)' : 'rgba(252, 211, 77, 0.15)',
                   boxShadow: openIndex === index
                     ? '0 0 40px rgba(252, 211, 77, 0.2), inset 0 0 60px rgba(252, 211, 77, 0.05)'

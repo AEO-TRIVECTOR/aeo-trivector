@@ -138,8 +138,7 @@ function Section({ title, children, delay }: SectionProps) {
       <div 
         className="relative rounded-2xl p-12 transition-all duration-700"
         style={{
-          background: 'rgba(255, 255, 255, 0.03)',
-          backdropFilter: 'blur(12px)',
+          background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
           border: '1px solid rgba(252, 211, 77, 0.2)',
           boxShadow: isHovered 
             ? '0 0 40px rgba(252, 211, 77, 0.15), inset 0 0 60px rgba(252, 211, 77, 0.05)' 
