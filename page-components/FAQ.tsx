@@ -202,6 +202,17 @@ export default function FAQ() {
         </Canvas>
       </div>
 
+      {/* Overlay layer for backdrop-filter to work with WebGL */}
+      <div 
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 5,
+          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 0%, rgba(59,130,246,0.01) 50%, transparent 100%)',
+          pointerEvents: 'none'
+        }}
+      />
+
       {/* Content */}
       <div className="relative z-10">
         {/* Hero Section with Knowledge Tree */}
