@@ -1,4 +1,5 @@
 'use client'
+// Updated: 2026-02-15 - Glassmorphic effect v2
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
