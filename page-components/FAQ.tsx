@@ -1,6 +1,5 @@
 'use client'
 
-
 import { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Attractor } from '@/components/Attractor';
@@ -8,7 +7,123 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '@/components/Footer';
 import * as THREE from 'three';
 
-function AttractorGroup({ mousePosition }: { mousePosition: { x: number, y: number } }) {
+// Knowledge Tree - Signature Visual Element
+function KnowledgeTree({ activeBranch, mousePosition }: { activeBranch: number | null, mousePosition: { x: number, y: number } }) {
+  // Tree structure: trunk + 6 branches (one for each FAQ category)
+  const branches = [
+    { angle: -60, length: 1.5, position: [0, 1, 0] },
+    { angle: -30, length: 1.3, position: [0, 0.5, 0] },
+    { angle: 0, length: 1.4, position: [0, 0, 0] },
+    { angle: 30, length: 1.2, position: [0, -0.5, 0] },
+    { angle: 60, length: 1.3, position: [0, -1, 0] },
+    { angle: 90, length: 1.1, position: [0, -1.5, 0] },
+  ];
+
+  return (
+    <group>
+      {/* Trunk */}
+      <mesh position={[0, -0.5, 0]}>
+        <cylinderGeometry args={[0.08, 0.12, 3, 16]} />
+        <meshStandardMaterial
+          color="#FCD34D"
+          emissive="#FCD34D"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+
+      {/* Branches */}
+      {branches.map((branch, i) => (
+        <TreeBranch
+          key={i}
+          index={i}
+          angle={branch.angle}
+          length={branch.length}
+          position={branch.position as [number, number, number]}
+          active={activeBranch === i}
+          mousePosition={mousePosition}
+        />
+      ))}
+
+      <ambientLight intensity={0.4} />
+      <pointLight position={[0, 2, 2]} intensity={1} color="#FCD34D" />
+    </group>
+  );
+}
+
+function TreeBranch({
+  index,
+  angle,
+  length,
+  position,
+  active,
+  mousePosition
+}: {
+  index: number;
+  angle: number;
+  length: number;
+  position: [number, number, number];
+  active: boolean;
+  mousePosition: { x: number, y: number };
+}) {
+  const branchRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (branchRef.current) {
+      const time = state.clock.elapsedTime;
+      
+      // Gentle swaying
+      const sway = Math.sin(time * 0.5 + index) * 0.05;
+      branchRef.current.rotation.z = (angle * Math.PI) / 180 + sway;
+
+      // Glow when active
+      if (branchRef.current.children[0]) {
+        const mesh = branchRef.current.children[0] as THREE.Mesh;
+        if (mesh.material) {
+          const material = mesh.material as THREE.MeshStandardMaterial;
+          material.emissiveIntensity = active ? 0.8 : 0.3;
+        }
+      }
+
+      // Mouse parallax
+      const parallaxStrength = 0.2;
+      branchRef.current.position.x = position[0] + mousePosition.x * parallaxStrength;
+      branchRef.current.position.z = position[2] + mousePosition.y * parallaxStrength;
+    }
+  });
+
+  return (
+    <group ref={branchRef} position={position}>
+      <mesh rotation={[0, 0, (angle * Math.PI) / 180]}>
+        <cylinderGeometry args={[0.04, 0.06, length, 12]} />
+        <meshStandardMaterial
+          color={active ? "#FCD34D" : "#3B82F6"}
+          emissive={active ? "#FCD34D" : "#3B82F6"}
+          emissiveIntensity={active ? 0.8 : 0.3}
+        />
+      </mesh>
+      {/* Leaf/endpoint glow */}
+      <mesh position={[Math.cos((angle * Math.PI) / 180) * length / 2, Math.sin((angle * Math.PI) / 180) * length / 2, 0]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial
+          color={active ? "#FCD34D" : "#3B82F6"}
+          emissive={active ? "#FCD34D" : "#3B82F6"}
+          emissiveIntensity={active ? 1 : 0.5}
+          transparent
+          opacity={active ? 1 : 0.7}
+        />
+        <pointLight 
+          position={[0, 0, 0]} 
+          intensity={active ? 1.5 : 0.3} 
+          color={active ? "#FCD34D" : "#3B82F6"} 
+          distance={active ? 2 : 1} 
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// Ghost Horizon Background
+function AttractorBackground({ mousePosition }: { mousePosition: { x: number, y: number } }) {
   const groupRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
@@ -26,119 +141,41 @@ function AttractorGroup({ mousePosition }: { mousePosition: { x: number, y: numb
 
   return (
     <group ref={groupRef}>
-      <Attractor count={25000} opacity={0.85} speed={1} />
+      <Attractor count={15000} opacity={0.15} speed={1} />
     </group>
   );
 }
 
-interface FAQItemProps {
-  question: string;
-  answer: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  delay: number;
-}
-
-function FAQItem({ question, answer, isOpen, onToggle, delay }: FAQItemProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={onToggle}
-      className="cursor-pointer"
-    >
-      <div 
-        className="relative rounded-2xl p-8 transition-all duration-700 text-center"
-        style={{
-          background: 'rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: isHovered 
-            ? '0 0 40px rgba(255, 215, 0, 0.25), inset 0 0 60px rgba(255, 215, 0, 0.08)' 
-            : '0 0 25px rgba(255, 215, 0, 0.15), inset 0 0 40px rgba(255, 215, 0, 0.05)',
-          transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-        }}
-      >
-        <div 
-          className="absolute top-0 right-0 w-24 h-24 rounded-tr-2xl pointer-events-none transition-opacity duration-700"
-          style={{
-            background: 'radial-gradient(circle at top right, rgba(255, 215, 0, 0.15), transparent 70%)',
-            opacity: isHovered ? 1 : 0.5,
-          }}
-        />
-
-        <motion.div
-          className="absolute inset-0 rounded-2xl pointer-events-none"
-          animate={{
-            background: [
-              'linear-gradient(135deg, transparent 0%, rgba(255, 215, 0, 0.02) 50%, transparent 100%)',
-              'linear-gradient(135deg, transparent 30%, rgba(255, 215, 0, 0.04) 70%, transparent 100%)',
-              'linear-gradient(135deg, transparent 0%, rgba(255, 215, 0, 0.02) 50%, transparent 100%)',
-            ],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-
-        <div className="relative">
-          <div className="flex justify-between items-start gap-4">
-            <h3 
-              className="font-serif text-xl text-white flex-1"
-              style={{
-                textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)'
-              }}
-            >
-              {question}
-            </h3>
-            <motion.div 
-              className="text-[#FFD700] text-sm"
-              animate={{ rotate: isOpen ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-              style={{
-                textShadow: '0 2px 8px rgba(0,0,0,0.9)'
-              }}
-            >
-              ▼
-            </motion.div>
-          </div>
-          
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden"
-              >
-                <p 
-                  className="text-[#D1D5DB] mt-6 leading-relaxed"
-                  style={{
-                    textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)'
-                  }}
-                >
-                  {answer}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+const faqs = [
+  {
+    question: "What is AEO Trivector?",
+    answer: "AEO Trivector is a mathematical framework for building interpretable, attractor-stable AI systems. It combines topology, dynamics, and integration through Self-Encoding Geometry—a spectral approach that makes cognitive architectures transparent and verifiable."
+  },
+  {
+    question: "How does it differ from current AI approaches?",
+    answer: "Unlike black-box neural networks, AEO Trivector systems are geometrically constrained by design. The μ constant (≈0.567143) ensures self-encoding structure, making the system's reasoning process interpretable at every level. Think of it as the difference between a tangled web and a crystal lattice."
+  },
+  {
+    question: "What are the practical applications?",
+    answer: "Any domain requiring transparent reasoning: medical diagnosis, financial systems, autonomous vehicles, scientific discovery, and regulatory compliance. The framework is particularly valuable where explainability and safety are non-negotiable."
+  },
+  {
+    question: "Is this related to existing mathematical frameworks?",
+    answer: "Yes. AEO Trivector draws from noncommutative geometry (Connes), dynamical systems theory (Poincaré), and category theory. It synthesizes these into a unified spectral triple (A, H, D) with attractor-stable dynamics."
+  },
+  {
+    question: "When will the open source framework be available?",
+    answer: "The reference implementation (Python/Julia) is planned for 2026. It will include core constraint solvers, spectral analysis tools, and visualization utilities. Early access for research collaborators is available upon request."
+  },
+  {
+    question: "How can I get involved?",
+    answer: "Reach out via the contact page. We're interested in research collaborations, technical partnerships, and domain-specific applications. Background in dynamical systems, spectral geometry, or AI interpretability is helpful but not required."
+  },
+];
 
 export default function FAQ() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -152,124 +189,125 @@ export default function FAQ() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const faqs = [
-    {
-      question: "What is AEO Trivector?",
-      answer: "A research company developing geometric foundations for interpretable AI. We build attractor-stable systems that are interpretable by construction—geometrically inevitable, not reverse-engineered—using spectral geometry, category theory, and noncommutative geometry."
-    },
-    {
-      question: "Is this neuroscience? Philosophy? Mathematics?",
-      answer: "Yes. The work bridges rigorous mathematics (spectral geometry, category theory) with AI interpretability research. We believe interpretable AI requires geometric foundations as precise as physics—architectures that are stable by construction, not post-hoc analysis."
-    },
-    {
-      question: "What does 'trivector' mean?",
-      answer: "In Clifford algebra, a trivector is the highest-grade element in 3D space—the piece perpendicular to everything else. In our framework, it represents integration: how separate components unify into coherent, self-encoding systems. It's the mathematical object that captures geometric stability."
-    },
-    {
-      question: "Who is this research for?",
-      answer: "Researchers working at the intersection of mathematics, physics, and AI interpretability. Anyone interested in geometric foundations for stable AI systems, self-encoding architectures, and attractor geometry."
-    },
-    {
-      question: "When will publications be available?",
-      answer: "Initial papers are planned for 2026. We're committed to publishing rigorous, peer-reviewed work that meets the standards of both mathematics and AI research."
-    },
-    {
-      question: "How can I contribute or collaborate?",
-      answer: "We welcome collaboration from researchers with expertise in spectral geometry, category theory, mathematical physics, or AI interpretability. Reach out via link@trivector.ai with your background and research interests."
-    }
-  ];
-
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black">
+    <div className="min-h-screen relative overflow-hidden bg-[#050505]">
+      {/* Lorenz Attractor Background - Ghost Horizon */}
       <div className="fixed inset-0 z-0">
         <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
-          <AttractorGroup mousePosition={mousePosition} />
+          <AttractorBackground mousePosition={mousePosition} />
         </Canvas>
       </div>
 
-      {/* Navigation Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center">
-        <a href="/">
-          <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-[#FFD700] transition-colors duration-500" style={{ color: 'rgba(255, 215, 0, 0.9)', textShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
-            AEO TRIVECTOR
-          </div>
-        </a>
-        <div className="flex gap-4 md:gap-8 font-mono text-xs tracking-widest uppercase" style={{ opacity: 0.85 }}>
-          <a href="/manifold/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">VISION</a>
-          <a href="/research/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">RESEARCH</a>
-          <a href="/about/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">ABOUT</a>
-          <a href="/contact/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">CONTACT</a>
-        </div>
-      </nav>
-
-      <motion.div 
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-10 min-h-screen px-6 py-32"
-      >
-        <div className="max-w-4xl mx-auto space-y-12">
-          {/* Header */}
-          <div className="text-center space-y-6">
-            <div className="font-mono text-xs tracking-[0.3em] text-[#FFD700]/50">
-              08 // FAQ
-            </div>
-            <h1 
-              className="font-serif text-5xl md:text-6xl tracking-wider uppercase"
-              style={{
-                color: 'rgba(255, 255, 255, 0.95)',
-                textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.7)',
-                letterSpacing: '0.15em',
-                fontWeight: 300,
-                textAlign: 'center',
-                width: '100%',
-              }}
-            >
-              Questions
-            </h1>
-          </div>
-
-          {/* FAQ Items */}
-          <div className="space-y-6">
-            {faqs.map((faq, index) => (
-              <FAQItem
-                key={index}
-                question={faq.question}
-                answer={faq.answer}
-                isOpen={openIndex === index}
-                onToggle={() => setOpenIndex(openIndex === index ? null : index)}
-                delay={index * 0.1}
-              />
-            ))}
-          </div>
-
-          {/* Additional Contact CTA */}
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Hero Section with Knowledge Tree */}
+        <section className="min-h-screen flex flex-col items-center justify-center px-6 pt-32 pb-20">
+          {/* Knowledge Tree - Signature Visual */}
           <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="w-full max-w-lg h-[400px] mb-12"
+          >
+            <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+              <KnowledgeTree activeBranch={openIndex} mousePosition={mousePosition} />
+            </Canvas>
+          </motion.div>
+
+          {/* Title */}
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="text-center pt-8"
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="font-serif text-5xl md:text-6xl text-[#FCD34D] mb-4 tracking-[0.15em] text-center"
+            style={{ textShadow: '0 0 40px rgba(252, 211, 77, 0.3)' }}
           >
-            <p 
-              className="text-[#D1D5DB] mb-4"
-              style={{
-                textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)'
-              }}
+            Questions
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="text-xl text-[#3B82F6] tracking-[0.1em] text-center mb-16"
+          >
+            Frequently Asked Questions
+          </motion.p>
+        </section>
+
+        {/* FAQ Accordion Section */}
+        <section className="max-w-3xl mx-auto px-6 pb-32 space-y-6">
+          {faqs.map((faq, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              onMouseEnter={() => setOpenIndex(index)}
+              onMouseLeave={() => openIndex === index && setOpenIndex(null)}
             >
-              Have another question?
-            </p>
-            <a 
-              href="/contact"
-              className="inline-block font-mono text-sm text-[#FFD700] hover:text-white transition-colors duration-300 border-b border-[#FFD700]/30 hover:border-white/50"
-              style={{
-                textShadow: '0 2px 8px rgba(0,0,0,0.9)'
-              }}
-            >
-              Get in touch →
-            </a>
-          </motion.div>
-        </div>
-      </motion.div>
+              <div
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                className="relative rounded-2xl p-8 backdrop-blur-xl border cursor-pointer transition-all duration-500"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  borderColor: openIndex === index ? 'rgba(252, 211, 77, 0.3)' : 'rgba(252, 211, 77, 0.15)',
+                  boxShadow: openIndex === index
+                    ? '0 0 40px rgba(252, 211, 77, 0.2), inset 0 0 60px rgba(252, 211, 77, 0.05)'
+                    : '0 0 20px rgba(252, 211, 77, 0.1), inset 0 0 40px rgba(252, 211, 77, 0.02)',
+                  transform: openIndex === index ? 'translateY(-2px)' : 'translateY(0)',
+                }}
+              >
+                {/* Corner glow */}
+                <div
+                  className="absolute top-0 right-0 w-24 h-24 rounded-tr-2xl pointer-events-none transition-opacity duration-500"
+                  style={{
+                    background: 'radial-gradient(circle at top right, rgba(252, 211, 77, 0.15), transparent 70%)',
+                    opacity: openIndex === index ? 1 : 0.5,
+                  }}
+                />
+
+                <div className="relative">
+                  {/* Question */}
+                  <div className="flex justify-between items-start gap-4">
+                    <h3 className="font-serif text-xl text-[#FCD34D] flex-1"
+                      style={{ textShadow: '0 0 15px rgba(252, 211, 77, 0.2)' }}
+                    >
+                      {faq.question}
+                    </h3>
+                    <motion.div
+                      animate={{ rotate: openIndex === index ? 45 : 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-[#3B82F6] text-2xl font-light"
+                    >
+                      +
+                    </motion.div>
+                  </div>
+
+                  {/* Answer */}
+                  <AnimatePresence>
+                    {openIndex === index && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        className="overflow-hidden"
+                      >
+                        <p className="mt-6 text-[#E5E5E5]/80 leading-relaxed">
+                          {faq.answer}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </section>
+      </div>
 
       <Footer />
     </div>

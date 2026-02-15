@@ -1,6 +1,5 @@
 'use client'
 
-
 import { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Attractor } from '@/components/Attractor';
@@ -8,8 +7,129 @@ import { motion } from 'framer-motion';
 import Footer from '@/components/Footer';
 import * as THREE from 'three';
 
-// 3D Group component for Attractor animation
-function AttractorGroup({ mousePosition }: { mousePosition: { x: number, y: number } }) {
+// Orbital Rings Component - Signature Visual Element
+function OrbitalRings({ mousePosition }: { mousePosition: { x: number, y: number } }) {
+  const ring1Ref = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
+  const ring3Ref = useRef<THREE.Mesh>(null);
+  const tetrahedronRef = useRef<THREE.Mesh>(null);
+  const octahedronRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    const time = state.clock.elapsedTime;
+
+    // Rotate rings at different speeds
+    if (ring1Ref.current) {
+      ring1Ref.current.rotation.x = time * 0.3;
+      ring1Ref.current.rotation.y = time * 0.2;
+    }
+    if (ring2Ref.current) {
+      ring2Ref.current.rotation.x = time * -0.25;
+      ring2Ref.current.rotation.z = time * 0.15;
+    }
+    if (ring3Ref.current) {
+      ring3Ref.current.rotation.y = time * 0.35;
+      ring3Ref.current.rotation.z = time * -0.2;
+    }
+
+    // Orbit Platonic solids
+    if (tetrahedronRef.current) {
+      const radius = 3;
+      tetrahedronRef.current.position.x = Math.cos(time * 0.5) * radius;
+      tetrahedronRef.current.position.y = Math.sin(time * 0.5) * radius;
+      tetrahedronRef.current.rotation.x = time * 0.5;
+      tetrahedronRef.current.rotation.y = time * 0.3;
+    }
+    if (octahedronRef.current) {
+      const radius = 3.5;
+      octahedronRef.current.position.x = Math.cos(time * -0.4 + Math.PI) * radius;
+      octahedronRef.current.position.z = Math.sin(time * -0.4 + Math.PI) * radius;
+      octahedronRef.current.rotation.x = time * -0.4;
+      octahedronRef.current.rotation.z = time * 0.2;
+    }
+
+    // Mouse parallax (subtle tilt)
+    if (ring1Ref.current && ring2Ref.current && ring3Ref.current) {
+      const targetRotationX = mousePosition.y * 0.1;
+      const targetRotationZ = mousePosition.x * 0.1;
+      
+      ring1Ref.current.rotation.x += (targetRotationX - ring1Ref.current.rotation.x) * 0.05;
+      ring2Ref.current.rotation.z += (targetRotationZ - ring2Ref.current.rotation.z) * 0.05;
+      ring3Ref.current.rotation.x += (targetRotationX - ring3Ref.current.rotation.x) * 0.05;
+    }
+  });
+
+  return (
+    <group>
+      {/* Ring 1 - Innermost */}
+      <mesh ref={ring1Ref}>
+        <torusGeometry args={[2, 0.05, 16, 100]} />
+        <meshStandardMaterial 
+          color="#FCD34D" 
+          emissive="#FCD34D" 
+          emissiveIntensity={0.5}
+          transparent
+          opacity={0.8}
+        />
+      </mesh>
+
+      {/* Ring 2 - Middle */}
+      <mesh ref={ring2Ref}>
+        <torusGeometry args={[2.5, 0.04, 16, 100]} />
+        <meshStandardMaterial 
+          color="#FCD34D" 
+          emissive="#FCD34D" 
+          emissiveIntensity={0.4}
+          transparent
+          opacity={0.6}
+        />
+      </mesh>
+
+      {/* Ring 3 - Outermost */}
+      <mesh ref={ring3Ref}>
+        <torusGeometry args={[3, 0.03, 16, 100]} />
+        <meshStandardMaterial 
+          color="#FCD34D" 
+          emissive="#FCD34D" 
+          emissiveIntensity={0.3}
+          transparent
+          opacity={0.4}
+        />
+      </mesh>
+
+      {/* Tetrahedron orbiting */}
+      <mesh ref={tetrahedronRef}>
+        <tetrahedronGeometry args={[0.3]} />
+        <meshStandardMaterial 
+          color="#3B82F6" 
+          emissive="#3B82F6" 
+          emissiveIntensity={0.5}
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+
+      {/* Octahedron orbiting */}
+      <mesh ref={octahedronRef}>
+        <octahedronGeometry args={[0.25]} />
+        <meshStandardMaterial 
+          color="#3B82F6" 
+          emissive="#3B82F6" 
+          emissiveIntensity={0.5}
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+
+      {/* Center glow */}
+      <pointLight position={[0, 0, 0]} intensity={2} color="#FCD34D" distance={5} />
+      <ambientLight intensity={0.3} />
+    </group>
+  );
+}
+
+// Lorenz Attractor Background (Ghost Horizon Effect)
+function AttractorBackground({ mousePosition }: { mousePosition: { x: number, y: number } }) {
   const groupRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
@@ -27,14 +147,14 @@ function AttractorGroup({ mousePosition }: { mousePosition: { x: number, y: numb
 
   return (
     <group ref={groupRef}>
-      <Attractor count={25000} opacity={0.85} speed={1} />
+      <Attractor count={15000} opacity={0.15} speed={1} />
     </group>
   );
 }
 
 export default function About() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -43,159 +163,145 @@ export default function About() {
         y: -(e.clientY / window.innerHeight) * 2 + 1
       });
     };
+
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
     
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black">
-      {/* Lorenz Attractor Background */}
+    <div className="min-h-screen relative overflow-hidden bg-[#050505]">
+      {/* Lorenz Attractor Background - Ghost Horizon Effect */}
       <div className="fixed inset-0 z-0">
         <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
-          <AttractorGroup mousePosition={mousePosition} />
+          <AttractorBackground mousePosition={mousePosition} />
         </Canvas>
       </div>
 
-      {/* Navigation Header */}
-      <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center">
-        <a href="/">
-          <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-[#FFD700] transition-colors duration-500" style={{ color: 'rgba(255, 215, 0, 0.9)', textShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
-            AEO TRIVECTOR
-          </div>
-        </a>
-        <div className="flex gap-4 md:gap-8 font-mono text-xs tracking-widest uppercase" style={{ opacity: 0.85 }}>
-          <a href="/manifold/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">VISION</a>
-          <a href="/research/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">RESEARCH</a>
-          <a href="/about/" className="relative pb-1 py-2 border-b border-[#FFD700] text-[#FFD700] transition-all duration-300">ABOUT</a>
-          <a href="/contact/" className="relative pb-1 py-2 border-b border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-[#FFD700] transition-all duration-300">CONTACT</a>
-        </div>
-      </nav>
-
       {/* Content */}
-      <motion.div 
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative z-10 min-h-screen flex items-center justify-center px-6 py-32"
-      >
-        <div className="max-w-4xl w-full">
-          {/* Section Number */}
-          <div className="font-mono text-xs tracking-[0.3em] text-[#FFD700]/50 mb-8 text-center">
-            04 // ABOUT
-          </div>
+      <div className="relative z-10">
+        {/* Hero Section with Orbital Rings */}
+        <section className="min-h-screen flex flex-col items-center justify-center px-6 pt-32 pb-20">
+          {/* Orbital Rings - Signature Visual */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="w-full max-w-md h-[400px] mb-12"
+          >
+            <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
+              <OrbitalRings mousePosition={mousePosition} />
+            </Canvas>
+          </motion.div>
 
-          {/* Translucent Glass Panel */}
-          <div 
-            className="relative rounded-3xl p-16 md:p-20 transition-all duration-700"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+          {/* Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="font-serif text-5xl md:text-6xl text-[#FCD34D] mb-4 tracking-[0.15em] text-center"
+            style={{ textShadow: '0 0 40px rgba(252, 211, 77, 0.3)' }}
+          >
+            Dr. Jared Dunahay
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="text-xl text-[#3B82F6] tracking-[0.1em] text-center mb-12"
+          >
+            Founder & Principal Investigator
+          </motion.p>
+        </section>
+
+        {/* Bio Section - Glass Panels */}
+        <section className="max-w-3xl mx-auto px-6 pb-32 space-y-8">
+          {/* Bio Paragraph 1 */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative rounded-2xl p-10 backdrop-blur-xl border border-[#FCD34D]/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
             style={{
-              background: 'rgba(0, 0, 0, 0.4)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              boxShadow: isHovered 
-                ? '0 0 50px rgba(255, 215, 0, 0.3), inset 0 0 80px rgba(255, 215, 0, 0.08)' 
-                : '0 0 30px rgba(255, 215, 0, 0.2), inset 0 0 50px rgba(255, 215, 0, 0.05)',
-              transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
+              background: 'rgba(255, 255, 255, 0.03)',
+              boxShadow: '0 0 30px rgba(252, 211, 77, 0.1), inset 0 0 50px rgba(252, 211, 77, 0.03)',
             }}
           >
-            {/* Gold corner glow */}
-            <div 
-              className="absolute bottom-0 left-0 w-40 h-40 rounded-bl-3xl pointer-events-none transition-opacity duration-700"
+            <div className="absolute top-0 left-0 w-32 h-32 rounded-tl-2xl pointer-events-none"
               style={{
-                background: 'radial-gradient(circle at bottom left, rgba(255, 215, 0, 0.25), transparent 70%)',
-                opacity: isHovered ? 1 : 0.6,
+                background: 'radial-gradient(circle at top left, rgba(252, 211, 77, 0.15), transparent 70%)',
               }}
             />
+            <p className="text-lg leading-relaxed text-[#E5E5E5]/90">
+              Researcher working at the intersection of <span className="text-[#FCD34D]">spectral geometry</span>, <span className="text-[#3B82F6]">category theory</span>, and geometric foundations for interpretable AI. My work focuses on developing mathematical frameworks that bridge continuous and discrete representations of cognitive processes.
+            </p>
+          </motion.div>
 
-            {/* Breathing light band */}
-            <motion.div
-              className="absolute inset-0 rounded-3xl pointer-events-none"
-              animate={{
-                background: [
-                  'linear-gradient(45deg, transparent 0%, rgba(255, 215, 0, 0.03) 50%, transparent 100%)',
-                  'linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.05) 70%, transparent 100%)',
-                  'linear-gradient(45deg, transparent 0%, rgba(255, 215, 0, 0.03) 50%, transparent 100%)',
-                ],
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                ease: "easeInOut"
+          {/* Bio Paragraph 2 */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative rounded-2xl p-10 backdrop-blur-xl border border-[#FCD34D]/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+            style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              boxShadow: '0 0 30px rgba(252, 211, 77, 0.1), inset 0 0 50px rgba(252, 211, 77, 0.03)',
+            }}
+          >
+            <div className="absolute bottom-0 right-0 w-32 h-32 rounded-br-2xl pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.15), transparent 70%)',
               }}
             />
+            <p className="text-lg leading-relaxed text-[#E5E5E5]/90">
+              The <span className="text-[#FCD34D]">AEO Trivector framework</span> emerged from the recognition that intelligence—whether biological or artificial—operates through <span className="text-[#3B82F6]">attractor dynamics</span> in structured phase spaces. By formalizing these dynamics through spectral methods and categorical composition, we can build systems that are both powerful and interpretable.
+            </p>
+          </motion.div>
 
-            {/* Content */}
-            <div className="relative text-center space-y-12">
-              {/* Header */}
-              <h1 
-                className="font-serif text-4xl md:text-5xl tracking-wider uppercase"
-                style={{
-                  color: 'rgba(255, 255, 255, 0.95)',
-                  textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.7)',
-                  letterSpacing: '0.15em',
-                  fontWeight: 300,
-                  textAlign: 'center',
-                  width: '100%',
-                }}
-              >
-                The Founder
-              </h1>
-
-              {/* Bio Content */}
-              <div className="space-y-8 max-w-2xl mx-auto">
-                <h2 
-                  className="font-serif text-2xl tracking-wide"
-                  style={{
-                    color: 'rgba(255, 215, 0, 0.9)',
-                    textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 4px 24px rgba(0,0,0,0.7)',
-                    letterSpacing: '0.1em',
-                    textAlign: 'center',
-                    width: '100%',
-                  }}
-                >
-                  Jared Dunahay
-                </h2>
-                <p 
-                  className="text-lg leading-relaxed"
-                  style={{
-                    color: 'rgba(209, 213, 219, 0.85)',
-                    textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)',
-                  }}
-                >
-                  Researcher working at the intersection of spectral geometry, category theory, and geometric foundations for interpretable AI.
-                </p>
-              </div>
-
-              {/* Attractor Torus Visual */}
-              <div className="flex justify-center pt-12">
-                <motion.div
-                  animate={{
-                    scale: [1, 1.03, 1],
-                    opacity: [0.85, 1, 0.85],
-                  }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <img
-                    src="/images/attractor-torus.png"
-                    alt="Attractor Torus - Geometric visualization of attractor architecture"
-                    style={{
-                      width: '280px',
-                      height: 'auto',
-                      filter: 'drop-shadow(0 0 30px rgba(96, 165, 250, 0.4))',
-                    }}
-                  />
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
+          {/* Contact Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="flex justify-center gap-8 pt-8"
+          >
+            <a
+              href="mailto:link@trivector.ai"
+              className="text-sm tracking-[0.1em] text-[#E5E5E5]/70 hover:text-[#FCD34D] hover:drop-shadow-[0_0_15px_rgba(252,211,77,0.4)] transition-all duration-300"
+            >
+              EMAIL
+            </a>
+            <a
+              href="https://www.linkedin.com/in/jared-dunahay"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm tracking-[0.1em] text-[#E5E5E5]/70 hover:text-[#FCD34D] hover:drop-shadow-[0_0_15px_rgba(252,211,77,0.4)] transition-all duration-300"
+            >
+              LINKEDIN
+            </a>
+            <a
+              href="https://scholar.google.com/citations?user=XXXXX"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm tracking-[0.1em] text-[#E5E5E5]/70 hover:text-[#FCD34D] hover:drop-shadow-[0_0_15px_rgba(252,211,77,0.4)] transition-all duration-300"
+            >
+              SCHOLAR
+            </a>
+          </motion.div>
+        </section>
+      </div>
 
       <Footer />
     </div>

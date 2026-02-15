@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { StickyGlassHeader } from './StickyGlassHeader';
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,58 +16,8 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-background text-foreground">
-      {/* Navigation - Minimal and floating */}
-      {!isEntry && !isManifold && (
-        <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center mix-blend-difference">
-          <Link href="/manifold">
-            <div className="text-xl font-serif tracking-wider font-bold cursor-pointer hover:text-primary transition-colors duration-500">
-              AEO TRIVECTOR
-            </div>
-          </Link>
-          <div className="flex gap-4 md:gap-6 font-mono text-xs tracking-widest uppercase opacity-70">
-            <Link 
-              href="/manifold" 
-              className={`relative pb-1 py-2 border-b transition-all duration-300 ${
-                location === '/manifold' 
-                  ? 'border-[#FFD700] text-primary' 
-                  : 'border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-primary'
-              }`}
-            >
-              Vision
-            </Link>
-            <Link 
-              href="/research" 
-              className={`relative pb-1 py-2 border-b transition-all duration-300 ${
-                location === '/research' 
-                  ? 'border-[#FFD700] text-primary' 
-                  : 'border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-primary'
-              }`}
-            >
-              Research
-            </Link>
-            <Link 
-              href="/about" 
-              className={`relative pb-1 py-2 border-b transition-all duration-300 ${
-                location === '/about' 
-                  ? 'border-[#FFD700] text-primary' 
-                  : 'border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-primary'
-              }`}
-            >
-              About
-            </Link>
-            <Link 
-              href="/contact" 
-              className={`relative pb-1 py-2 border-b transition-all duration-300 ${
-                location === '/contact' 
-                  ? 'border-[#FFD700] text-primary' 
-                  : 'border-[#3B82F6]/50 hover:border-[#FFD700] hover:text-primary'
-              }`}
-            >
-              Contact
-            </Link>
-          </div>
-        </nav>
-      )}
+      {/* Glassmorphic Sticky Header - For all pages except Entry and Manifold */}
+      {!isEntry && !isManifold && <StickyGlassHeader />}
 
       {/* Main Content */}
       <main className="flex-grow relative z-10">
