@@ -361,6 +361,11 @@ export default function Manifold() {
           justifyContent: 'center',
           alignItems: 'center',
           gap: '1rem',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 100%)',
+          backdropFilter: 'blur(30px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+          borderBottom: '1px solid rgba(255, 215, 0, 0.2)',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         }}
       >
         <Link href="/">
