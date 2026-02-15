@@ -1,3 +1,5 @@
+'use client'
+
 
 import { useRef, useState, useEffect, useMemo, type CSSProperties, type MutableRefObject } from 'react'
 import Link from 'next/link'
