@@ -1,4 +1,3 @@
-'use client'
 
 import { useRef, useState, useEffect, useMemo, type CSSProperties, type MutableRefObject } from 'react'
 import Link from 'next/link'
@@ -239,9 +238,9 @@ export default function Manifold() {
 
   const pillars = useMemo(
     () => [
-      { icon: '△', title: 'Structure', descriptor: 'Geometric foundations for stable systems.' },
-      { icon: '◯', title: 'Dynamics', descriptor: 'How attractors encode and transform.' },
-      { icon: '◇', title: 'Integration', descriptor: 'Self-encoding through spectral geometry.' },
+      { icon: '△', title: 'Structure', descriptor: 'Topology is the invariant substrate; implementations may deform, the core does not. Stability is identity preserved under morphism.' },
+      { icon: '◯', title: 'Dynamics', descriptor: 'Vector fields evolve state through phase space; attractors compress possibility into trajectory. What converges is what survives iteration.' },
+      { icon: '◇', title: 'Integration', descriptor: 'Resonance synthesizes disparate representations into one operational geometry. The nexus is where models collapse into a coherent whole.' },
     ],
     []
   )
