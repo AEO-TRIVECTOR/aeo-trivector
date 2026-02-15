@@ -160,7 +160,7 @@ function AttractorBackground({ mousePosition }: { mousePosition: { x: number, y:
 
   return (
     <group ref={groupRef}>
-      <Attractor count={15000} opacity={0.15} speed={1} />
+      <Attractor count={15000} opacity={0.5} speed={1} />
     </group>
   );
 }
@@ -215,7 +215,7 @@ export default function Research() {
   }, []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#050505]">
+    <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
       {/* Lorenz Attractor Background - Ghost Horizon */}
       <div className="fixed inset-0 z-0">
         <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
