@@ -22,7 +22,8 @@ export function PhotonRing({
   const colorHalo = useMemo(() => new THREE.Color('#FFD700'), []);
 
   // ChatGPT spec: razor-thin core (0.3-0.6% of radius), faint wide halo
-  const coreThickness = radius * 0.004; // 0.4% of radius - impossibly thin
+  // Adjusted for visibility: 0.6% ensures rendering at all resolutions
+  const coreThickness = radius * 0.006; // 0.6% of radius - razor-thin but visible
   const haloThickness = radius * 0.08;  // Wide, faint glow
 
   return (
@@ -32,7 +33,7 @@ export function PhotonRing({
         <meshBasicMaterial
           color={colorHalo}
           transparent
-          opacity={0.08 * intensity} // Very faint: 0.06-0.12 range
+          opacity={0.12 * intensity} // Faint but visible: 0.06-0.12 range
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
@@ -42,8 +43,10 @@ export function PhotonRing({
       <Ring args={[radius - coreThickness, radius + coreThickness, 256]}>
         <meshBasicMaterial
           color={colorCore}
+          emissive={colorCore}
+          emissiveIntensity={1.0}
           transparent
-          opacity={0.95 * intensity} // Near-opaque: 0.85-1.0 range
+          opacity={1.0 * intensity} // Full opacity for maximum brightness
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
