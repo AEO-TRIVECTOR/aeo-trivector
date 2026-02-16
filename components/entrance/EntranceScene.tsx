@@ -21,7 +21,7 @@ export function EntranceScene({ timeScale, ringIntensity }: EntranceSceneProps) 
       <ambientLight intensity={0.3} />
 
       <StarfieldSparse count={900} spread={40} drift={0.03} timeScale={timeScale} />
-      <PhotonRing radius={4.5} thickness={0.05} intensity={ringIntensity} y={-2.5} />
+      <PhotonRing radius={5.85} thickness={0.05} intensity={ringIntensity} y={-3.0} />
 
       {/* NOTE: Do NOT render AccretionDiskVisualization here */}
     </Canvas>

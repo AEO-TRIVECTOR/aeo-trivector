@@ -121,6 +121,36 @@ export default function Entry() {
         }}
       />
 
+      {/* Gravitational gradient below horizon - creates depth/curvature cue */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '50vh',
+          zIndex: 1,
+          background:
+            'radial-gradient(ellipse 120% 80% at 50% 150%, transparent 0%, rgba(0,0,0,0.65) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Atmospheric scatter above ring - photon accumulation */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '15vh',
+          left: 0,
+          right: 0,
+          height: '10vh',
+          zIndex: 1,
+          background:
+            'radial-gradient(ellipse 60% 100% at 50% 100%, rgba(255,215,0,0.03) 0%, transparent 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
       {/* Crossing overlay */}
       <motion.div
         style={{
@@ -149,9 +179,9 @@ export default function Entry() {
         <motion.h1
           style={{
             letterSpacing: titleLetterSpacing,
-            textShadow: '0 0 18px rgba(255,215,0,0.35)',
+            textShadow: '0 0 12px rgba(255,215,0,0.25)',
           }}
-          className="text-5xl md:text-6xl font-[var(--font-cormorant)] text-[#FFD700]"
+          className="text-5xl md:text-6xl font-[var(--font-cormorant)] text-[#FFD700]/80"
         >
           AEO TRIVECTOR
         </motion.h1>
@@ -160,8 +190,8 @@ export default function Entry() {
           ATTRACTOR ARCHITECTURE
         </div>
 
-        {/* Place ENTER just above horizon */}
-        <div style={{ marginTop: 'auto', marginBottom: '14vh' }}>
+        {/* Place ENTER anchored to ring apex - ChatGPT: 4-8% below ring */}
+        <div style={{ marginTop: 'auto', marginBottom: '20vh' }}>
           <motion.button
             onClick={cross}
             onPointerEnter={() => setIsHoveringEnter(true)}

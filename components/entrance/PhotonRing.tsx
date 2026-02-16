@@ -17,29 +17,48 @@ export function PhotonRing({
   intensity = 0.9,
   y = -3.2,
 }: PhotonRingProps) {
-  const colorCore = useMemo(() => new THREE.Color('#FFF7D6'), []);
+  // Near-white core, golden halo
+  const colorCore = useMemo(() => new THREE.Color('#FFFFFF'), []);
   const colorHalo = useMemo(() => new THREE.Color('#FFD700'), []);
 
-  // Two rings: a thin "razor" core + a wider, faint halo.
+  // ChatGPT spec: razor-thin core (0.3-0.6% of radius), faint wide halo
+  const coreThickness = radius * 0.004; // 0.4% of radius - impossibly thin
+  const haloThickness = radius * 0.08;  // Wide, faint glow
+
   return (
     <group position={[0, y, 0]}>
-      {/* Halo */}
-      <Ring args={[radius - thickness * 2.0, radius + thickness * 2.0, 256]}>
+      {/* Faint wide halo - barely visible atmospheric glow */}
+      <Ring args={[radius - haloThickness, radius + haloThickness, 256]}>
         <meshBasicMaterial
           color={colorHalo}
           transparent
-          opacity={0.25 * intensity}
+          opacity={0.08 * intensity} // Very faint: 0.06-0.12 range
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </Ring>
 
-      {/* Core */}
-      <Ring args={[radius - thickness, radius + thickness, 256]}>
+      {/* Razor-thin core - line of impossible brightness */}
+      <Ring args={[radius - coreThickness, radius + coreThickness, 256]}>
         <meshBasicMaterial
           color={colorCore}
           transparent
-          opacity={0.85 * intensity}
+          opacity={0.95 * intensity} // Near-opaque: 0.85-1.0 range
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </Ring>
+
+      {/* Doppler beaming - asymmetric brightness at apex (top center) */}
+      {/* Semi-ring covering top 120° arc, 35% brighter */}
+      <Ring 
+        args={[radius - coreThickness * 1.5, radius + coreThickness * 1.5, 256, 1, Math.PI * 0.3, Math.PI * 0.66]}
+        rotation={[0, 0, Math.PI * 0.17]} // Rotate to center on top
+      >
+        <meshBasicMaterial
+          color={colorCore}
+          transparent
+          opacity={0.35 * intensity} // Additive boost
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
