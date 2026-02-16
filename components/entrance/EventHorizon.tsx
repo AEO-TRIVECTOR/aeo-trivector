@@ -250,40 +250,19 @@ function StarField({ count = 500, ringCenter = [0, 0, 0], ringRadius = 5 }) {
     }
   })
 
+  // Create geometry with BufferGeometry API
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1))
+    geo.setAttribute('aOpacity', new THREE.BufferAttribute(opacities, 1))
+    geo.setAttribute('aDistance', new THREE.BufferAttribute(distances, 1))
+    geo.setAttribute('aColor', new THREE.BufferAttribute(colors, 3))
+    return geo
+  }, [positions, sizes, opacities, distances, colors])
+
   return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-aSize"
-          count={count}
-          array={sizes}
-          itemSize={1}
-        />
-        <bufferAttribute
-          attach="attributes-aOpacity"
-          count={count}
-          array={opacities}
-          itemSize={1}
-        />
-        <bufferAttribute
-          attach="attributes-aDistance"
-          count={count}
-          array={distances}
-          itemSize={1}
-        />
-        <bufferAttribute
-          attach="attributes-aColor"
-          count={count}
-          array={colors}
-          itemSize={3}
-        />
-      </bufferGeometry>
+    <points ref={ref} geometry={geometry}>
       <shaderMaterial
         ref={materialRef}
         vertexShader={starVertexShader}
