@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect, type CSSProperties } from 'react'
 import { motion, useAnimation } from 'framer-motion'
 import AccretionDiskVisualization from '@/components/AccretionDiskVisualization'
+import GravitationalLensingShader from '@/components/GravitationalLensingShader'
 
 export default function Entry() {
   const router = useRouter()
   const [isHoveringEnter, setIsHoveringEnter] = useState(false)
   const [isCrossing, setIsCrossing] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 })
+  const [cursorHidden, setCursorHidden] = useState(false)
   const overlayControls = useAnimation()
 
   // Track mouse position for gravitational effects
@@ -34,6 +36,24 @@ export default function Entry() {
 
   // Time dilation factor (slower near horizon)
   const timeDilation = Math.max(0.3, distanceToHorizon)
+
+  // Radical crossing: cursor disappears near horizon (ChatGPT's "historically memorable design")
+  useEffect(() => {
+    if (distanceToHorizon < 0.3 && !isCrossing) {
+      setCursorHidden(true)
+      
+      // Automatic fall after 2 seconds of being near horizon
+      const fallTimer = setTimeout(() => {
+        if (!isCrossing) {
+          handleEnter()
+        }
+      }, 2000)
+      
+      return () => clearTimeout(fallTimer)
+    } else {
+      setCursorHidden(false)
+    }
+  }, [distanceToHorizon, isCrossing])
 
   const handleEnter = async () => {
     setIsCrossing(true)
@@ -187,16 +207,18 @@ export default function Entry() {
     width: '300vw', // 3× viewport (supermassive)
     height: '300vw',
     borderRadius: '50%',
-    border: `2px solid ${isHoveringEnter ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 215, 0, 0.9)'}`, // Hairline bright
+    border: `1px solid ${isHoveringEnter ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 245, 220, 0.95)'}`, // Hairline thin, nearly white (ChatGPT: "Blinding")
     boxShadow: isHoveringEnter
       ? `
-        0 0 40px rgba(255, 215, 0, 1),
-        0 0 80px rgba(255, 215, 0, 0.8),
-        inset 0 0 40px rgba(255, 215, 0, 0.6)
-      ` // Ring flare on hover
+        0 0 60px rgba(255, 255, 255, 1),
+        0 0 120px rgba(255, 245, 220, 0.9),
+        0 0 180px rgba(255, 215, 0, 0.7),
+        inset 0 0 60px rgba(255, 255, 255, 0.8)
+      ` // Ring flare: extreme brightness (ChatGPT: "Emotionally devastating")
       : `
-        0 0 20px rgba(255, 215, 0, 0.8),
-        0 0 40px rgba(255, 215, 0, 0.6),
+        0 0 30px rgba(255, 245, 220, 0.9),
+        0 0 60px rgba(255, 245, 220, 0.7),
+        0 0 90px rgba(255, 215, 0, 0.5),
         inset 0 0 20px rgba(255, 215, 0, 0.4)
       `,
     pointerEvents: 'none',
@@ -245,6 +267,25 @@ export default function Entry() {
       <div style={canvasContainerStyle}>
         <AccretionDiskVisualization />
       </div>
+
+      {/* Cursor hiding (radical crossing behavior) */}
+      <style jsx global>{`
+        body {
+          cursor: ${cursorHidden ? 'none' : 'default'} !important;
+        }
+        * {
+          cursor: ${cursorHidden ? 'none' : 'inherit'} !important;
+        }
+      `}</style>
+
+      {/* Gravitational Lensing Shader (ChatGPT's #1 recommendation: "Make spacetime bend. Literally.") */}
+      <GravitationalLensingShader
+        horizonY={1.0}
+        horizonRadius={1.5}
+        strength={0.8}
+        mouseX={mousePosition.x}
+        mouseY={mousePosition.y}
+      />
 
       {/* Photon Ring (Hairline Bright) */}
       <div style={photonRingStyle} />
