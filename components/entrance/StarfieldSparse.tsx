@@ -43,16 +43,14 @@ export function StarfieldSparse({
     pts.rotation.x += delta * drift * 0.03 * timeScale;
   });
 
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [positions]);
+
   return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          array={positions}
-          itemSize={3}
-          count={positions.length / 3}
-        />
-      </bufferGeometry>
+    <points ref={pointsRef} geometry={geometry}>
       <pointsMaterial
         size={0.02}
         transparent
