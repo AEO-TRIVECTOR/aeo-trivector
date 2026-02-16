@@ -94,18 +94,18 @@ export default function Entry() {
   }
 
   const titleStyle: CSSProperties = {
-    fontSize: 'clamp(2.5rem, 8vw, 6rem)',
+    fontSize: 'clamp(3rem, 8vw, 8rem)', // Larger like Omega
     fontWeight: 300,
-    color: '#FFD700',
+    color: 'rgb(252, 211, 161)', // amber-200/90 like Omega
     fontFamily: 'Cormorant Garamond, serif',
-    letterSpacing: `${0.3 + (1 - timeDilation) * 0.1}em`, // Letter-spacing warps near horizon
+    letterSpacing: `${0.2 + (1 - timeDilation) * 0.15}em`, // Letter-spacing warps near horizon (0.2em base like Omega)
     textTransform: 'uppercase',
     margin: 0,
     textShadow: `
-      0 0 ${20 + (1 - timeDilation) * 20}px rgba(255, 215, 0, 0.8),
-      0 0 40px rgba(255, 215, 0, 0.6),
-      0 0 60px rgba(255, 215, 0, 0.4),
-      0 0 80px rgba(255, 215, 0, 0.2)
+      0 0 ${20 + (1 - timeDilation) * 20}px rgba(252, 211, 161, 0.8),
+      0 0 40px rgba(252, 211, 161, 0.6),
+      0 0 60px rgba(252, 211, 161, 0.4),
+      0 0 80px rgba(252, 211, 161, 0.2)
     `,
     transition: 'letter-spacing 0.3s ease-out, text-shadow 0.3s ease-out',
   }
@@ -278,7 +278,7 @@ export default function Entry() {
         {/* Title */}
         <div style={titleContainerStyle}>
           <h1 style={titleStyle}>
-            AEO TRIVECTOR
+            AEO Trivector
           </h1>
           <div style={subtitleStyle}>
             Attractor Architecture
