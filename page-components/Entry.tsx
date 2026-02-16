@@ -114,6 +114,7 @@ export default function Entry() {
         style={{
           position: 'absolute',
           inset: 0,
+          zIndex: 1,
           background:
             'radial-gradient(80% 60% at 50% 30%, rgba(0,0,0,0.25), rgba(0,0,0,0.92) 70%)',
           pointerEvents: 'none',
@@ -125,6 +126,7 @@ export default function Entry() {
         style={{
           position: 'absolute',
           inset: 0,
+          zIndex: 2,
           background: 'rgba(0,0,0,1)',
           opacity: overlayOpacity,
           pointerEvents: 'none',

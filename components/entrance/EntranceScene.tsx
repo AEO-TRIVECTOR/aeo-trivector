@@ -15,7 +15,7 @@ export function EntranceScene({ timeScale, ringIntensity }: EntranceSceneProps) 
     <Canvas
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
-      style={{ position: 'absolute', inset: 0 }}
+      style={{ position: 'absolute', inset: 0, zIndex: 0 }}
     >
       <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={55} />
       <ambientLight intensity={0.25} />
