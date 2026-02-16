@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { EntranceScene } from '@/components/entrance/EntranceScene';
-import { EntranceSceneTest } from '@/components/entrance/EntranceSceneTest';
 
 function clamp01(x: number) {
   return Math.max(0, Math.min(1, x));
@@ -108,8 +107,7 @@ export default function Entry() {
   return (
     <div ref={rootRef} style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
       {/* WebGL Background */}
-      {/* <EntranceScene timeScale={timeScaleNum} ringIntensity={ringIntensityNum} /> */}
-      <EntranceSceneTest />
+      <EntranceScene timeScale={timeScaleNum} ringIntensity={ringIntensityNum} />
 
       {/* Dark veil for readability (keeps minimal aesthetic) */}
       <div

@@ -28,7 +28,7 @@ export function PhotonRing({
         <meshBasicMaterial
           color={colorHalo}
           transparent
-          opacity={0.12 * intensity}
+          opacity={0.25 * intensity}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
@@ -39,7 +39,7 @@ export function PhotonRing({
         <meshBasicMaterial
           color={colorCore}
           transparent
-          opacity={0.55 * intensity}
+          opacity={0.85 * intensity}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />

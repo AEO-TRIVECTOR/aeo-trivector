@@ -17,11 +17,11 @@ export function EntranceScene({ timeScale, ringIntensity }: EntranceSceneProps) 
       gl={{ antialias: true, alpha: true }}
       style={{ position: 'absolute', inset: 0, zIndex: 0 }}
     >
-      <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={55} />
-      <ambientLight intensity={0.25} />
+      <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={60} />
+      <ambientLight intensity={0.3} />
 
-      <StarfieldSparse count={900} spread={70} drift={0.03} timeScale={timeScale} />
-      <PhotonRing radius={10.5} thickness={0.08} intensity={ringIntensity} y={-6.0} />
+      <StarfieldSparse count={900} spread={40} drift={0.03} timeScale={timeScale} />
+      <PhotonRing radius={4.5} thickness={0.05} intensity={ringIntensity} y={-2.5} />
 
       {/* NOTE: Do NOT render AccretionDiskVisualization here */}
     </Canvas>

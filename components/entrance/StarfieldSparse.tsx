@@ -26,7 +26,7 @@ export function StarfieldSparse({
       // biased distribution: keep most stars far and sparse
       const x = (Math.random() - 0.5) * spread;
       const y = (Math.random() - 0.5) * spread;
-      const z = -Math.random() * spread;
+      const z = (Math.random() - 0.5) * spread * 0.8; // Stars around camera, not just behind
 
       pos[i * 3 + 0] = x;
       pos[i * 3 + 1] = y;
@@ -52,10 +52,11 @@ export function StarfieldSparse({
   return (
     <points ref={pointsRef} geometry={geometry}>
       <pointsMaterial
-        size={0.02}
+        size={0.08}
         transparent
-        opacity={0.8}
+        opacity={0.9}
         depthWrite={false}
+        color="#FFFFFF"
       />
     </points>
   );
