@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useRef, Suspense, type CSSProperties } from 'react'
+import { useState, useRef, useEffect, useMemo, Suspense, type CSSProperties } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { CosmicEventHorizon } from '@/components/CosmicEventHorizon'
 import * as THREE from 'three'
@@ -10,9 +10,10 @@ import { motion, useAnimation } from 'framer-motion'
 // Star field component with gravitational distortion
 function StarField({ mousePosition }: { mousePosition: { x: number; y: number } }) {
   const pointsRef = useRef<THREE.Points>(null)
+  const originalPositionsRef = useRef<Float32Array | null>(null)
   const starCount = 2000
 
-  const { positions, colors } = React.useMemo(() => {
+  const { positions, colors } = useMemo(() => {
     const pos = new Float32Array(starCount * 3)
     const col = new Float32Array(starCount * 3)
     
@@ -39,29 +40,36 @@ function StarField({ mousePosition }: { mousePosition: { x: number; y: number } 
   useFrame((state) => {
     if (pointsRef.current) {
       const time = state.clock.elapsedTime
-      const positions = pointsRef.current.geometry.attributes.position.array as Float32Array
+      
+      // Store original positions on first frame
+      if (!originalPositionsRef.current) {
+        originalPositionsRef.current = new Float32Array(positions)
+      }
+      
+      const pos = pointsRef.current.geometry.attributes.position.array as Float32Array
       
       // Gravitational distortion based on distance to event horizon (bottom center)
       for (let i = 0; i < starCount; i++) {
-        const x = positions[i * 3]
-        const y = positions[i * 3 + 1]
-        const z = positions[i * 3 + 2]
+        const ox = originalPositionsRef.current[i * 3]
+        const oy = originalPositionsRef.current[i * 3 + 1]
+        const oz = originalPositionsRef.current[i * 3 + 2]
         
         // Distance to event horizon center (0, -30, 0)
-        const dx = x
-        const dy = y + 30
-        const dz = z
+        const dx = ox
+        const dy = oy + 30
+        const dz = oz
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
         
         // Gravitational pull - stars curve toward the horizon
         const pull = 300 / (dist * dist + 10)
         
-        positions[i * 3] += (dx / dist) * pull * 0.001
-        positions[i * 3 + 1] += (dy / dist) * pull * 0.001
+        // Apply distortion as offset from original position (not accumulating)
+        pos[i * 3] = ox - (dx / dist) * pull * 0.3
+        pos[i * 3 + 1] = oy - (dy / dist) * pull * 0.3
         
         // Subtle twinkle
         const twinkle = Math.sin(time * 2 + i * 0.1) * 0.02
-        positions[i * 3 + 2] = z + twinkle
+        pos[i * 3 + 2] = oz + twinkle
       }
       
       pointsRef.current.geometry.attributes.position.needsUpdate = true
@@ -176,7 +184,7 @@ export default function Entry() {
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 })
   const overlayControls = useAnimation()
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({
         x: e.clientX / window.innerWidth,
@@ -351,6 +359,23 @@ export default function Entry() {
           </Suspense>
         </Canvas>
       </div>
+
+      {/* White Flash Overlay for Crossing */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={isCrossing ? { opacity: [0, 1, 0] } : { opacity: 0 }}
+        transition={{ duration: 1.2, times: [0, 0.3, 1] }}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 100,
+          background: 'white',
+          pointerEvents: 'none',
+        }}
+      />
 
       {/* HTML Overlay */}
       <motion.div style={overlayStyle} animate={overlayControls}>
