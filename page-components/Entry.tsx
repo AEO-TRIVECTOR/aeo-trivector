@@ -2,19 +2,15 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, type CSSProperties } from 'react'
-import AccretionDisk from '@/components/accretion-disk-visualization'
 
 export default function Entry() {
   const router = useRouter()
-  const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 })
   const [isHoveringEnter, setIsHoveringEnter] = useState(false)
+  const [mouseY, setMouseY] = useState(0.5)
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      })
+      setMouseY(e.clientY / window.innerHeight)
     }
 
     window.addEventListener('mousemove', handleMouseMove)
@@ -22,16 +18,14 @@ export default function Entry() {
   }, [])
 
   const handleEnter = () => {
-    // Store flag for ghost horizon effect on Manifold page
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('fromEventHorizon', 'true')
     }
     router.push('/manifold/')
   }
 
-  // Parallax offset based on mouse position
-  const parallaxX = (mousePosition.x - 0.5) * 30
-  const parallaxY = (mousePosition.y - 0.5) * 30
+  // Subtle parallax on the horizon based on vertical mouse position
+  const horizonOffset = (mouseY - 0.5) * 20
 
   const containerStyle: CSSProperties = {
     position: 'fixed',
@@ -40,178 +34,172 @@ export default function Entry() {
     width: '100vw',
     height: '100vh',
     overflow: 'hidden',
-    background: '#000',
+    background: 'radial-gradient(ellipse at center, #0a0a0a 0%, #000000 70%)',
   }
 
-  const backgroundStyle: CSSProperties = {
+  // Massive event horizon - simple, clean, dominating
+  const horizonStyle: CSSProperties = {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    zIndex: 0,
-    transform: `translate(${parallaxX * 0.3}px, ${parallaxY * 0.3}px)`,
-    transition: 'transform 0.3s ease-out',
-  }
-
-  // Massive event horizon circle - off-center, dramatic
-  const eventHorizonStyle: CSSProperties = {
-    position: 'absolute',
-    top: '50%',
-    right: '-15%', // Positioned to the right, partially off-screen
-    transform: 'translate(0, -50%)',
-    width: 'min(120vh, 120vw)',
-    height: 'min(120vh, 120vw)',
+    bottom: `calc(-40vh + ${horizonOffset}px)`,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '200vw',
+    height: '200vw',
+    maxWidth: '200vh',
+    maxHeight: '200vh',
     borderRadius: '50%',
-    border: '2px solid rgba(255, 215, 0, 0.3)',
+    border: '1px solid rgba(255, 215, 0, 0.3)',
     boxShadow: `
-      0 0 100px rgba(255, 215, 0, 0.4),
-      inset 0 0 100px rgba(255, 215, 0, 0.2),
-      0 0 200px rgba(96, 165, 250, 0.3)
+      0 0 150px rgba(255, 215, 0, 0.4),
+      inset 0 0 150px rgba(255, 215, 0, 0.15),
+      0 0 300px rgba(96, 165, 250, 0.2)
     `,
-    zIndex: 5,
+    transition: 'bottom 0.3s ease-out',
     pointerEvents: 'none',
   }
 
-  // Inner horizon rings
-  const innerRing1Style: CSSProperties = {
+  // Inner glow ring
+  const innerGlowStyle: CSSProperties = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '70%',
-    height: '70%',
+    width: '85%',
+    height: '85%',
     borderRadius: '50%',
-    border: '1px solid rgba(255, 215, 0, 0.15)',
-    boxShadow: 'inset 0 0 50px rgba(255, 215, 0, 0.1)',
+    background: 'radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%)',
+    pointerEvents: 'none',
   }
 
-  const innerRing2Style: CSSProperties = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '40%',
-    height: '40%',
-    borderRadius: '50%',
-    border: '1px solid rgba(255, 215, 0, 0.1)',
-    boxShadow: 'inset 0 0 30px rgba(255, 215, 0, 0.15)',
-  }
-
-  // Title positioned in the upper left - asymmetric
+  // Title - upper center, floating above the void
   const titleContainerStyle: CSSProperties = {
     position: 'absolute',
-    top: '12%',
-    left: '8%',
+    top: '15%',
+    left: '50%',
+    transform: 'translateX(-50%)',
     zIndex: 20,
-    transform: `translate(${parallaxX * 0.5}px, ${parallaxY * 0.5}px)`,
-    transition: 'transform 0.3s ease-out',
+    textAlign: 'center',
   }
 
   const titleStyle: CSSProperties = {
-    fontSize: 'clamp(2.5rem, 10vw, 7rem)',
+    fontSize: 'clamp(3rem, 12vw, 8rem)',
     fontWeight: 300,
-    letterSpacing: '0.15em',
+    letterSpacing: '0.2em',
     textShadow: `
-      0 0 60px rgba(255, 215, 0, 0.6),
-      0 0 120px rgba(255, 215, 0, 0.3),
-      0 4px 40px rgba(0, 0, 0, 0.8)
+      0 0 80px rgba(255, 215, 0, 0.5),
+      0 0 160px rgba(255, 215, 0, 0.2)
     `,
     color: '#FFD700',
     fontFamily: 'Cormorant Garamond, serif',
     margin: 0,
-    lineHeight: 1.1,
+    lineHeight: 1,
   }
 
   const subtitleStyle: CSSProperties = {
-    fontSize: 'clamp(0.875rem, 2.5vw, 1.5rem)',
-    letterSpacing: '0.5em',
-    textAlign: 'left',
-    color: '#60A5FA',
-    textShadow: '0 0 30px rgba(96, 165, 250, 0.6)',
+    fontSize: 'clamp(0.75rem, 2vw, 1.25rem)',
+    letterSpacing: '0.8em',
+    textAlign: 'center',
+    color: 'rgba(96, 165, 250, 0.7)',
+    textShadow: '0 0 30px rgba(96, 165, 250, 0.4)',
     textTransform: 'uppercase',
-    marginTop: '1.5rem',
+    marginTop: '2rem',
     fontFamily: 'JetBrains Mono, monospace',
     fontWeight: 300,
   }
 
-  // ENTER button at the edge of the event horizon - literally at the threshold
+  // ENTER button - positioned at the edge, where the horizon meets the void
   const enterContainerStyle: CSSProperties = {
     position: 'absolute',
-    top: '50%',
-    right: '20%', // Positioned at the visible edge of the horizon
-    transform: `translate(0, -50%) translate(${parallaxX * 0.8}px, ${parallaxY * 0.8}px)`,
-    transition: 'transform 0.3s ease-out',
+    bottom: '20%',
+    left: '50%',
+    transform: 'translateX(-50%)',
     zIndex: 30,
   }
 
   const enterButtonStyle: CSSProperties = {
-    padding: '1.5rem 4rem',
-    border: '2px solid rgba(255, 215, 0, 0.4)',
+    padding: '1.5rem 5rem',
+    border: `2px solid ${isHoveringEnter ? 'rgba(255, 215, 0, 0.6)' : 'rgba(255, 215, 0, 0.3)'}`,
     background: isHoveringEnter 
-      ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(96, 165, 250, 0.15))'
-      : 'rgba(0, 0, 0, 0.6)',
+      ? 'rgba(255, 215, 0, 0.1)'
+      : 'rgba(0, 0, 0, 0.4)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
-    color: isHoveringEnter ? '#FFD700' : '#60A5FA',
-    fontSize: 'clamp(1rem, 2vw, 1.5rem)',
+    color: isHoveringEnter ? '#FFD700' : 'rgba(255, 215, 0, 0.8)',
+    fontSize: 'clamp(1.25rem, 3vw, 2rem)',
     textTransform: 'uppercase',
-    letterSpacing: '0.3em',
+    letterSpacing: '0.5em',
+    paddingLeft: 'calc(0.5em + 5rem)',
     textShadow: isHoveringEnter
-      ? '0 0 30px rgba(255, 215, 0, 0.8)'
-      : '0 0 20px rgba(96, 165, 250, 0.6)',
+      ? '0 0 40px rgba(255, 215, 0, 0.8)'
+      : '0 0 20px rgba(255, 215, 0, 0.4)',
     cursor: 'pointer',
-    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
     fontFamily: 'JetBrains Mono, monospace',
     fontWeight: 600,
     boxShadow: isHoveringEnter
-      ? '0 0 60px rgba(255, 215, 0, 0.5), inset 0 0 30px rgba(255, 215, 0, 0.2)'
-      : '0 0 30px rgba(96, 165, 250, 0.3), inset 0 0 20px rgba(96, 165, 250, 0.1)',
-    transform: isHoveringEnter ? 'scale(1.05)' : 'scale(1)',
-    borderRadius: '4px',
+      ? '0 0 80px rgba(255, 215, 0, 0.6), inset 0 0 40px rgba(255, 215, 0, 0.15)'
+      : '0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(255, 215, 0, 0.05)',
+    transform: isHoveringEnter ? 'scale(1.05) translateY(-4px)' : 'scale(1)',
+    borderRadius: '2px',
   }
 
-  // Gravitational distortion hint text
+  // Minimal hint text
   const hintTextStyle: CSSProperties = {
     position: 'absolute',
-    bottom: '10%',
-    left: '8%',
-    fontSize: 'clamp(0.75rem, 1.5vw, 1rem)',
-    color: 'rgba(255, 255, 255, 0.4)',
+    bottom: '8%',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    fontSize: 'clamp(0.625rem, 1.2vw, 0.875rem)',
+    color: 'rgba(255, 255, 255, 0.3)',
     fontFamily: 'JetBrains Mono, monospace',
-    letterSpacing: '0.2em',
+    letterSpacing: '0.3em',
     textTransform: 'uppercase',
     zIndex: 20,
-    textShadow: '0 2px 10px rgba(0, 0, 0, 0.8)',
+    textAlign: 'center',
+  }
+
+  // Subtle stars/particles in the void
+  const starsStyle: CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '60%',
+    background: `
+      radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.3), transparent),
+      radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.2), transparent),
+      radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.4), transparent),
+      radial-gradient(1px 1px at 80% 10%, rgba(255, 255, 255, 0.3), transparent),
+      radial-gradient(2px 2px at 90% 60%, rgba(255, 255, 255, 0.2), transparent),
+      radial-gradient(1px 1px at 33% 80%, rgba(255, 255, 255, 0.3), transparent),
+      radial-gradient(1px 1px at 15% 90%, rgba(255, 255, 255, 0.2), transparent)
+    `,
+    backgroundSize: '200% 200%',
+    backgroundPosition: '50% 50%',
+    pointerEvents: 'none',
   }
 
   return (
     <div style={containerStyle}>
-      {/* Accretion Disk Background with parallax */}
-      <div style={backgroundStyle}>
-        <div style={{ width: '100%', height: '100%', minHeight: '100vh' }}>
-          <AccretionDisk />
-        </div>
+      {/* Subtle stars in the void */}
+      <div style={starsStyle} />
+
+      {/* Massive Event Horizon */}
+      <div style={horizonStyle}>
+        <div style={innerGlowStyle} />
       </div>
 
-      {/* Massive Event Horizon Circle */}
-      <div style={eventHorizonStyle}>
-        <div style={innerRing1Style} />
-        <div style={innerRing2Style} />
-      </div>
-
-      {/* Title - Upper Left, Asymmetric */}
+      {/* Title - Floating Above */}
       <div style={titleContainerStyle}>
         <h1 style={titleStyle}>
-          AEO<br />TRIVECTOR
+          AEO TRIVECTOR
         </h1>
         <div style={subtitleStyle}>
           Attractor Architecture
         </div>
       </div>
 
-      {/* ENTER Button - At the Event Horizon Edge */}
+      {/* ENTER Button - At the Threshold */}
       <div style={enterContainerStyle}>
         <button
           onClick={handleEnter}
@@ -223,9 +211,9 @@ export default function Entry() {
         </button>
       </div>
 
-      {/* Hint Text - Lower Left */}
+      {/* Hint Text */}
       <div style={hintTextStyle}>
-        Standing at the precipice
+        Cross the Event Horizon
       </div>
     </div>
   )
