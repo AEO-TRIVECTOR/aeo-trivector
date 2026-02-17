@@ -643,7 +643,6 @@ function DepthFog() {
 function PostProcessing() {
   return (
     <EffectComposer disableNormalPass multisampling={0}>
-      {/* TIGHT CORE BLOOM */}
       <Bloom
         intensity={2.8}
         luminanceThreshold={0.16}
@@ -652,7 +651,6 @@ function PostProcessing() {
         radius={0.75}
         levels={8}
       />
-      {/* WIDE ATMOSPHERIC BLOOM */}
       <Bloom
         intensity={0.95}
         luminanceThreshold={0.42}
@@ -661,13 +659,11 @@ function PostProcessing() {
         radius={1.3}
         levels={6}
       />
-      {/* VIGNETTE */}
       <Vignette
         offset={0.28}
         darkness={0.89}
         blendFunction={BlendFunction.NORMAL}
       />
-      {/* FILM GRAIN */}
       <Noise
         opacity={0.045}
         blendFunction={BlendFunction.OVERLAY}
