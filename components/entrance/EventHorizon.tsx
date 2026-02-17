@@ -661,7 +661,6 @@ function PostProcessing() {
         radius={1.3}
         levels={6}
       />
-      {/* Chromatic aberration removed - not available in @react-three/postprocessing 3.0.4 */}
       {/* VIGNETTE */}
       <Vignette
         offset={0.28}
