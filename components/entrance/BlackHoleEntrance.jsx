@@ -26,6 +26,7 @@ import { ToneMappingMode, Effect, BlendFunction } from 'postprocessing';
 // ============================================================
 
 const gravitationalLensFragment = `
+precision highp float;
 uniform vec2 uCenter;
 uniform float uMass;
 uniform float uShadowRadius;
@@ -59,6 +60,7 @@ class GravitationalLensEffect extends Effect {
 // ============================================================
 
 const shadowMaskFragment = `
+precision highp float;
 uniform vec2 uCenter;
 uniform float uRadius;
 uniform float uFeather;
@@ -98,6 +100,7 @@ class ShadowMaskEffect extends Effect {
 // ============================================================
 
 const starVertexShader = `
+precision highp float;
 attribute float aSize;
 attribute float aRandom;
 varying float vRandom;
@@ -117,6 +120,7 @@ void main() {
 `;
 
 const starFragmentShader = `
+precision highp float;
 uniform float uTime;
 uniform float uOpacity;
 uniform vec3 uColor;
@@ -253,6 +257,7 @@ function StarField({ visible }) {
 
 // Custom shader for Doppler beaming modulation
 const dopplerVertexShader = `
+precision highp float;
 varying float vAngle;
 varying vec3 vWorldPos;
 
@@ -265,6 +270,7 @@ void main() {
 `;
 
 const dopplerFragmentShader = `
+precision highp float;
 uniform vec3 uColor;
 uniform float uOpacity;
 uniform float uDopplerStrength;
@@ -526,6 +532,7 @@ function SubtleHotspots({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
   const tiltRad = (tiltDeg * Math.PI) / 180;
 
   const fragShader = /* glsl */`
+    precision highp float;
     uniform float uTime;
     varying vec2 vUv;
     
@@ -568,7 +575,7 @@ function SubtleHotspots({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
     <mesh ref={meshRef} rotation={[tiltRad, 0, 0.05]} visible={visible}>
       <torusGeometry args={[ringRadius, 0.018, 16, 256]} />
       <shaderMaterial
-        vertexShader={`varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`}
+        vertexShader={`precision highp float; varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`}
         fragmentShader={fragShader}
         uniforms={{ uTime: { value: 0 } }}
         transparent
@@ -837,6 +844,22 @@ function useAmbientDrone() {
 // ============================================================
 
 function Scene({ phase, proximityDim = 0 }) {
+  // Responsive ring: compute max radius that fits viewport with 12% margin
+  const { viewport, camera } = useThree();
+  const baseRadius = 4.0;
+  const tiltDeg = 75;
+  
+  const ringRadius = useMemo(() => {
+    const aspect = viewport.width / viewport.height;
+    const vFovRad = (camera.fov * Math.PI) / 180;
+    const hFovHalf = Math.atan(Math.tan(vFovRad / 2) * aspect);
+    // Camera is at z=12, ring at origin — distance along z ≈ 12
+    const cameraZ = camera.position.z || 12;
+    const maxHalfWidth = cameraZ * Math.tan(hFovHalf) * 0.88; // 12% margin each side
+    const scale = Math.min(1.0, maxHalfWidth / baseRadius);
+    return baseRadius * scale;
+  }, [viewport.width, viewport.height, camera.fov, camera.position.z]);
+
   return (
     <>
       {/* Camera drift — subliminal Lissajous */}
@@ -860,30 +883,27 @@ function Scene({ phase, proximityDim = 0 }) {
       <VoidDust count={6} />
 
       {/* Photon ring — multi-layer with Doppler beaming */}
-      {/* Adjust tiltDeg to control how much of the ellipse is visible */}
-      {/* 75° = moderate tilt (current), 70° = more face-on, 80° = more edge-on */}
-      <PhotonRing visible={phase >= 2} ringRadius={4.0} tiltDeg={75} />
+      <PhotonRing visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
       {/* Horizon rim effect — barely perceptible compression at edge (3-6% opacity) */}
-      <HorizonRimEffect ringRadius={4.0} tiltDeg={75} />
+      <HorizonRimEffect ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
       {/* Secondary photon ring — faint ghost arc from extra half-orbit */}
-      {/* TEMPORARILY DISABLED - will re-enable at lower intensity once primary ring is solid */}
-      <SecondaryPhotonRing visible={false} ringRadius={4.0} tiltDeg={75} />
+      <SecondaryPhotonRing visible={false} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
       {/* Subtle hotspots — micro-turbulence flicker */}
-      <SubtleHotspots visible={phase >= 2} ringRadius={4.0} tiltDeg={75} />
+      <SubtleHotspots visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
       {/* Infalling particles — matter spiraling into event horizon */}
-      <InfallingParticles visible={phase >= 2} ringRadius={4.0} tiltDeg={75} />
+      <InfallingParticles visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
       {/* Post-processing chain */}
       {/* CRITICAL: Shadow mask renders AFTER bloom to prevent bloom bleed into void */}
       <PostProcessing
-        shadowCenter={[0.5, 0.5]}    // Adjust if ring isn't centered on screen
-        shadowRadius={0.22}            // Screen-space radius of void — tune to match ring
-        shadowEllipseY={0.55}          // Ellipse ratio — match ring tilt
-        enableLensing={true}           // Gravitational lensing enabled at mass: 0.005
+        shadowCenter={[0.5, 0.5]}
+        shadowRadius={0.22}
+        shadowEllipseY={0.55}
+        enableLensing={true}
       />
     </>
   );
