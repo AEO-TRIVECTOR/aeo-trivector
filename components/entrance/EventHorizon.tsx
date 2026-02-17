@@ -18,6 +18,8 @@ import {
 import { BlendFunction, KernelSize } from 'postprocessing'
 import * as THREE from 'three'
 import { ShadowMask } from './ShadowMask'
+import { SecondaryPhotonRing } from './SecondaryPhotonRing'
+import { InfallingParticles } from './InfallingParticles'
 
 // ============================================================
 // 1. CUSTOM SHADER: Gravitational Lensing Distortion
@@ -125,10 +127,27 @@ const PhotonRingFragmentShader = /* glsl */ `
       noise(dopplerAngle * 7.0 - uTime * uShimmerSpeed * 0.7) * 0.4
     );
 
+    // Turbulent hotspots (accretion turbulence)
+    float hotspot1 = exp(-pow(dopplerAngle - (uTime * 0.25 + 1.0), 2.0) / 0.04);
+    float hotspot2 = exp(-pow(dopplerAngle - (-uTime * 0.18 + 3.6), 2.0) / 0.08);
+    float hotspot3 = exp(-pow(dopplerAngle - (uTime * 0.33 + 5.2), 2.0) / 0.06);
+    float hotspotNoise = noise(dopplerAngle * 15.0 + uTime * 0.9);
+    float hotspot = (hotspot1 * 1.7 + hotspot2 * 1.2 + hotspot3 * 1.4) * (0.7 + 0.3 * hotspotNoise);
+    float hotspotBoost = 1.0 + 0.45 * hotspot;
+
+    // Color-shifted Doppler (blue→white→gold)
+    float side = clamp(doppler, 0.0, 10.0);
+    side = (side - 1.0) / (uDopplerStrength * 3.0 + 0.0001);
+    side = clamp(side, -1.0, 1.0);
+    vec3 blueTint = vec3(0.8, 0.9, 1.3);
+    vec3 goldTint = vec3(1.3, 1.05, 0.7);
+    float t = (side + 1.0) * 0.5;
+    vec3 tempTint = mix(goldTint, blueTint, t);
+
     // Combine
-    vec3 coreColor = uCoreColor * core * uIntensity * 3.0;
-    vec3 haloColor = uHaloColor * halo * uIntensity * 0.8;
-    vec3 finalColor = (coreColor + haloColor) * doppler * shimmer;
+    vec3 coreColor = (uCoreColor * tempTint) * core * uIntensity * 3.0;
+    vec3 haloColor = (uHaloColor * tempTint) * halo * uIntensity * 0.8;
+    vec3 finalColor = (coreColor + haloColor) * doppler * shimmer * hotspotBoost;
 
     // Alpha
     float alpha = max(core, halo * 0.6) * doppler * shimmer;
@@ -176,13 +195,13 @@ function StarField({ count = 500, ringCenter = [0, 0, 0], ringRadius = 5 }) {
 
       // Size distribution: 70% tiny, 25% medium, 5% bright
       const roll = Math.random()
-      if (roll < 0.70) sizes[i] = 0.03 + Math.random() * 0.02
-      else if (roll < 0.95) sizes[i] = 0.06 + Math.random() * 0.04
-      else sizes[i] = 0.10 + Math.random() * 0.06
+      if (roll < 0.70) sizes[i] = 0.05 + Math.random() * 0.03
+      else if (roll < 0.95) sizes[i] = 0.10 + Math.random() * 0.06
+      else sizes[i] = 0.16 + Math.random() * 0.08
 
       // Opacity: stars near ring are dimmer (gravitational redshift)
-      const redshiftDim = normDist < 2.0 ? 0.15 + 0.55 * (normDist / 2.0) : 0.7
-      opacities[i] = redshiftDim * (0.3 + Math.random() * 0.7)
+      const redshiftDim = normDist < 2.0 ? 0.25 + 0.55 * (normDist / 2.0) : 0.85
+      opacities[i] = redshiftDim * (0.6 + Math.random() * 0.4)
 
       // Color: blue-white far away, orange-shifted near ring
       if (normDist < 1.5) {
@@ -641,6 +660,12 @@ function Scene() {
 
       {/* Secondary halo ring (broad, golden) */}
       <HaloRing radius={5} tubeRadius={0.055} />
+
+      {/* Infalling particles - matter spiraling into void */}
+      <InfallingParticles count={10} radius={7} />
+
+      {/* Secondary photon ring - ghost ring at 1.5× radius */}
+      <SecondaryPhotonRing radius={7.4} />
 
       {/* Shadow mask - pure black disc at event horizon */}
       <ShadowMask radius={5} />

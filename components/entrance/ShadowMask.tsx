@@ -6,11 +6,11 @@
 import * as THREE from 'three'
 
 export function ShadowMask({ radius = 5 }: { radius?: number }) {
-  // Shadow disc at 92% of ring radius (just inside event horizon)
-  const shadowRadius = radius * 0.92
+  // Shadow disc at 96% of ring radius (larger to block bloom bleeding)
+  const shadowRadius = radius * 0.96
 
   return (
-    <mesh position={[0, -0.5, 0.1]} renderOrder={-1}>
+    <mesh position={[0, -0.5, 0.05]} renderOrder={-1}>
       <circleGeometry args={[shadowRadius, 128]} />
       <meshBasicMaterial
         color="#000000"
