@@ -289,19 +289,18 @@ varying float vAngle;
 
 void main() {
   // Physics-inspired Doppler beaming with proper asymmetry
-  // Goal: approaching side bright (1.0), receding side dim but visible (0.25)
+  // Goal: approaching side bright (1.0), receding side visible (0.28-0.30)
   float angleOffset = vAngle - uApproachAngle;
   float cosAngle = cos(angleOffset);
   
-  // Simplified relativistic-inspired formula that stays positive
-  // Maps cosAngle from [-1,1] to doppler from [0.25, 1.0]
-  float dopplerBase = 0.625 + 0.375 * cosAngle; // Linear component [0.25, 1.0]
+  // Map cosAngle from [-1,1] to doppler from [0.30, 1.0]
+  float dopplerBase = 0.65 + 0.35 * cosAngle; // Linear component [0.30, 1.0]
   
-  // Add nonlinear boost on approaching side for stronger asymmetry
-  float boost = uDopplerStrength * 0.4 * pow(max(0.0, cosAngle), 2.0);
+  // Add nonlinear boost on approaching side for asymmetry
+  float boost = uDopplerStrength * 0.35 * pow(max(0.0, cosAngle), 1.8);
   
   float doppler = dopplerBase + boost;
-  doppler = clamp(doppler, 0.2, 1.2); // Safety clamp
+  doppler = clamp(doppler, 0.28, 1.15); // Safety clamp
   
   // Gravitational redshift: subtle color shift only (no dimming)
   // Approaching side: slightly bluer
