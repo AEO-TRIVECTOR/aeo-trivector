@@ -224,7 +224,7 @@ function StarField({ visible }) {
         count={4000}
         baseSize={0.5}
         opacity={0.3}
-        spread={2000}
+        spread={800}
         rotationSpeed={0.00005}
       />
       {/* Mid layer: depth parallax */}
@@ -232,7 +232,7 @@ function StarField({ visible }) {
         count={2000}
         baseSize={1.5}
         opacity={0.5}
-        spread={1000}
+        spread={400}
         rotationSpeed={0.0002}
       />
       {/* Near layer: prominent stars, some bright enough for bloom */}
@@ -240,7 +240,7 @@ function StarField({ visible }) {
         count={600}
         baseSize={3.0}
         opacity={0.75}
-        spread={500}
+        spread={200}
         rotationSpeed={0.0005}
       />
     </group>
@@ -346,8 +346,8 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
 
   useFrame(({ clock }) => {
     if (groupRef.current) {
-      // Very slow rotation: one revolution per ~5 minutes
-      groupRef.current.rotation.y = clock.elapsedTime * 0.02;
+      // Very slow rotation: spin in-plane (like a record) around ring's normal axis
+      groupRef.current.rotation.z = clock.elapsedTime * 0.02;
     }
   });
 
@@ -358,7 +358,7 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
       <PhotonRingLayer
         radius={ringRadius}
         tubeRadius={0.003}
-        color={new THREE.Color(3.5, 3.5, 3.5)} // HDR white at 3.5x
+        color={new THREE.Color(4.5, 4.5, 4.5)} // HDR white at 4.5x
         opacity={1.0}
         dopplerStrength={0.7}
         shimmerAmp={0.1}
@@ -395,7 +395,225 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
 }
 
 // ============================================================
-// §5. CAMERA DRIFT — Subliminal Lissajous
+// §5. SECONDARY PHOTON RING — Faint ghost arc from extra half-orbit
+// ============================================================
+
+function SecondaryPhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
+  const groupRef = useRef();
+  const tiltRad = (tiltDeg * Math.PI) / 180;
+
+  useFrame(({ clock }) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.z = clock.elapsedTime * 0.02;
+    }
+  });
+
+  return (
+    <group ref={groupRef} rotation={[tiltRad, 0, 0]} visible={visible}>
+      <PhotonRingLayer
+        radius={ringRadius * 1.35}
+        tubeRadius={0.0035}
+        color={new THREE.Color(1.5, 1.2, 0.6)}
+        opacity={0.35}
+        dopplerStrength={0.5}
+        shimmerAmp={0.06}
+        shimmerFreq1={1.2}
+        shimmerFreq2={2.8}
+      />
+    </group>
+  );
+}
+
+// ============================================================
+// §6. INFALLING PARTICLES — Matter spiraling into event horizon
+// ============================================================
+
+function InfallingParticles({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
+  const groupRef = useRef();
+  const particlesRef = useRef();
+  const tiltRad = (tiltDeg * Math.PI) / 180;
+  const count = 8;
+
+  const [positions, phases] = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    const ph = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      ph[i] = (i / count) * Math.PI * 2;
+    }
+    return [pos, ph];
+  }, []);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    for (let i = 0; i < count; i++) {
+      const phase = phases[i] + t * 0.3;
+      const r = ringRadius * (1.2 + 0.3 * Math.sin(phase * 0.5));
+      positions[i * 3] = r * Math.cos(phase);
+      positions[i * 3 + 1] = 0;
+      positions[i * 3 + 2] = r * Math.sin(phase);
+      // Reset when reaching horizon
+      if (r < ringRadius * 0.5) {
+        phases[i] = Math.random() * Math.PI * 2;
+      }
+    }
+    if (particlesRef.current) {
+      particlesRef.current.geometry.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group ref={groupRef} rotation={[tiltRad, 0, 0]} visible={visible}>
+      <points ref={particlesRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            array={positions}
+            count={count}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.04}
+          color="#ffb366"
+          opacity={0.6}
+          transparent
+          sizeAttenuation
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+    </group>
+  );
+}
+
+// ============================================================
+// §7. SUBTLE HOTSPOTS — Micro-turbulence flicker
+// ============================================================
+
+function SubtleHotspots({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
+  const meshRef = useRef();
+  const tiltRad = (tiltDeg * Math.PI) / 180;
+
+  const fragShader = /* glsl */`
+    uniform float uTime;
+    varying vec2 vUv;
+    
+    float hash(float n) { return fract(sin(n) * 43758.5453123); }
+    float noise(float x) {
+      float i = floor(x);
+      float f = fract(x);
+      return mix(hash(i), hash(i+1.0), f*f*(3.0-2.0*f));
+    }
+    
+    void main() {
+      float angle = vUv.x * 6.28318;
+      
+      // Three hotspots drifting slowly
+      float h1 = exp(-pow(mod(angle - uTime*0.15 + 1.2, 6.28318) - 3.14159, 2.0) / 0.06);
+      float h2 = exp(-pow(mod(angle + uTime*0.11 + 4.1, 6.28318) - 3.14159, 2.0) / 0.08);
+      float h3 = exp(-pow(mod(angle - uTime*0.19 + 2.8, 6.28318) - 3.14159, 2.0) / 0.05);
+      
+      float n = noise(angle * 12.0 + uTime * 0.7);
+      float hotspot = (h1 * 0.4 + h2 * 0.3 + h3 * 0.35) * (0.8 + 0.2 * n);
+      
+      // Radial profile (only at ring radius)
+      float d = abs(vUv.y - 0.5) * 2.0;
+      float radial = exp(-d * d * 180.0);
+      
+      vec3 color = vec3(1.5, 1.2, 0.7) * hotspot * radial * 0.25;
+      float alpha = hotspot * radial * 0.18;
+      
+      gl_FragColor = vec4(color, alpha);
+    }
+  `;
+
+  useFrame((state) => {
+    if (meshRef.current?.material) {
+      (meshRef.current.material).uniforms.uTime.value = state.clock.elapsedTime;
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} rotation={[tiltRad, 0, 0.05]} visible={visible}>
+      <torusGeometry args={[ringRadius, 0.018, 16, 256]} />
+      <shaderMaterial
+        vertexShader={`varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`}
+        fragmentShader={fragShader}
+        uniforms={{ uTime: { value: 0 } }}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+}
+
+// ============================================================
+// §8. VOID DUST — Ultra-sparse slow-moving particles
+// ============================================================
+
+function VoidDust({ count = 6 }) {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 24;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 16;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
+    }
+    return pos;
+  }, [count]);
+
+  const velocities = useMemo(() => 
+    Array.from({ length: count }, () => ({
+      vx: (Math.random() - 0.5) * 0.02,
+      vy: (Math.random() - 0.5) * 0.015,
+      vz: (Math.random() - 0.5) * 0.01,
+    })), [count]
+  );
+
+  useFrame(() => {
+    for (let i = 0; i < count; i++) {
+      const idx = i * 3;
+      positions[idx] += velocities[i].vx;
+      positions[idx + 1] += velocities[i].vy;
+      positions[idx + 2] += velocities[i].vz;
+      
+      // Wrap around bounds
+      if (Math.abs(positions[idx]) > 12) positions[idx] *= -0.9;
+      if (Math.abs(positions[idx + 1]) > 8) positions[idx + 1] *= -0.9;
+      if (Math.abs(positions[idx + 2]) > 5) positions[idx + 2] *= -0.9;
+    }
+    
+    if (ref.current) {
+      ref.current.geometry.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.025}
+        color="#8a7555"
+        opacity={0.3}
+        transparent
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+// ============================================================
+// §9. CAMERA DRIFT — Subliminal Lissajous
 // ============================================================
 
 function CameraDrift() {
@@ -453,7 +671,7 @@ function PostProcessing({ shadowCenter, shadowRadius, shadowEllipseY, enableLens
     <EffectComposer disableNormalPass>
       {/* Bloom: moderate intensity, only HDR elements trigger */}
       <Bloom
-        intensity={0.9}
+        intensity={1.1}
         luminanceThreshold={0.85}
         luminanceSmoothing={0.03}
         mipmapBlur={true}
@@ -595,10 +813,22 @@ function Scene({ phase }) {
       {/* Star field — three parallax layers */}
       <StarField visible={phase >= 1} />
 
+      {/* Void dust — ultra-sparse slow particles */}
+      <VoidDust count={6} />
+
       {/* Photon ring — multi-layer with Doppler beaming */}
       {/* Adjust tiltDeg to control how much of the ellipse is visible */}
       {/* 75° = moderate tilt (current), 70° = more face-on, 80° = more edge-on */}
       <PhotonRing visible={phase >= 2} ringRadius={5.5} tiltDeg={75} />
+
+      {/* Secondary photon ring — faint ghost arc from extra half-orbit */}
+      <SecondaryPhotonRing visible={phase >= 2} ringRadius={5.5} tiltDeg={75} />
+
+      {/* Subtle hotspots — micro-turbulence flicker */}
+      <SubtleHotspots visible={phase >= 2} ringRadius={5.5} tiltDeg={75} />
+
+      {/* Infalling particles — matter spiraling into event horizon */}
+      <InfallingParticles visible={phase >= 2} ringRadius={5.5} tiltDeg={75} />
 
       {/* Post-processing chain */}
       {/* CRITICAL: Shadow mask renders AFTER bloom to prevent bloom bleed into void */}
@@ -606,7 +836,7 @@ function Scene({ phase }) {
         shadowCenter={[0.5, 0.5]}    // Adjust if ring isn't centered on screen
         shadowRadius={0.22}            // Screen-space radius of void — tune to match ring
         shadowEllipseY={0.55}          // Ellipse ratio — match ring tilt
-        enableLensing={false}          // Set true once core ring + void looks right
+        enableLensing={true}           // Gravitational lensing enabled at mass: 0.005
       />
     </>
   );
