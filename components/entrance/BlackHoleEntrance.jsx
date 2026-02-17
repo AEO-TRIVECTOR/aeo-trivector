@@ -258,17 +258,26 @@ function StarField({ visible }) {
 // §4. PHOTON RING — Multi-layer with Doppler + shimmer
 // ============================================================
 
-// Custom shader for Doppler beaming modulation
+// Custom shader for Doppler beaming + Kerr asymmetry
 const dopplerVertexShader = `
 precision highp float;
+uniform float uSpin;  // Black hole spin parameter a/M ∈ [0, 1]
 varying float vAngle;
 varying vec3 vWorldPos;
 
 void main() {
   vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+  
   // Compute angle around ring for Doppler modulation
   vAngle = atan(vWorldPos.x, vWorldPos.z);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  
+  // Kerr asymmetry: radius perturbation due to frame dragging
+  // δr/r ≈ (a/M) * sin(φ) for equatorial plane
+  // Approaching side (φ=0) slightly smaller, receding side slightly larger
+  float kerrPerturbation = uSpin * 0.02 * sin(vAngle);  // 2% max perturbation
+  vec3 perturbedPos = position * (1.0 + kerrPerturbation);
+  
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(perturbedPos, 1.0);
 }
 `;
 
@@ -366,6 +375,7 @@ function PhotonRingLayer({
           uShimmerFreq2: { value: shimmerFreq2 },
           uRadius: { value: radius },
           uHorizonRadius: { value: radius * 0.67 }, // Schwarzschild r_h ≈ 2/3 * r_photon
+          uSpin: { value: 0.7 }, // Moderate spin a/M = 0.7 (typical for astrophysical BHs)
         }}
         vertexShader={dopplerVertexShader}
         fragmentShader={dopplerFragmentShader}
@@ -430,7 +440,55 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
 }
 
 // ============================================================
-// §5. EINSTEIN RING GHOST — Barely visible offset ring (ritual element)
+// §5. MULTI-ORDER PHOTON RINGS — n=1 primary, n=2 secondary ghost
+// ============================================================
+
+// Based on GR: photon rings at r_n = r_photon * (1 + ε_n) where ε_n → 0 exponentially
+// n=0: Base lensing ring (demagnified back side)
+// n=1: Primary photon ring (dominant, what we see as main ring)
+// n=2: Secondary ghost (faint, exponentially dimmer)
+
+function PhotonRingN1({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
+  // n=1: Primary photon ring (this is the main visible ring)
+  // Already implemented as PhotonRing component
+  return null; // Placeholder - main PhotonRing IS n=1
+}
+
+function PhotonRingN2({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
+  const groupRef = useRef();
+  const tiltRad = (tiltDeg * Math.PI) / 180;
+  
+  // n=2: Secondary photon ring
+  // Radius slightly smaller (converging toward critical curve)
+  // Intensity exponentially dimmer: I_n ∝ exp(-n/τ) where τ ≈ 1.5
+  const radiusN2 = ringRadius * 0.985; // 1.5% smaller
+  const intensityFalloff = Math.exp(-2 / 1.5); // ≈ 0.26
+  
+  useFrame(({ clock }) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.z = clock.elapsedTime * 0.02;
+    }
+  });
+  
+  return (
+    <group ref={groupRef} rotation={[tiltRad, 0, 0]} visible={visible}>
+      {/* Single thin layer for n=2 ghost ring */}
+      <PhotonRingLayer
+        radius={radiusN2}
+        tubeRadius={0.004}
+        color={new THREE.Color(3.0, 3.0, 3.0)} // Dimmer than core
+        opacity={0.15 * intensityFalloff} // ≈ 0.04 opacity
+        dopplerStrength={0.6}
+        shimmerAmp={0.05}
+        shimmerFreq1={1.2}
+        shimmerFreq2={2.8}
+      />
+    </group>
+  );
+}
+
+// ============================================================
+// §6. EINSTEIN RING GHOST — Barely visible offset ring (ritual element)
 // ============================================================
 
 function EinsteinRingGhost({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
@@ -954,10 +1012,13 @@ function Scene({ phase, proximityDim = 0 }) {
         {/* Photon ring — multi-layer with Doppler beaming */}
         <PhotonRing visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
-        {/* Horizon rim effect — barely perceptible compression at edge (3-6% opacity) */}
-        <HorizonRimEffect ringRadius={ringRadius} tiltDeg={tiltDeg} />
+        {/* ── n=2 secondary photon ring: exponentially dimmer ghost ── */}
+        <PhotonRingN2 visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
-        {/* Einstein ring ghost — barely visible offset ring (only visible in motion) */}
+        {/* ── Horizon rim effect: subtle compression at edge ── */}
+        <HorizonRimEffect visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
+
+        {/* ── Einstein ring ghost: barely visible ritual element ── */}
         <EinsteinRingGhost visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
         {/* Subtle hotspots — micro-turbulence flicker */}
