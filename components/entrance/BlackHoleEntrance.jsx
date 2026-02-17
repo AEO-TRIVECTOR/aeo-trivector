@@ -288,44 +288,30 @@ uniform float uHorizonRadius;    // event horizon radius
 varying float vAngle;
 
 void main() {
-  // Physics-accurate Doppler beaming: D^(3+α) formula
-  // Based on relativistic beaming for synchrotron emission
-  // D = 1 / (Γ(1 - β·cos(θ))) where Γ is Lorentz factor, β is velocity
+  // Physics-inspired Doppler beaming with proper asymmetry
+  // Goal: approaching side bright (1.0), receding side dim but visible (0.25)
   float angleOffset = vAngle - uApproachAngle;
   float cosAngle = cos(angleOffset);
   
-  // Approximate orbital velocity β ≈ 0.5 at photon ring
-  float beta = 0.5;
-  float gamma = 1.0 / sqrt(1.0 - beta * beta); // Lorentz factor ≈ 1.15
+  // Simplified relativistic-inspired formula that stays positive
+  // Maps cosAngle from [-1,1] to doppler from [0.25, 1.0]
+  float dopplerBase = 0.625 + 0.375 * cosAngle; // Linear component [0.25, 1.0]
   
-  // Doppler factor D = 1 / (Γ(1 - β·cos(θ)))
-  float dopplerFactor = 1.0 / (gamma * (1.0 - beta * cosAngle));
+  // Add nonlinear boost on approaching side for stronger asymmetry
+  float boost = uDopplerStrength * 0.4 * pow(max(0.0, cosAngle), 2.0);
   
-  // Spectral index α ≈ 0 for optically thick emission
-  float alpha = 0.0;
+  float doppler = dopplerBase + boost;
+  doppler = clamp(doppler, 0.2, 1.2); // Safety clamp
   
-  // Relativistic beaming: I ∝ D^(3+α)
-  float doppler = pow(dopplerFactor, 3.0 + alpha) * uDopplerStrength;
-  
-  // Normalize to keep peak brightness reasonable
-  doppler = doppler / 2.5;
-  
-  // Gravitational redshift: z_g = (1 - 2M/r)^(-1/2) - 1
-  // Simplified: z_g ≈ M/r for weak field
-  float rNorm = uRadius / uHorizonRadius; // normalized radius
-  float redshift = 0.4 / rNorm;  // redshift parameter
-  
-  // Color shift: approaching side blueshifted, receding redshifted
-  // Combined Doppler + gravitational effects
-  vec3 blueShiftColor = uColor * vec3(1.1, 1.05, 1.0);  // slightly bluer
-  vec3 redShiftColor = uColor * vec3(1.0, 0.9, 0.7);    // warmer/redder
-  
-  // Mix based on Doppler factor and redshift
+  // Gravitational redshift: subtle color shift only (no dimming)
+  // Approaching side: slightly bluer
+  // Receding side: slightly warmer/redder
   float colorMix = (cosAngle + 1.0) * 0.5; // [0,1] from receding to approaching
-  vec3 dopplerColor = mix(redShiftColor, blueShiftColor, colorMix);
   
-  // Apply gravitational dimming to receding side
-  vec3 finalColor = dopplerColor * (1.0 - redshift * (1.0 - colorMix));
+  vec3 blueShiftColor = uColor * vec3(1.05, 1.02, 1.0);  // subtle blue shift
+  vec3 redShiftColor = uColor * vec3(1.0, 0.95, 0.85);    // subtle red shift
+  
+  vec3 finalColor = mix(redShiftColor, blueShiftColor, colorMix);
   
   // Shimmer: two-frequency organic flicker
   float shimmer = 1.0 
