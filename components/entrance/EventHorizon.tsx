@@ -14,7 +14,6 @@ import {
   Bloom,
   Vignette,
   Noise,
-  ChromaticAberration,
 } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
 import * as THREE from 'three'
@@ -662,13 +661,7 @@ function PostProcessing() {
         radius={1.3}
         levels={6}
       />
-      {/* CHROMATIC ABERRATION (gravitational lensing wavelength split) */}
-      <ChromaticAberration
-        blendFunction={BlendFunction.NORMAL}
-        offset={new THREE.Vector2(0.0042, 0.0026)}
-        radialModulation
-        modulationOffset={0.25}
-      />
+      {/* Chromatic aberration removed - not available in @react-three/postprocessing 3.0.4 */}
       {/* VIGNETTE */}
       <Vignette
         offset={0.28}
