@@ -17,6 +17,7 @@ import {
 } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
 import * as THREE from 'three'
+import { ShadowMask } from './ShadowMask'
 
 // ============================================================
 // 1. CUSTOM SHADER: Gravitational Lensing Distortion
@@ -590,20 +591,12 @@ function PostProcessing() {
   return (
     <EffectComposer multisampling={0}>
       <Bloom
-        intensity={2.5}
-        luminanceThreshold={0.2}
+        intensity={1.25}
+        luminanceThreshold={0.18}
         luminanceSmoothing={0.4}
         mipmapBlur
-        radius={0.85}
+        radius={0.62}
         levels={8}
-      />
-      <Bloom
-        intensity={0.8}
-        luminanceThreshold={0.5}
-        luminanceSmoothing={0.9}
-        mipmapBlur
-        radius={1.2}
-        levels={6}
       />
       <Vignette
         offset={0.3}
@@ -648,6 +641,9 @@ function Scene() {
 
       {/* Secondary halo ring (broad, golden) */}
       <HaloRing radius={5} tubeRadius={0.055} />
+
+      {/* Shadow mask - pure black disc at event horizon */}
+      <ShadowMask radius={5} />
 
       {/* PRIMARY PHOTON RING — the singularity */}
       <PhotonRing radius={5} tubeRadius={0.015} segments={512} intensity={25} />
