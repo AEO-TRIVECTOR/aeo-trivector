@@ -12,6 +12,7 @@
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useMetricState } from '@/hooks/useMetricState';
 import {
   EffectComposer,
   Bloom,
@@ -1005,6 +1006,9 @@ function useAmbientDrone() {
 // ============================================================
 
 function Scene({ phase, proximityDim = 0 }) {
+  // Unified metric state (single source of truth for all gravitational components)
+  const { state: metricState, api: metricApi } = useMetricState();
+  
   // Responsive ring: cathedral-scale arc (6.5 base radius for "standing at rim" effect)
   const { viewport, camera } = useThree();
   const baseRadius = 6.5; // Increased from 4.0 for cathedral scale
