@@ -277,8 +277,14 @@ uniform float uShimmerFreq2;
 varying float vAngle;
 
 void main() {
-  // Doppler beaming: approaching side brighter
-  float doppler = 1.0 + uDopplerStrength * cos(vAngle - uApproachAngle);
+  // Doppler beaming: approaching side brighter (asymmetric formula for 1.0:0.25 ratio)
+  // Using power function to create stronger asymmetry
+  float angleOffset = vAngle - uApproachAngle;
+  float cosAngle = cos(angleOffset);
+  // Map cosine from [-1,1] to doppler range [0.25, 1.0]
+  // When cosAngle = 1 (approaching): doppler = 1.0
+  // When cosAngle = -1 (receding): doppler = 0.25
+  float doppler = 0.625 + 0.375 * cosAngle + uDopplerStrength * 0.5 * pow(max(0.0, cosAngle), 1.5);
   
   // Shimmer: two-frequency organic flicker
   float shimmer = 1.0 
@@ -354,11 +360,11 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
   return (
     <group ref={groupRef} rotation={[tiltRad, 0, 0]} visible={visible}>
       {/* ── Layer 1: Core filament ── */}
-      {/* KEY: emissive 3-4, NOT 10-12. Let bloom do the work. */}
+      {/* Brighter peak for extreme dynamic range (brightest part slightly brighter) */}
       <PhotonRingLayer
         radius={ringRadius}
         tubeRadius={0.003}
-        color={new THREE.Color(4.5, 4.5, 4.5)} // HDR white at 4.5x
+        color={new THREE.Color(5.5, 5.5, 5.5)} // HDR white at 5.5x (increased from 4.5)
         opacity={1.0}
         dopplerStrength={0.7}
         shimmerAmp={0.1}
@@ -367,11 +373,12 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
       />
 
       {/* ── Layer 2: Inner warm halo ── */}
+      {/* Reduced for higher contrast (everything else slightly darker) */}
       <PhotonRingLayer
         radius={ringRadius}
         tubeRadius={0.025}
-        color={new THREE.Color(2.0, 1.0, 0.2)} // Warm gold at 2x
-        opacity={0.35}
+        color={new THREE.Color(1.6, 0.8, 0.16)} // Warm gold reduced from 2.0,1.0,0.2
+        opacity={0.28} // Reduced from 0.35
         dopplerStrength={0.6}
         shimmerAmp={0.08}
         shimmerFreq1={1.047} // 6-second breathing cycle
@@ -379,12 +386,12 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
       />
 
       {/* ── Layer 3: Outer atmospheric scatter ── */}
-      {/* SUBTLE. If this causes bloom blowout, reduce opacity to 0.04 or remove */}
+      {/* Further reduced for maximum contrast */}
       <PhotonRingLayer
         radius={ringRadius}
         tubeRadius={0.06}
-        color={new THREE.Color(0.6, 0.3, 0.06)}
-        opacity={0.08}
+        color={new THREE.Color(0.48, 0.24, 0.048)} // Reduced from 0.6,0.3,0.06
+        opacity={0.06} // Reduced from 0.08
         dopplerStrength={0.5}
         shimmerAmp={0.05}
         shimmerFreq1={0.8}
@@ -425,7 +432,32 @@ function SecondaryPhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
 }
 
 // ============================================================
-// §6. INFALLING PARTICLES — Matter spiraling into event horizon
+// §6. HORIZON RIM EFFECT — Barely perceptible compression at edge
+// ============================================================
+
+function HorizonRimEffect({ ringRadius = 4.0, tiltDeg = 75 }) {
+  const tiltRad = (tiltDeg * Math.PI) / 180;
+
+  return (
+    <group rotation={[tiltRad, 0, 0]}>
+      {/* Subtle rim - not a glow, more like compression of background light */}
+      <mesh>
+        <torusGeometry args={[ringRadius * 0.92, ringRadius * 0.08, 32, 128]} />
+        <meshBasicMaterial
+          color="#f5e6c8"
+          transparent
+          opacity={0.04} // 3-6% range, starting at 4%
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// ============================================================
+// §7. INFALLING PARTICLES — Matter spiraling into event horizon
 // ============================================================
 
 function InfallingParticles({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
@@ -660,7 +692,7 @@ function PostProcessing({ shadowCenter, shadowRadius, shadowEllipseY, enableLens
       enableLensing
         ? new GravitationalLensEffect({
             center: shadowCenter,
-            mass: 0.006,
+            mass: 0.012, // Increased from 0.006 for more visible star curvature
             shadowRadius: shadowRadius,
           })
         : null,
@@ -830,16 +862,20 @@ function Scene({ phase, proximityDim = 0 }) {
       {/* Photon ring — multi-layer with Doppler beaming */}
       {/* Adjust tiltDeg to control how much of the ellipse is visible */}
       {/* 75° = moderate tilt (current), 70° = more face-on, 80° = more edge-on */}
-      <PhotonRing visible={phase >= 2} ringRadius={5.5} tiltDeg={75} />
+      <PhotonRing visible={phase >= 2} ringRadius={4.0} tiltDeg={75} />
+
+      {/* Horizon rim effect — barely perceptible compression at edge (3-6% opacity) */}
+      <HorizonRimEffect ringRadius={4.0} tiltDeg={75} />
 
       {/* Secondary photon ring — faint ghost arc from extra half-orbit */}
-      <SecondaryPhotonRing visible={phase >= 2} ringRadius={5.5} tiltDeg={75} />
+      {/* TEMPORARILY DISABLED - will re-enable at lower intensity once primary ring is solid */}
+      <SecondaryPhotonRing visible={false} ringRadius={4.0} tiltDeg={75} />
 
       {/* Subtle hotspots — micro-turbulence flicker */}
-      <SubtleHotspots visible={phase >= 2} ringRadius={5.5} tiltDeg={75} />
+      <SubtleHotspots visible={phase >= 2} ringRadius={4.0} tiltDeg={75} />
 
       {/* Infalling particles — matter spiraling into event horizon */}
-      <InfallingParticles visible={phase >= 2} ringRadius={5.5} tiltDeg={75} />
+      <InfallingParticles visible={phase >= 2} ringRadius={4.0} tiltDeg={75} />
 
       {/* Post-processing chain */}
       {/* CRITICAL: Shadow mask renders AFTER bloom to prevent bloom bleed into void */}
