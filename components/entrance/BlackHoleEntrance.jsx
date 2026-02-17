@@ -35,11 +35,22 @@ void mainUv(inout vec2 uv) {
   vec2 dir = uv - uCenter;
   float dist = length(dir);
   
-  // Lensing: strongest near ring, fades beyond
-  float lensZone = smoothstep(uShadowRadius * 2.0, uShadowRadius * 0.6, dist);
-  float warp = uMass / (dist * dist + 0.0005) * lensZone;
+  // Enhanced lensing: stronger near horizon for Einstein ring visibility
+  // Zone 1: Strong lensing near horizon (creates Einstein ring)
+  float innerZone = smoothstep(uShadowRadius * 1.5, uShadowRadius * 0.4, dist);
+  float innerWarp = uMass * 1.8 / (dist * dist + 0.0003) * innerZone;
   
-  uv += normalize(dir) * warp;
+  // Zone 2: Medium lensing around photon ring
+  float midZone = smoothstep(uShadowRadius * 2.5, uShadowRadius * 0.8, dist);
+  float midWarp = uMass * 0.6 / (dist * dist + 0.0008) * midZone;
+  
+  // Zone 3: Weak lensing in outer region (smooth falloff)
+  float outerZone = smoothstep(uShadowRadius * 3.0, uShadowRadius * 1.5, dist);
+  float outerWarp = uMass * 0.2 / (dist * dist + 0.002) * outerZone;
+  
+  float totalWarp = innerWarp + midWarp + outerWarp;
+  
+  uv += normalize(dir) * totalWarp;
 }
 `;
 
@@ -295,6 +306,7 @@ uniform float uRadius;           // ring radius for redshift calculation
 uniform float uHorizonRadius;    // event horizon radius
 
 varying float vAngle;
+varying vec3 vWorldPos;
 
 void main() {
   // Physics-inspired Doppler beaming with proper asymmetry
@@ -311,6 +323,16 @@ void main() {
   float doppler = dopplerBase + boost;
   doppler = clamp(doppler, 0.28, 1.15); // Safety clamp
   
+  // Horizon absorption falloff: photons near event horizon get absorbed
+  // Radial distance from black hole center
+  float r = length(vWorldPos);
+  
+  // Smooth falloff as we approach horizon (r → r_h)
+  // Using exponential falloff: exp(-k * (r - r_h)^2)
+  float horizonDist = r - uHorizonRadius;
+  float absorptionFalloff = 1.0 - exp(-8.0 * horizonDist * horizonDist);
+  absorptionFalloff = clamp(absorptionFalloff, 0.0, 1.0);
+  
   // Gravitational redshift: subtle color shift only (no dimming)
   // Approaching side: slightly bluer
   // Receding side: slightly warmer/redder
@@ -326,8 +348,9 @@ void main() {
     + sin(uTime * uShimmerFreq1 + vAngle * 3.0) * uShimmerAmp
     + sin(uTime * uShimmerFreq2 + vAngle * 5.0) * uShimmerAmp * 0.4;
   
-  vec3 color = finalColor * doppler * shimmer;
-  gl_FragColor = vec4(color, uOpacity * doppler);
+  // Apply absorption falloff to both color and opacity
+  vec3 color = finalColor * doppler * shimmer * absorptionFalloff;
+  gl_FragColor = vec4(color, uOpacity * doppler * absorptionFalloff);
 }
 `;
 
@@ -618,6 +641,7 @@ function SubtleHotspots({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
     uniform float uTime;
     varying vec2 vUv;
     
+    // Hash and noise functions for turbulence
     float hash(float n) { return fract(sin(n) * 43758.5453123); }
     float noise(float x) {
       float i = floor(x);
@@ -625,22 +649,40 @@ function SubtleHotspots({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
       return mix(hash(i), hash(i+1.0), f*f*(3.0-2.0*f));
     }
     
+    // MRI-inspired turbulence: multi-scale cascading noise
+    float mriTurbulence(float angle, float time) {
+      // Large-scale MHD modes (slow, coherent)
+      float large = noise(angle * 3.0 + time * 0.1) * 0.5;
+      
+      // Medium-scale turbulent eddies
+      float medium = noise(angle * 8.0 + time * 0.3) * 0.3;
+      
+      // Small-scale micro-turbulence (fast flicker)
+      float small = noise(angle * 20.0 + time * 1.2) * 0.2;
+      
+      return large + medium + small;
+    }
+    
     void main() {
       float angle = vUv.x * 6.28318;
       
-      // Three hotspots drifting slowly
+      // Three hotspots drifting slowly (large-scale structure)
       float h1 = exp(-pow(mod(angle - uTime*0.15 + 1.2, 6.28318) - 3.14159, 2.0) / 0.06);
       float h2 = exp(-pow(mod(angle + uTime*0.11 + 4.1, 6.28318) - 3.14159, 2.0) / 0.08);
       float h3 = exp(-pow(mod(angle - uTime*0.19 + 2.8, 6.28318) - 3.14159, 2.0) / 0.05);
       
-      float n = noise(angle * 12.0 + uTime * 0.7);
-      float hotspot = (h1 * 0.4 + h2 * 0.3 + h3 * 0.35) * (0.8 + 0.2 * n);
+      // MRI turbulence modulation
+      float turbulence = mriTurbulence(angle, uTime);
+      float hotspot = (h1 * 0.4 + h2 * 0.3 + h3 * 0.35) * (0.7 + 0.3 * turbulence);
       
       // Radial profile (only at ring radius)
       float d = abs(vUv.y - 0.5) * 2.0;
       float radial = exp(-d * d * 180.0);
       
-      vec3 color = vec3(1.5, 1.2, 0.7) * hotspot * radial * 0.25;
+      // Color: warmer during turbulent bursts
+      vec3 baseColor = vec3(1.5, 1.2, 0.7);
+      vec3 burstColor = vec3(1.8, 1.4, 0.6); // Slightly warmer
+      vec3 color = mix(baseColor, burstColor, turbulence * 0.3) * hotspot * radial * 0.25;
       float alpha = hotspot * radial * 0.18;
       
       gl_FragColor = vec4(color, alpha);
