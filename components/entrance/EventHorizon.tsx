@@ -589,7 +589,6 @@ function DepthFog() {
 function PostProcessing() {
   return (
     <EffectComposer disableNormalPass multisampling={0}>
-      {/* PRIMARY BLOOM — drives the "impossible brightness" */}
       <Bloom
         intensity={2.5}
         luminanceThreshold={0.2}
@@ -598,7 +597,6 @@ function PostProcessing() {
         radius={0.85}
         levels={8}
       />
-      {/* SECONDARY BLOOM — wider, softer glow halo */}
       <Bloom
         intensity={0.8}
         luminanceThreshold={0.5}
@@ -607,13 +605,11 @@ function PostProcessing() {
         radius={1.2}
         levels={6}
       />
-      {/* VIGNETTE — focuses attention to center */}
       <Vignette
         offset={0.3}
         darkness={0.85}
         blendFunction={BlendFunction.NORMAL}
       />
-      {/* SUBTLE FILM NOISE — breaks digital perfection */}
       <Noise
         opacity={0.04}
         blendFunction={BlendFunction.OVERLAY}
