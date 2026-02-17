@@ -66,7 +66,8 @@ export function PhotonRing({
   }), [order, intensity, thickness, observerInclinationOffset, observerAzimuthOffset, dopplerStrength, redshiftStrength])
 
   useFrame((state) => {
-    if (!meshRef.current?.material || !metricState?.current) return
+    if (!meshRef.current?.material) return
+    if (!metricState || !metricState.current) return
 
     const mat = meshRef.current.material
     const metric = metricState.current
@@ -88,7 +89,7 @@ export function PhotonRing({
 
   return (
     <mesh ref={meshRef} rotation={rotation} visible={visible}>
-      <torusGeometry args={[ringRadius, thickness * 0.15, 16, 256]} />
+      <torusGeometry args={[ringRadius, thickness * 0.15, 32, 300]} />
       <shaderMaterial
         vertexShader={photonRingVertexShader}
         fragmentShader={photonRingFragmentShader}

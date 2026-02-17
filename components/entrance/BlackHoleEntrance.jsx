@@ -13,6 +13,7 @@ import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useMetricState } from '@/hooks/useMetricState';
+import { PhotonRing as UnifiedPhotonRing } from './PhotonRing';
 import {
   EffectComposer,
   Bloom,
@@ -1057,6 +1058,17 @@ function Scene({ phase, proximityDim = 0 }) {
       <group position={[0, -1.2, 0]}>
         {/* Photon ring — multi-layer with Doppler beaming */}
         <PhotonRing visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
+        
+        {/* TEST: Unified PhotonRing (offset to compare) */}
+        <UnifiedPhotonRing 
+          metricState={metricState}
+          ringRadius={ringRadius * 1.1}
+          rotation={[(tiltDeg * Math.PI) / 180, 0, 0]}
+          order={0}
+          intensity={0.8}
+          thickness={0.12}
+          visible={phase >= 2}
+        />
 
         {/* ── n=2 secondary photon ring: exponentially dimmer ghost ── */}
         <PhotonRingN2 visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
