@@ -305,19 +305,19 @@ function PhotonRing({
   })
 
   return (
-    <mesh ref={meshRef} geometry={geometry} rotation={[Math.PI * 0.48, 0, 0.05]}>
+    <mesh ref={meshRef} geometry={geometry} rotation={[Math.PI * 0.35, 0, 0.05]} position={[0, -0.5, 0]}>
       <shaderMaterial
         ref={materialRef}
         vertexShader={PhotonRingVertexShader}
         fragmentShader={PhotonRingFragmentShader}
         uniforms={{
           uTime: { value: 0 },
-          uIntensity: { value: intensity },
-          uDopplerStrength: { value: 0.45 },
-          uShimmerSpeed: { value: 0.8 },
-          uShimmerAmount: { value: 0.18 },
+          uIntensity: { value: 8 },  // Reduced from 25 - let bloom do the work
+          uDopplerStrength: { value: 0.75 },  // Stronger asymmetry (was 0.45)
+          uShimmerSpeed: { value: 0.7 },
+          uShimmerAmount: { value: 0.22 },
           uCoreColor: { value: new THREE.Color(6.0, 5.8, 5.5) },  // HDR white
-          uHaloColor: { value: new THREE.Color(2.5, 1.8, 0.6) },  // golden halo
+          uHaloColor: { value: new THREE.Color(2.7, 1.9, 0.65) },  // golden halo
           uThickness: { value: 1.0 },
         }}
         transparent
@@ -373,7 +373,7 @@ function HaloRing({ radius = 5, tubeRadius = 0.06 }) {
   })
 
   return (
-    <mesh rotation={[Math.PI * 0.48, 0, 0.05]}>
+    <mesh rotation={[Math.PI * 0.35, 0, 0.05]} position={[0, -0.5, 0]}>
       <torusGeometry args={[radius, tubeRadius, 16, 256]} />
       <shaderMaterial
         ref={materialRef}
@@ -591,8 +591,8 @@ function PostProcessing() {
   return (
     <EffectComposer multisampling={0}>
       <Bloom
-        intensity={1.25}
-        luminanceThreshold={0.18}
+        intensity={1.2}
+        luminanceThreshold={0.22}
         luminanceSmoothing={0.4}
         mipmapBlur
         radius={0.62}
@@ -802,7 +802,7 @@ export default function EventHorizon() {
           alpha: false,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.2,
+          toneMappingExposure: 0.85,
         }}
         dpr={[1, 2]}
       >

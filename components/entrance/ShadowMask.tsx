@@ -10,7 +10,7 @@ export function ShadowMask({ radius = 5 }: { radius?: number }) {
   const shadowRadius = radius * 0.92
 
   return (
-    <mesh position={[0, -0.3, 0.1]} renderOrder={-1}>
+    <mesh position={[0, -0.5, 0.1]} renderOrder={-1}>
       <circleGeometry args={[shadowRadius, 128]} />
       <meshBasicMaterial
         color="#000000"
