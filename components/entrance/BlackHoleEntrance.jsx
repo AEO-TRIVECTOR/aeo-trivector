@@ -804,7 +804,7 @@ function useAmbientDrone() {
 // §9. SCENE — Assembles everything inside the Canvas
 // ============================================================
 
-function Scene({ phase }) {
+function Scene({ phase, proximityDim = 0 }) {
   return (
     <>
       {/* Camera drift — subliminal Lissajous */}
@@ -812,6 +812,17 @@ function Scene({ phase }) {
 
       {/* Star field — three parallax layers */}
       <StarField visible={phase >= 1} />
+
+      {/* Darkening overlay when cursor approaches button */}
+      <mesh position={[0, 0, 3]}>
+        <planeGeometry args={[30, 30]} />
+        <meshBasicMaterial
+          color="#000000"
+          transparent
+          opacity={proximityDim * 0.35}
+          depthWrite={false}
+        />
+      </mesh>
 
       {/* Void dust — ultra-sparse slow particles */}
       <VoidDust count={6} />
@@ -846,7 +857,8 @@ function Scene({ phase }) {
 // §10. HTML OVERLAY — Typography + Enter button
 // ============================================================
 
-function TitleOverlay({ phase, onEnter }) {
+function TitleOverlay({ phase, onEnter, pulse = 1 }) {
+  const [hovered, setHovered] = useState(false);
   const titleText = 'AEO TRIVECTOR';
 
   return (
@@ -889,7 +901,19 @@ function TitleOverlay({ phase, onEnter }) {
         }}
       >
         <span style={styles.enterLabel}>ENTER</span>
-        <button style={styles.enterButton} onClick={onEnter}>
+        <button 
+          style={{
+            ...styles.enterButton,
+            boxShadow: hovered 
+              ? `0 0 ${35 * pulse}px rgba(255, 210, 140, ${0.12 * pulse}),
+                 inset 0 0 ${20 * pulse}px rgba(255, 210, 140, ${0.04 * pulse})`
+              : `0 0 ${15 * pulse}px rgba(255, 210, 140, ${0.05 * pulse})`,
+            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onClick={onEnter}
+        >
           CROSS THE EVENT HORIZON
         </button>
       </div>
@@ -901,10 +925,50 @@ function TitleOverlay({ phase, onEnter }) {
 // §11. MAIN COMPONENT — Canvas + Overlay
 // ============================================================
 
+// Hook for mouse proximity to button
+function useMouseProximity(targetY = 0.82, radius = 0.25) {
+  const [intensity, setIntensity] = useState(0);
+
+  useEffect(() => {
+    const handleMove = (e) => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      
+      const dx = x - 0.5;
+      const dy = y - targetY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      const prox = Math.max(0, 1 - dist / radius);
+      const eased = prox * prox * prox;
+      setIntensity(eased);
+    };
+    
+    window.addEventListener('mousemove', handleMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMove);
+  }, [targetY, radius]);
+
+  return intensity;
+}
+
 export default function BlackHoleEntrance({ onEnter }) {
   const phase = useEntranceSequence();
   const { start: startDrone, stop: stopDrone } = useAmbientDrone();
   const [audioStarted, setAudioStarted] = useState(false);
+  const [ringPulse, setRingPulse] = useState(1);
+  const proximityDim = useMouseProximity();
+
+  // Sync with the ring's time dilation cycle (45-second period)
+  useEffect(() => {
+    let animId;
+    const animate = () => {
+      const t = Date.now() * 0.001;
+      const pulse = 1.0 + 0.08 * Math.sin(t * (2 * Math.PI / 45.0));
+      setRingPulse(pulse);
+      animId = requestAnimationFrame(animate);
+    };
+    animId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animId);
+  }, []);
 
   const handleEnter = useCallback(() => {
     if (!audioStarted) {
@@ -934,10 +998,10 @@ export default function BlackHoleEntrance({ onEnter }) {
         style={styles.canvas}
       >
         <color attach="background" args={['#000000']} />
-        <Scene phase={phase} />
+        <Scene phase={phase} proximityDim={proximityDim} />
       </Canvas>
 
-      <TitleOverlay phase={phase} onEnter={handleEnter} />
+      <TitleOverlay phase={phase} onEnter={handleEnter} pulse={ringPulse} />
 
       {/* Keyframe injection */}
       <style>{keyframes}</style>
