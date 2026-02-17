@@ -154,7 +154,9 @@ function StarLayer({ count, baseSize, opacity, spread, rotationSpeed, colorHex =
 
       pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = r * Math.cos(phi);
+      // Shift stars backward so they're in front of camera (at z=12)
+      // Place sphere center at -spread so all stars are visible
+      pos[i * 3 + 2] = r * Math.cos(phi) - spread;
 
       // Power-law: most stars tiny, few bright
       sz[i] = baseSize * Math.pow(Math.random(), 2.5);
@@ -346,8 +348,8 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
 
   useFrame(({ clock }) => {
     if (groupRef.current) {
-      // Very slow rotation: one revolution per ~5 minutes
-      groupRef.current.rotation.y = clock.elapsedTime * 0.02;
+      // Very slow rotation: spin in-plane (like a record) around ring's normal axis
+      groupRef.current.rotation.z = clock.elapsedTime * 0.02;
     }
   });
 
@@ -358,7 +360,7 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
       <PhotonRingLayer
         radius={ringRadius}
         tubeRadius={0.003}
-        color={new THREE.Color(3.5, 3.5, 3.5)} // HDR white at 3.5x
+        color={new THREE.Color(4.5, 4.5, 4.5)} // HDR white at 4.5x
         opacity={1.0}
         dopplerStrength={0.7}
         shimmerAmp={0.1}
@@ -453,7 +455,7 @@ function PostProcessing({ shadowCenter, shadowRadius, shadowEllipseY, enableLens
     <EffectComposer disableNormalPass>
       {/* Bloom: moderate intensity, only HDR elements trigger */}
       <Bloom
-        intensity={0.9}
+        intensity={1.1}
         luminanceThreshold={0.85}
         luminanceSmoothing={0.03}
         mipmapBlur={true}
