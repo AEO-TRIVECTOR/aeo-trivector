@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import './globals.css'
+
+// Force Node.js runtime instead of Edge (WebGL needs full Node APIs)
+export const runtime = 'nodejs'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -62,9 +66,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          {children}
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            {children}
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )
