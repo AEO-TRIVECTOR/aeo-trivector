@@ -642,7 +642,7 @@ function DepthFog() {
 
 function PostProcessing() {
   return (
-    <EffectComposer disableNormalPass multisampling={0}>
+    <EffectComposer multisampling={0}>
       <Bloom
         intensity={2.8}
         luminanceThreshold={0.16}
