@@ -14,6 +14,7 @@ import {
   Bloom,
   Vignette,
   Noise,
+  ChromaticAberration,
 } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
 import * as THREE from 'three'
@@ -91,11 +92,12 @@ const PhotonRingFragmentShader = /* glsl */ `
   uniform vec3 uCoreColor;
   uniform vec3 uHaloColor;
   uniform float uThickness;
+  uniform float uCrescentCut;
+  uniform float uWobbleAmplitude;
+  uniform float uWobbleSpeed;
 
   varying vec2 vUv;
-  varying float vAngle;
 
-  // Simplex-style noise for shimmer
   float hash(float n) { return fract(sin(n) * 43758.5453123); }
   float noise(float x) {
     float i = floor(x);
@@ -106,51 +108,59 @@ const PhotonRingFragmentShader = /* glsl */ `
   }
 
   void main() {
-    // Ring cross-section: distance from center line of the ring tube
-    float d = abs(vUv.y - 0.5) / 0.5;
+    float angle = vUv.x * 6.28318530718;
 
-    // Sharp inner core (knife-edge)
-    float core = exp(-d * d * 200.0 / (uThickness * uThickness));
+    // ═══ PRECESSING WOBBLE ═══
+    float wobble = uWobbleAmplitude * sin(uTime * uWobbleSpeed);
+    float preferred = 1.2 + wobble;
+    float dAngle = mod(angle - preferred + 3.14159, 6.28318) - 3.14159;
 
-    // Broader halo
-    float halo = exp(-d * d * 20.0 / (uThickness * uThickness));
+    // ═══ RELATIVISTIC DOPPLER BEAMING ═══
+    float doppler = 1.0 + uDopplerStrength * cos(dAngle);
+    doppler = max(doppler, 0.05);
+    doppler = pow(doppler, 3.2);
 
-    // Doppler beaming: brighter at top (angle ~PI/2), dimmer at bottom
-    // Using angle from custom attribute
-    float dopplerAngle = vUv.x * 6.28318;
-    float doppler = 1.0 + uDopplerStrength * sin(dopplerAngle);
-    doppler = pow(doppler, 3.0); // relativistic beaming is cubed
+    // ═══ TURBULENT HOTSPOTS (ACCRETION DISK VARIABILITY) ═══
+    float hotspot1 = exp(-pow(mod(angle - (uTime * 0.25 + 1.0) + 3.14159, 6.28318) - 3.14159, 2.0) / 0.05);
+    float hotspot2 = exp(-pow(mod(angle - (-uTime * 0.18 + 3.6) + 3.14159, 6.28318) - 3.14159, 2.0) / 0.09);
+    float hotspot3 = exp(-pow(mod(angle - (uTime * 0.33 + 5.2) + 3.14159, 6.28318) - 3.14159, 2.0) / 0.07);
 
-    // Time-varying shimmer (irregular, not uniform)
-    float shimmer = 1.0 + uShimmerAmount * (
-      noise(dopplerAngle * 3.0 + uTime * uShimmerSpeed) * 0.6 +
-      noise(dopplerAngle * 7.0 - uTime * uShimmerSpeed * 0.7) * 0.4
-    );
+    float hotspotNoise = noise(angle * 15.0 + uTime * 0.9);
+    float hotspot = (hotspot1 * 1.8 + hotspot2 * 1.3 + hotspot3 * 1.5) * (0.7 + 0.3 * hotspotNoise);
+    float hotspotBoost = 1.0 + 0.55 * hotspot;
 
-    // Turbulent hotspots (accretion turbulence)
-    float hotspot1 = exp(-pow(dopplerAngle - (uTime * 0.25 + 1.0), 2.0) / 0.04);
-    float hotspot2 = exp(-pow(dopplerAngle - (-uTime * 0.18 + 3.6), 2.0) / 0.08);
-    float hotspot3 = exp(-pow(dopplerAngle - (uTime * 0.33 + 5.2), 2.0) / 0.06);
-    float hotspotNoise = noise(dopplerAngle * 15.0 + uTime * 0.9);
-    float hotspot = (hotspot1 * 1.7 + hotspot2 * 1.2 + hotspot3 * 1.4) * (0.7 + 0.3 * hotspotNoise);
-    float hotspotBoost = 1.0 + 0.45 * hotspot;
-
-    // Color-shifted Doppler (blue→white→gold)
+    // ═══ COLOR TEMPERATURE DOPPLER SHIFT ═══
     float side = clamp(doppler, 0.0, 10.0);
     side = (side - 1.0) / (uDopplerStrength * 3.0 + 0.0001);
     side = clamp(side, -1.0, 1.0);
-    vec3 blueTint = vec3(0.8, 0.9, 1.3);
-    vec3 goldTint = vec3(1.3, 1.05, 0.7);
+
+    vec3 blueTint = vec3(0.75, 0.88, 1.35);    // Approaching: blueshift
+    vec3 goldTint = vec3(1.35, 1.08, 0.68);    // Receding: redshift
     float t = (side + 1.0) * 0.5;
     vec3 tempTint = mix(goldTint, blueTint, t);
 
-    // Combine
-    vec3 coreColor = (uCoreColor * tempTint) * core * uIntensity * 3.0;
-    vec3 haloColor = (uHaloColor * tempTint) * halo * uIntensity * 0.8;
-    vec3 finalColor = (coreColor + haloColor) * doppler * shimmer * hotspotBoost;
+    // ═══ CRESCENT MASK ═══
+    float crescentMask = smoothstep(3.14159 * uCrescentCut, 0.0, abs(dAngle));
 
-    // Alpha
-    float alpha = max(core, halo * 0.6) * doppler * shimmer;
+    // ═══ RING CROSS-SECTION ═══
+    float d = abs(vUv.y - 0.5) / 0.5;
+    float core = exp(-d * d * 220.0 / (uThickness * uThickness));
+    float halo = exp(-d * d * 22.0 / (uThickness * uThickness));
+
+    // ═══ MICRO SHIMMER ═══
+    float basePhase = angle * 5.0;
+    float shimmer = 1.0 + uShimmerAmount * (
+      noise(basePhase + uTime * uShimmerSpeed) * 0.6 +
+      noise(basePhase * 1.7 - uTime * uShimmerSpeed * 0.8) * 0.4
+    );
+
+    // ═══ COMBINE ALL FACTORS ═══
+    float brightness = uIntensity * doppler * shimmer * crescentMask * hotspotBoost;
+    vec3 coreColor = (uCoreColor * tempTint) * core * brightness * 3.0;
+    vec3 haloColor = (uHaloColor * tempTint) * halo * brightness * 0.9;
+    vec3 finalColor = coreColor + haloColor;
+
+    float alpha = max(core, halo * 0.6) * doppler * shimmer * crescentMask;
     alpha = clamp(alpha, 0.0, 1.0);
 
     gl_FragColor = vec4(finalColor, alpha);
@@ -318,9 +328,16 @@ function PhotonRing({
   }, [radius, tubeRadius, segments])
 
   useFrame((state) => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime
-    }
+    if (!materialRef.current) return
+    const t = state.clock.elapsedTime
+
+    materialRef.current.uniforms.uTime.value = t
+
+    // Slow gravitational time dilation pulse (45s period)
+    const timeDilationCycle = 45.0
+    const dilationPulse = 1.0 + 0.09 * Math.sin(t * (2 * Math.PI / timeDilationCycle))
+
+    materialRef.current.uniforms.uIntensity.value = 26 * dilationPulse
   })
 
   return (
@@ -331,13 +348,16 @@ function PhotonRing({
         fragmentShader={PhotonRingFragmentShader}
         uniforms={{
           uTime: { value: 0 },
-          uIntensity: { value: 8 },  // Reduced from 25 - let bloom do the work
-          uDopplerStrength: { value: 0.75 },  // Stronger asymmetry (was 0.45)
+          uIntensity: { value: 26 },  // Will be modulated by time dilation
+          uDopplerStrength: { value: 0.75 },
           uShimmerSpeed: { value: 0.7 },
           uShimmerAmount: { value: 0.22 },
-          uCoreColor: { value: new THREE.Color(6.0, 5.8, 5.5) },  // HDR white
-          uHaloColor: { value: new THREE.Color(2.7, 1.9, 0.65) },  // golden halo
+          uCoreColor: { value: new THREE.Color(6.0, 5.8, 5.5) },
+          uHaloColor: { value: new THREE.Color(2.7, 1.9, 0.65) },
           uThickness: { value: 1.0 },
+          uCrescentCut: { value: 0.45 },  // Crescent visibility (0=full, 1=none)
+          uWobbleAmplitude: { value: 0.08 },  // Precession amplitude
+          uWobbleSpeed: { value: 0.15 },  // Precession speed
         }}
         transparent
         depthWrite={false}
@@ -552,19 +572,34 @@ function DarkVoid({ radius = 5 }) {
 
     void main() {
       vec2 center = vec2(0.5, 0.48);
-      float dist = length(vUv - center) * 2.0;
+      float aspect = 1.777;  // 16:9 aspect
+      vec2 delta = vUv - center;
+      delta.x *= aspect;
+      float dist = length(delta);
 
-      // Inside the ring: absolute black
-      float innerVoid = 1.0 - smoothstep(0.0, 0.82, dist);
+      float horizonRadius = 0.82;
 
-      // Below the ring: exponential darkening
+      // ═══ INNER EVENT HORIZON ═══
+      float innerVoid = 1.0 - smoothstep(0.0, horizonRadius, dist);
+
+      // ═══ INDIGO DEPTH SINK (subtle perception of infinite depth) ═══
+      float innerDepth = smoothstep(horizonRadius, 0.0, dist);
+      float depthFalloff = pow(innerDepth, 3.5);
+
+      // Faint indigo-violet tint suggesting infinite recession
+      vec3 depthColor = vec3(0.06, 0.08, 0.14) * depthFalloff;
+
+      // Add subtle radial gradient toward center
+      float centerPull = pow(innerDepth, 2.0) * 0.15;
+      depthColor += vec3(0.03, 0.04, 0.09) * centerPull;
+
+      // ═══ BELOW-RING GRADIENT ═══
       float belowRing = smoothstep(0.35, 0.55, 1.0 - vUv.y);
-      float gradient = belowRing * 0.85;
+      float gradient = belowRing * 0.92;
 
       float darkness = max(innerVoid * 0.98, gradient);
 
-      // Pure black, no color
-      gl_FragColor = vec4(0.0, 0.0, 0.0, darkness);
+      gl_FragColor = vec4(depthColor, darkness);
     }
   `
 
@@ -608,22 +643,41 @@ function DepthFog() {
 
 function PostProcessing() {
   return (
-    <EffectComposer multisampling={0}>
+    <EffectComposer disableNormalPass multisampling={0}>
+      {/* TIGHT CORE BLOOM */}
       <Bloom
-        intensity={1.2}
-        luminanceThreshold={0.22}
-        luminanceSmoothing={0.4}
+        intensity={2.8}
+        luminanceThreshold={0.16}
+        luminanceSmoothing={0.35}
         mipmapBlur
-        radius={0.62}
+        radius={0.75}
         levels={8}
       />
+      {/* WIDE ATMOSPHERIC BLOOM */}
+      <Bloom
+        intensity={0.95}
+        luminanceThreshold={0.42}
+        luminanceSmoothing={0.9}
+        mipmapBlur
+        radius={1.3}
+        levels={6}
+      />
+      {/* CHROMATIC ABERRATION (gravitational lensing wavelength split) */}
+      <ChromaticAberration
+        blendFunction={BlendFunction.NORMAL}
+        offset={new THREE.Vector2(0.0042, 0.0026)}
+        radialModulation
+        modulationOffset={0.25}
+      />
+      {/* VIGNETTE */}
       <Vignette
-        offset={0.3}
-        darkness={0.85}
+        offset={0.28}
+        darkness={0.89}
         blendFunction={BlendFunction.NORMAL}
       />
+      {/* FILM GRAIN */}
       <Noise
-        opacity={0.04}
+        opacity={0.045}
         blendFunction={BlendFunction.OVERLAY}
       />
     </EffectComposer>
