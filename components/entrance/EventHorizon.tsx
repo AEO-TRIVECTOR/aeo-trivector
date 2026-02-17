@@ -607,7 +607,6 @@ function PostProcessing() {
         radius={1.2}
         levels={6}
       />
-      {/* CHROMATIC ABERRATION — removed due to type compatibility issues */}
       {/* VIGNETTE — focuses attention to center */}
       <Vignette
         offset={0.3}
