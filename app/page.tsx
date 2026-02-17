@@ -1,10 +1,11 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 
-// Dynamically import EventHorizon with no SSR
-const EventHorizon = dynamic(
-  () => import('@/components/entrance/EventHorizon'),
+// Dynamically import BlackHoleEntrance with no SSR
+const BlackHoleEntrance = dynamic(
+  () => import('@/components/entrance/BlackHoleEntrance'),
   {
     ssr: false,
     loading: () => (
@@ -27,5 +28,11 @@ const EventHorizon = dynamic(
 );
 
 export default function Page() {
-  return <EventHorizon />;
+  const router = useRouter();
+
+  const handleEnter = () => {
+    router.push('/manifold');
+  };
+
+  return <BlackHoleEntrance onEnter={handleEnter} />;
 }
