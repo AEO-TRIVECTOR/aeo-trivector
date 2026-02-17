@@ -224,24 +224,27 @@ function StarField({ visible }) {
   return (
     <group visible={visible}>
       {/* Far layer: cosmic background, barely moves */}
+      {/* Reduced count (4000→2200) to prevent noise/banding on mobile */}
       <StarLayer
-        count={4000}
+        count={2200}
         baseSize={0.5}
-        opacity={0.3}
+        opacity={0.25}
         spread={800}
         rotationSpeed={0.00005}
       />
       {/* Mid layer: depth parallax */}
+      {/* Reduced count (2000→900) for clearer hierarchy */}
       <StarLayer
-        count={2000}
+        count={900}
         baseSize={1.5}
-        opacity={0.5}
+        opacity={0.45}
         spread={400}
         rotationSpeed={0.0002}
       />
-      {/* Near layer: prominent stars, some bright enough for bloom */}
+      {/* Near layer: prominent stars, 6-10 bright enough for bloom */}
+      {/* Reduced count (600→180) but higher opacity for hierarchy */}
       <StarLayer
-        count={600}
+        count={180}
         baseSize={3.0}
         opacity={0.75}
         spread={200}
@@ -366,11 +369,11 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
   return (
     <group ref={groupRef} rotation={[tiltRad, 0, 0]} visible={visible}>
       {/* ── Layer 1: Core filament ── */}
-      {/* Brighter peak for extreme dynamic range (brightest part slightly brighter) */}
+      {/* Thicker core (0.005) reads as impossibly bright filament, not LED strip */}
       <PhotonRingLayer
         radius={ringRadius}
-        tubeRadius={0.003}
-        color={new THREE.Color(5.5, 5.5, 5.5)} // HDR white at 5.5x (increased from 4.5)
+        tubeRadius={0.005}
+        color={new THREE.Color(5.5, 5.5, 5.5)} // HDR white at 5.5x
         opacity={1.0}
         dopplerStrength={0.7}
         shimmerAmp={0.1}
@@ -379,12 +382,12 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
       />
 
       {/* ── Layer 2: Inner warm halo ── */}
-      {/* Reduced for higher contrast (everything else slightly darker) */}
+      {/* Thinner halo (0.018), lower opacity (0.22) so core dominates */}
       <PhotonRingLayer
         radius={ringRadius}
-        tubeRadius={0.025}
-        color={new THREE.Color(1.6, 0.8, 0.16)} // Warm gold reduced from 2.0,1.0,0.2
-        opacity={0.28} // Reduced from 0.35
+        tubeRadius={0.018}
+        color={new THREE.Color(1.6, 0.8, 0.16)} // Warm gold
+        opacity={0.22} // Further reduced from 0.28
         dopplerStrength={0.6}
         shimmerAmp={0.08}
         shimmerFreq1={1.047} // 6-second breathing cycle
@@ -408,30 +411,32 @@ function PhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
 }
 
 // ============================================================
-// §5. SECONDARY PHOTON RING — Faint ghost arc from extra half-orbit
+// §5. EINSTEIN RING GHOST — Barely visible offset ring (ritual element)
 // ============================================================
 
-function SecondaryPhotonRing({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
+function EinsteinRingGhost({ visible, ringRadius = 5.5, tiltDeg = 75 }) {
   const groupRef = useRef();
   const tiltRad = (tiltDeg * Math.PI) / 180;
 
   useFrame(({ clock }) => {
     if (groupRef.current) {
-      groupRef.current.rotation.z = clock.elapsedTime * 0.02;
+      // Slow shimmer makes it only visible in motion
+      groupRef.current.rotation.z = clock.elapsedTime * 0.015;
     }
   });
 
   return (
     <group ref={groupRef} rotation={[tiltRad, 0, 0]} visible={visible}>
+      {/* 2-3% opacity, slightly offset radius (+2.5%) */}
       <PhotonRingLayer
-        radius={ringRadius * 1.35}
-        tubeRadius={0.0035}
-        color={new THREE.Color(1.5, 1.2, 0.6)}
-        opacity={0.35}
-        dopplerStrength={0.5}
-        shimmerAmp={0.06}
-        shimmerFreq1={1.2}
-        shimmerFreq2={2.8}
+        radius={ringRadius * 1.025}
+        tubeRadius={0.0025}
+        color={new THREE.Color(1.2, 1.0, 0.5)}
+        opacity={0.025}
+        dopplerStrength={0.3}
+        shimmerAmp={0.04}
+        shimmerFreq1={0.8}
+        shimmerFreq2={1.6}
       />
     </group>
   );
@@ -683,15 +688,39 @@ function CameraDrift() {
 // ============================================================
 
 function PostProcessing({ shadowCenter, shadowRadius, shadowEllipseY, enableLensing }) {
+  const { viewport } = useThree();
+  
+  // Adaptive shadow mask parameters based on viewport aspect ratio
+  const adaptiveShadowParams = useMemo(() => {
+    const aspect = viewport.width / viewport.height;
+    const isPortrait = aspect < 1.0;
+    
+    // Adaptive radius: smaller on portrait to prevent clipping
+    const adaptiveRadius = isPortrait ? 0.19 : 0.24;
+    
+    // Adaptive ellipseY: taller ellipse on portrait, flatter on landscape
+    // Formula: clamp(0.45, 0.80, 0.55 * (height/width))
+    const adaptiveEllipseY = Math.max(0.45, Math.min(0.80, 0.55 / aspect));
+    
+    // Softer feather to prevent harsh clipping artifacts after bloom
+    const adaptiveFeather = 0.045;
+    
+    return {
+      radius: adaptiveRadius,
+      ellipseY: adaptiveEllipseY,
+      feather: adaptiveFeather,
+    };
+  }, [viewport.width, viewport.height]);
+  
   const shadowMask = useMemo(
     () =>
       new ShadowMaskEffect({
         center: shadowCenter,
-        radius: shadowRadius,
-        feather: 0.01,
-        ellipseY: shadowEllipseY,
+        radius: adaptiveShadowParams.radius,
+        feather: adaptiveShadowParams.feather,
+        ellipseY: adaptiveShadowParams.ellipseY,
       }),
-    [shadowCenter, shadowRadius, shadowEllipseY]
+    [shadowCenter, adaptiveShadowParams]
   );
 
   const gravitationalLens = useMemo(
@@ -708,11 +737,14 @@ function PostProcessing({ shadowCenter, shadowRadius, shadowEllipseY, enableLens
 
   return (
     <EffectComposer disableNormalPass>
-      {/* Bloom: moderate intensity, only HDR elements trigger */}
+      {/* Bloom: selective high-threshold bloom for knife-like ring */}
+      {/* Higher threshold (0.94) = only brightest parts bloom */}
+      {/* Higher smoothing (0.08) = smoother falloff */}
+      {/* Higher intensity (1.8) = stronger bloom on selected elements */}
       <Bloom
-        intensity={1.1}
-        luminanceThreshold={0.85}
-        luminanceSmoothing={0.03}
+        intensity={1.8}
+        luminanceThreshold={0.94}
+        luminanceSmoothing={0.08}
         mipmapBlur={true}
       />
 
@@ -835,8 +867,18 @@ function useAmbientDrone() {
       }, 2000);
     }
   }, []);
+  
+  // Add setGain method for hover proximity control
+  const setGain = useCallback((targetGain) => {
+    if (gainRef.current && ctxRef.current) {
+      gainRef.current.gain.linearRampToValueAtTime(
+        targetGain,
+        ctxRef.current.currentTime + 0.3
+      );
+    }
+  }, []);
 
-  return { start, stop };
+  return { start, stop, setGain };
 }
 
 // ============================================================
@@ -844,20 +886,26 @@ function useAmbientDrone() {
 // ============================================================
 
 function Scene({ phase, proximityDim = 0 }) {
-  // Responsive ring: compute max radius that fits viewport with 12% margin
+  // Responsive ring: cathedral-scale arc (6.5 base radius for "standing at rim" effect)
   const { viewport, camera } = useThree();
-  const baseRadius = 4.0;
-  const tiltDeg = 75;
+  const baseRadius = 6.5; // Increased from 4.0 for cathedral scale
   
-  const ringRadius = useMemo(() => {
+  const { ringRadius, tiltDeg } = useMemo(() => {
     const aspect = viewport.width / viewport.height;
+    const isPortrait = aspect < 1.0;
+    
+    // Responsive radius
     const vFovRad = (camera.fov * Math.PI) / 180;
     const hFovHalf = Math.atan(Math.tan(vFovRad / 2) * aspect);
-    // Camera is at z=12, ring at origin — distance along z ≈ 12
     const cameraZ = camera.position.z || 12;
     const maxHalfWidth = cameraZ * Math.tan(hFovHalf) * 0.88; // 12% margin each side
     const scale = Math.min(1.0, maxHalfWidth / baseRadius);
-    return baseRadius * scale;
+    const radius = baseRadius * scale;
+    
+    // Responsive tilt: steeper on portrait (80°), shallower on landscape (73°)
+    const tilt = isPortrait ? 80 : 73;
+    
+    return { ringRadius: radius, tiltDeg: tilt };
   }, [viewport.width, viewport.height, camera.fov, camera.position.z]);
 
   return (
@@ -882,20 +930,23 @@ function Scene({ phase, proximityDim = 0 }) {
       {/* Void dust — ultra-sparse slow particles */}
       <VoidDust count={6} />
 
-      {/* Photon ring — multi-layer with Doppler beaming */}
-      <PhotonRing visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
+      {/* Ring group: positioned down to create "standing at rim" cathedral-scale effect */}
+      <group position={[0, -1.2, 0]}>
+        {/* Photon ring — multi-layer with Doppler beaming */}
+        <PhotonRing visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
-      {/* Horizon rim effect — barely perceptible compression at edge (3-6% opacity) */}
-      <HorizonRimEffect ringRadius={ringRadius} tiltDeg={tiltDeg} />
+        {/* Horizon rim effect — barely perceptible compression at edge (3-6% opacity) */}
+        <HorizonRimEffect ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
-      {/* Secondary photon ring — faint ghost arc from extra half-orbit */}
-      <SecondaryPhotonRing visible={false} ringRadius={ringRadius} tiltDeg={tiltDeg} />
+        {/* Einstein ring ghost — barely visible offset ring (only visible in motion) */}
+        <EinsteinRingGhost visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
-      {/* Subtle hotspots — micro-turbulence flicker */}
-      <SubtleHotspots visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
+        {/* Subtle hotspots — micro-turbulence flicker */}
+        <SubtleHotspots visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
 
-      {/* Infalling particles — matter spiraling into event horizon */}
-      <InfallingParticles visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
+        {/* Infalling particles — matter spiraling into event horizon */}
+        <InfallingParticles visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
+      </group>
 
       {/* Post-processing chain */}
       {/* CRITICAL: Shadow mask renders AFTER bloom to prevent bloom bleed into void */}
@@ -1008,7 +1059,7 @@ function useMouseProximity(targetY = 0.82, radius = 0.25) {
 
 export default function BlackHoleEntrance({ onEnter }) {
   const phase = useEntranceSequence();
-  const { start: startDrone, stop: stopDrone } = useAmbientDrone();
+  const { start: startDrone, stop: stopDrone, setGain: setDroneGain } = useAmbientDrone();
   const [audioStarted, setAudioStarted] = useState(false);
   const [ringPulse, setRingPulse] = useState(1);
   const proximityDim = useMouseProximity();
@@ -1025,6 +1076,15 @@ export default function BlackHoleEntrance({ onEnter }) {
     animId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animId);
   }, []);
+  
+  // Audio sub-bass ramp: tie gain to hover proximity (ritual element)
+  useEffect(() => {
+    if (audioStarted) {
+      // Base gain 0.07, ramps up to 0.14 when hovering ENTER button
+      const targetGain = 0.07 + proximityDim * 0.07;
+      setDroneGain(targetGain);
+    }
+  }, [proximityDim, audioStarted, setDroneGain]);
 
   const handleEnter = useCallback(() => {
     if (!audioStarted) {
@@ -1046,8 +1106,10 @@ export default function BlackHoleEntrance({ onEnter }) {
     <div style={styles.container} onClick={handleFirstInteraction}>
       <Canvas
         camera={{ position: [0, 2, 12], fov: 50, near: 0.1, far: 5000 }}
+        dpr={[1, 1.6]} // Clamp DPR to prevent iPad GPU death spirals
         gl={{
           antialias: true,
+          powerPreference: 'high-performance',
           toneMapping: THREE.NoToneMapping, // Let postprocessing handle it
           outputColorSpace: THREE.SRGBColorSpace,
         }}
