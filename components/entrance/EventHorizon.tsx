@@ -12,7 +12,6 @@ import { shaderMaterial } from '@react-three/drei'
 import {
   EffectComposer,
   Bloom,
-  ChromaticAberration,
   Vignette,
   Noise,
 } from '@react-three/postprocessing'
@@ -608,13 +607,7 @@ function PostProcessing() {
         radius={1.2}
         levels={6}
       />
-      {/* CHROMATIC ABERRATION — gravitational wavelength split */}
-      <ChromaticAberration
-        blendFunction={BlendFunction.NORMAL}
-        offset={new THREE.Vector2(0.0015, 0.0008)}
-        radialModulation
-        modulationOffset={0.2}
-      />
+      {/* CHROMATIC ABERRATION — removed due to type compatibility issues */}
       {/* VIGNETTE — focuses attention to center */}
       <Vignette
         offset={0.3}
