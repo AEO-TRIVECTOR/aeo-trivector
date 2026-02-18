@@ -261,10 +261,11 @@ function Scene() {
   const isMobile = viewport.width < 8
 
   const ringRadius = useMemo(() => {
-    const vFOV = (camera.fov * Math.PI) / 180
+    const fov = 'fov' in camera ? camera.fov : 75
+    const vFOV = (fov * Math.PI) / 180
     const viewportHeight = 2 * Math.tan(vFOV / 2) * Math.abs(camera.position.z)
     return viewportHeight * 0.45
-  }, [viewport.width, viewport.height, camera.fov, camera.position.z])
+  }, [viewport.width, viewport.height, camera, camera.position.z])
 
   const tiltRad = (42 * Math.PI) / 180
 
