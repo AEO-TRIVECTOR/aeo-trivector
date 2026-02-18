@@ -1,4 +1,5 @@
-'use client';
+'"use client"
+// Force deployment: ChatGPT enhancements v2.0
 
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
