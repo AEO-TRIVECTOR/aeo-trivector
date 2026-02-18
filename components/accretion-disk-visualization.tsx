@@ -138,21 +138,15 @@ function StarField() {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={positions.length / 3}
-          array={positions}
-          itemSize={3}
+          args={[positions, 3]}
         />
         <bufferAttribute
           attach="attributes-aSize"
-          count={sizes.length}
-          array={sizes}
-          itemSize={1}
+          args={[sizes, 1]}
         />
         <bufferAttribute
           attach="attributes-aRandom"
-          count={randoms.length}
-          array={randoms}
-          itemSize={1}
+          args={[randoms, 1]}
         />
       </bufferGeometry>
       <shaderMaterial
