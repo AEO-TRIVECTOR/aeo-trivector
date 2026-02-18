@@ -290,7 +290,7 @@ function Scene() {
         />
       </group>
 
-      <EffectComposer disableNormalPass>
+      <EffectComposer>
         <Bloom 
           intensity={isMobile ? 0.6 : 1.0} 
           luminanceThreshold={0.2}
