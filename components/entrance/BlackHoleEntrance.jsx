@@ -1,4 +1,5 @@
 // BlackHoleEntrance.jsx
+"use client";
 // Complete AEO Trivector entrance page — React Three Fiber + postprocessing
 // 
 // Dependencies needed in package.json:
