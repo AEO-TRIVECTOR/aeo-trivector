@@ -22,6 +22,9 @@ import {
   ToneMapping,
 } from '@react-three/postprocessing';
 import { ToneMappingMode, Effect, BlendFunction } from 'postprocessing';
+import { GravitationalInteraction, RingGravitationalResponse } from './GravitationalInteraction';
+import { useEventHorizonCrossing, EventHorizonCrossingOverlay } from './EventHorizonCrossing';
+import { useTemporalEvolution, TemporalEvolutionGroup, RingBreathing, StarfieldEvolution } from './TemporalEvolution';
 
 // ============================================================
 // §1. GRAVITATIONAL LENS — Custom post-process effect
@@ -85,7 +88,13 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   delta.y /= uEllipseY;
   float dist = length(delta);
   float mask = smoothstep(uRadius - uFeather, uRadius + uFeather * 0.5, dist);
-  outputColor = vec4(inputColor.rgb * mask, inputColor.a);
+  
+  // ChatGPT Quick Win: Deepen center darkness by 5% for depth perception
+  // Center absorbs more light → brain recognizes as depth, not flat black
+  float centerDarken = smoothstep(uRadius * 1.5, 0.0, dist) * 0.05;
+  vec3 darkenedColor = inputColor.rgb * (mask - centerDarken);
+  
+  outputColor = vec4(darkenedColor, inputColor.a);
 }
 `;
 
@@ -1032,13 +1041,23 @@ function Scene({ phase, proximityDim = 0 }) {
     return { ringRadius: radius, tiltDeg: tilt };
   }, [viewport.width, viewport.height, camera.fov, camera.position.z]);
 
+  const ringGroupRef = useRef();
+  const starfieldRef = useRef();
+
   return (
     <>
       {/* Camera drift — subliminal Lissajous */}
       <CameraDrift />
 
-      {/* Star field — three parallax layers */}
-      <StarField visible={phase >= 1} />
+      {/* Gravitational Interaction: Mouse/touch creates resistance */}
+      <GravitationalInteraction enabled={phase >= 2}>
+        {/* Temporal Evolution: Slow breathing cycles */}
+        <TemporalEvolutionGroup enabled={phase >= 2}>
+          {/* Star field — three parallax layers with evolution */}
+          <group ref={starfieldRef}>
+            <StarField visible={phase >= 1} />
+          </group>
+          <StarfieldEvolution starfieldRef={starfieldRef} enabled={phase >= 2} />
 
       {/* Darkening overlay when cursor approaches button */}
       <mesh position={[0, 0, 3]}>
@@ -1055,7 +1074,8 @@ function Scene({ phase, proximityDim = 0 }) {
       <VoidDust count={6} />
 
       {/* Ring group: positioned down to create "standing at rim" cathedral-scale effect */}
-      <group position={[0, -1.2, 0]}>
+      <group ref={ringGroupRef} position={[0, -1.2, 0]}>
+        <RingGravitationalResponse ringGroupRef={ringGroupRef} enabled={phase >= 2} />
         {/* Photon ring — multi-layer with Doppler beaming */}
         <PhotonRing visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
         
@@ -1085,6 +1105,9 @@ function Scene({ phase, proximityDim = 0 }) {
         {/* Infalling particles — matter spiraling into event horizon */}
         <InfallingParticles visible={phase >= 2} ringRadius={ringRadius} tiltDeg={tiltDeg} />
       </group>
+
+        </TemporalEvolutionGroup>
+      </GravitationalInteraction>
 
       {/* Post-processing chain */}
       {/* CRITICAL: Shadow mask renders AFTER bloom to prevent bloom bleed into void */}
@@ -1201,6 +1224,12 @@ export default function BlackHoleEntrance({ onEnter }) {
   const [audioStarted, setAudioStarted] = useState(false);
   const [ringPulse, setRingPulse] = useState(1);
   const proximityDim = useMouseProximity();
+  
+  // Event Horizon Crossing: Scroll/tap triggers transition
+  const { crossingProgress, isCrossing, initiateCrossing } = useEventHorizonCrossing({
+    onCross: onEnter,
+    enabled: phase >= 5, // Only enable after entrance sequence completes
+  });
 
   // Sync with the ring's time dilation cycle (45-second period)
   useEffect(() => {
@@ -1258,6 +1287,9 @@ export default function BlackHoleEntrance({ onEnter }) {
       </Canvas>
 
       <TitleOverlay phase={phase} onEnter={handleEnter} pulse={ringPulse} />
+      
+      {/* Event Horizon Crossing Overlay */}
+      <EventHorizonCrossingOverlay progress={crossingProgress} />
 
       {/* Keyframe injection */}
       <style>{keyframes}</style>
