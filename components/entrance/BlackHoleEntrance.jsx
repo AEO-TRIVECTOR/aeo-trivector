@@ -89,9 +89,23 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   float dist = length(delta);
   float mask = smoothstep(uRadius - uFeather, uRadius + uFeather * 0.5, dist);
   
-  // ChatGPT Quick Win: Deepen center darkness by 5% for depth perception
-  // Center absorbs more light → brain recognizes as depth, not flat black
-  float centerDarken = smoothstep(uRadius * 1.5, 0.0, dist) * 0.05;
+  // ChatGPT Critical: Exponential brightness falloff I(r) = I_0 * e^(-r/λ)
+  // Creates "depth measured in miles instead of pixels"
+  // The singularity becomes dominant through exponential light absorption
+  
+  // Normalized distance from center (0 at center, 1 at radius)
+  float normalizedDist = dist / (uRadius * 1.5);
+  
+  // Exponential falloff: λ = 0.4 creates strong absorption near center
+  // e^(-r/λ) where r ∈ [0, 1]
+  float lambda = 0.4;
+  float exponentialFalloff = exp(-normalizedDist / lambda);
+  
+  // Map falloff to darkness: 0% at edge → 15% at center
+  // Not visible as gray, just "less light escaping"
+  float centerDarken = exponentialFalloff * 0.15;
+  
+  // Apply exponential absorption to create perceived depth
   vec3 darkenedColor = inputColor.rgb * (mask - centerDarken);
   
   outputColor = vec4(darkenedColor, inputColor.a);
