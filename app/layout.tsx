@@ -13,7 +13,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://aeo-trivector.vercel.app'),
+  metadataBase: new URL('https://aeotrivector.com'),
   title: {
     default: 'AEO Trivector - Attractor Architecture',
     template: '%s | AEO Trivector',
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'AEO Trivector - Attractor Architecture',
     description: 'Geometric foundations for interpretable AI. AI systems that are interpretable because they\'re stable—geometrically inevitable, not reverse-engineered.',
-    url: 'https://aeo-trivector.vercel.app',
+    url: 'https://aeotrivector.com',
     siteName: 'AEO Trivector',
     locale: 'en_US',
     type: 'website',
