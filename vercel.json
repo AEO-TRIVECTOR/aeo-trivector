@@ -1,7 +1,6 @@
 {
+  "framework": "nextjs",
   "buildCommand": "pnpm build",
-  "outputDirectory": "out",
-  "framework": null,
   "redirects": [
     {
       "source": "/:path*",
@@ -9,6 +8,39 @@
         {
           "type": "host",
           "value": "aeotrivector.ai"
+        }
+      ],
+      "destination": "https://aeotrivector.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.aeotrivector.ai"
+        }
+      ],
+      "destination": "https://aeotrivector.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "aeotrivector.net"
+        }
+      ],
+      "destination": "https://aeotrivector.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.aeotrivector.net"
         }
       ],
       "destination": "https://aeotrivector.com/:path*",
