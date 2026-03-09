@@ -3,6 +3,8 @@ import { ThemeProvider } from 'next-themes'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import './globals.css'
 
+// Force Node.js runtime instead of Edge (WebGL needs full Node APIs)
+export const runtime = 'nodejs'
 
 export const viewport: Viewport = {
   width: 'device-width',
