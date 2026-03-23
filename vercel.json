@@ -1,7 +1,4 @@
 {
-  "buildCommand": "pnpm build",
-  "outputDirectory": "out",
-  "framework": null,
   "redirects": [
     {
       "source": "/:path*",
@@ -11,7 +8,7 @@
           "value": "aeotrivector.ai"
         }
       ],
-      "destination": "https://aeotrivector.com/:path*",
+      "destination": "https://www.aeotrivector.ai/:path*",
       "permanent": true
     },
     {
@@ -22,7 +19,18 @@
           "value": "trivector.ai"
         }
       ],
-      "destination": "https://aeotrivector.com/:path*",
+      "destination": "https://www.aeotrivector.ai/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.trivector.ai"
+        }
+      ],
+      "destination": "https://www.aeotrivector.ai/:path*",
       "permanent": true
     }
   ],
