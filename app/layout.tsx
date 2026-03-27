@@ -3,7 +3,8 @@ import { ThemeProvider } from 'next-themes'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import './globals.css'
 
-// Force Node.js runtime instead of Edge (WebGL needs full Node APIs)
+// Force dynamic rendering - R3F/WebGL cannot be statically generated
+export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export const viewport: Viewport = {
