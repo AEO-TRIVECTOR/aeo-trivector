@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Text3D, Center } from '@react-three/drei';
+import { Center } from '@react-three/drei';
 import { Attractor } from '@/components/Attractor';
 import { motion } from 'framer-motion';
 import { StickyGlassHeader } from '@/components/StickyGlassHeader';

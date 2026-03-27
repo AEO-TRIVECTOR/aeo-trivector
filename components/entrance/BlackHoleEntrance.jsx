@@ -11,7 +11,7 @@
 //   "react-dom": "^18.2.0"
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
-import { Canvas, useFrame, useThree, extend } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useMetricState } from '@/hooks/useMetricState';
 import { PhotonRing as UnifiedPhotonRing } from './PhotonRing';
