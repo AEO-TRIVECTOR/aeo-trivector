@@ -6,6 +6,17 @@
       "has": [
         {
           "type": "host",
+          "value": "www.aeotrivector.com"
+        }
+      ],
+      "destination": "https://aeotrivector.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
           "value": "aeotrivector.ai"
         }
       ],
