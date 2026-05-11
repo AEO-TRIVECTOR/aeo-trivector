@@ -1,343 +1,239 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useEffect, useState } from 'react';
+import { Canvas } from '@react-three/fiber';
 import { Attractor } from '@/components/Attractor';
 import { motion } from 'framer-motion';
 import { StickyGlassHeader } from '@/components/StickyGlassHeader';
 import Footer from '@/components/Footer';
-import * as THREE from 'three';
 
-// Knowledge Network - Signature Visual Element
-function KnowledgeNetwork({ hoveredNode, mousePosition }: { hoveredNode: number | null, mousePosition: { x: number, y: number } }) {
-  const nodes = [
-    { position: [0, 2, 0], connections: [1, 2, 3] },
-    { position: [-3, 1, -1], connections: [0, 2, 4] },
-    { position: [3, 0.5, -2], connections: [0, 3] },
-    { position: [-2, -1, 1], connections: [0, 1, 4] },
-    { position: [2, -1.5, 0.5], connections: [1, 3] },
-  ];
-
+// ── Attractor background (aligned with /manifold and /mathematics) ──────────
+function AttractorBackground() {
   return (
     <group>
-      {/* Draw connections (lines between nodes) */}
-      {nodes.map((node, i) => 
-        node.connections.map(targetIdx => {
-          if (targetIdx > i) { // Draw each connection only once
-            const target = nodes[targetIdx];
-            return (
-              <NetworkConnection
-                key={`${i}-${targetIdx}`}
-                start={node.position as [number, number, number]}
-                end={target.position as [number, number, number]}
-                active={hoveredNode === i || hoveredNode === targetIdx}
-              />
-            );
-          }
-          return null;
-        })
-      )}
-
-      {/* Draw nodes */}
-      {nodes.map((node, i) => (
-        <NetworkNode
-          key={i}
-          position={node.position as [number, number, number]}
-          index={i}
-          active={hoveredNode === i}
-          mousePosition={mousePosition}
-        />
-      ))}
-
-      <ambientLight intensity={0.3} />
-      <pointLight position={[0, 0, 5]} intensity={1} color="#FCD34D" />
+      <Attractor count={8000} opacity={0.42} speed={0.8} />
     </group>
   );
 }
 
-function NetworkNode({
-  position,
-  index,
-  active,
-  mousePosition
-}: {
-  position: [number, number, number];
-  index: number;
-  active: boolean;
-  mousePosition: { x: number, y: number };
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      const time = state.clock.elapsedTime;
-      
-      // Gentle pulsing
-      const scale = active ? 1.3 : 1 + Math.sin(time * 2 + index) * 0.1;
-      meshRef.current.scale.set(scale, scale, scale);
-
-      // Mouse parallax
-      const parallaxStrength = 0.3;
-      meshRef.current.position.x = position[0] + mousePosition.x * parallaxStrength;
-      meshRef.current.position.z = position[2] + mousePosition.y * parallaxStrength;
-    }
-  });
-
+// ── Section wrapper ──────────────────────────────────────────────────────────
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[0.15, 32, 32]} />
-      <meshStandardMaterial
-        color={active ? "#FCD34D" : "#3B82F6"}
-        emissive={active ? "#FCD34D" : "#3B82F6"}
-        emissiveIntensity={active ? 1 : 0.5}
-        transparent
-        opacity={active ? 1 : 0.8}
-      />
-      {/* Glow effect */}
-      <pointLight 
-        position={[0, 0, 0]} 
-        intensity={active ? 2 : 0.5} 
-        color={active ? "#FCD34D" : "#3B82F6"} 
-        distance={active ? 3 : 1.5} 
-      />
-    </mesh>
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7 }}
+      className="mb-16"
+    >
+      <h2
+        className="text-xs font-mono tracking-[0.25em] mb-6 uppercase"
+        style={{ color: 'rgba(252,211,77,0.55)' }}
+      >
+        {title}
+      </h2>
+      {children}
+    </motion.section>
   );
 }
 
-function NetworkConnection({
-  start,
-  end,
-  active
-}: {
-  start: [number, number, number];
-  end: [number, number, number];
-  active: boolean;
-}) {
-  const lineRef = useRef<THREE.Line>(null);
-
-  useFrame((state) => {
-    if (lineRef.current && lineRef.current.material) {
-      const material = lineRef.current.material as THREE.LineBasicMaterial;
-      const time = state.clock.elapsedTime;
-      
-      // Shimmer effect
-      material.opacity = active 
-        ? 0.6 + Math.sin(time * 3) * 0.2
-        : 0.2 + Math.sin(time * 2) * 0.1;
-    }
-  });
-
-  const points = [
-    new THREE.Vector3(...start),
-    new THREE.Vector3(...end)
-  ];
-  const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
+// ── Card wrapper ─────────────────────────────────────────────────────────────
+function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <primitive object={new THREE.Line(geometry, new THREE.LineBasicMaterial({
-      color: active ? "#FCD34D" : "#3B82F6",
-      transparent: true,
-      opacity: active ? 0.6 : 0.2
-    }))} ref={lineRef} />
+    <div
+      className={`p-8 ${className}`}
+      style={{
+        background: 'rgba(0,0,0,0.45)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(252,211,77,0.15)',
+        boxShadow: '0 0 24px rgba(252,211,77,0.06)',
+      }}
+    >
+      {children}
+    </div>
   );
 }
 
-// Ghost Horizon Background
-function AttractorBackground({ mousePosition }: { mousePosition: { x: number, y: number } }) {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.05;
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
-      groupRef.current.scale.set(scale, scale, scale);
-      
-      const targetRotationX = mousePosition.y * 0.1;
-      const targetRotationZ = mousePosition.x * 0.1;
-      groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.05;
-      groupRef.current.rotation.z += (targetRotationZ - groupRef.current.rotation.z) * 0.05;
-    }
-  });
-
+// ── Vignette overlay ─────────────────────────────────────────────────────────
+function Vignette() {
   return (
-    <group ref={groupRef}>
-      <Attractor count={15000} opacity={0.85} speed={1} />
-    </group>
+    <div
+      className="fixed inset-0 pointer-events-none"
+      style={{
+        zIndex: 1,
+        background:
+          'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.72) 100%)',
+      }}
+    />
   );
 }
 
-const researchPapers = [
-  {
-    title: "Self-Encoding Geometry",
-    subtitle: "Spectral foundations for attractor-stable systems",
-    status: "In preparation",
-    description: "Formalizes the mathematical framework underlying AEO Trivector through spectral triple structures."
-  },
-  {
-    title: "Categorical Dynamics",
-    subtitle: "Compositional semantics for cognitive architectures",
-    status: "In preparation",
-    description: "Develops categorical methods for composing and reasoning about attractor dynamics."
-  },
-  {
-    title: "Interpretable AI via Geometry",
-    subtitle: "From black boxes to transparent structures",
-    status: "In preparation",
-    description: "Demonstrates how geometric constraints enable interpretable machine learning systems."
-  },
-  {
-    title: "The Six-Threshold Conjecture",
-    subtitle: "Necessary conditions for self-reference",
-    status: "In preparation",
-    description: "Proposes six critical thresholds that systems must cross to achieve self-encoding."
-  },
-  {
-    title: "Open Source Framework",
-    subtitle: "Reference implementation and tools",
-    status: "Coming 2026",
-    description: "Python/Julia library for building attractor-stable systems with geometric constraints."
-  },
-];
-
+// ── Main component ───────────────────────────────────────────────────────────
 export default function Research() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [hoveredNode, setHoveredNode] = useState<number | null>(null);
-  
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1
-      });
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
-      {/* Header */}
       <StickyGlassHeader />
 
-      {/* Lorenz Attractor Background - Ghost Horizon */}
+      {/* Background */}
       <div className="fixed inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
-          <AttractorBackground mousePosition={mousePosition} />
-        </Canvas>
+        {mounted && (
+          <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
+            <AttractorBackground />
+          </Canvas>
+        )}
       </div>
-
-      {/* Overlay layer for backdrop-filter to work with WebGL */}
-      <div 
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 5,
-          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(59,130,246,0.05) 50%, rgba(0,0,0,0.02) 100%)',
-          pointerEvents: 'none'
-        }}
-      />
+      <Vignette />
 
       {/* Content */}
-      <div className="relative z-10">
-        {/* Hero Section with Knowledge Network */}
-        <section className="min-h-screen flex flex-col items-center justify-center px-6 pt-32 pb-20">
-          {/* Knowledge Network - Signature Visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="w-full max-w-2xl h-[400px] mb-12"
-          >
-            <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-              <KnowledgeNetwork hoveredNode={hoveredNode} mousePosition={mousePosition} />
-            </Canvas>
-          </motion.div>
-
-          {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="font-serif text-5xl md:text-6xl text-[#FCD34D] mb-4 tracking-[0.15em] text-center"
-            style={{ textShadow: '0 0 40px rgba(252, 211, 77, 0.3)' }}
+      <div className="relative z-10 max-w-3xl mx-auto px-6 pt-40 pb-32">
+        {/* Hero */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9 }}
+          className="mb-20 text-center"
+        >
+          <h1
+            className="font-serif text-5xl md:text-6xl mb-5 tracking-[0.12em]"
+            style={{ color: '#FCD34D', textShadow: '0 0 40px rgba(252,211,77,0.28)' }}
           >
             Research
-          </motion.h1>
+          </h1>
+          <p className="text-base italic mb-3" style={{ color: 'rgba(229,229,229,0.75)' }}>
+            Open research on self-encoding dynamics, non-commutative geometry, and Clifford algebra.
+            Preprints, code, and reproducibility materials.
+          </p>
+          <p className="text-xs font-mono tracking-widest" style={{ color: 'rgba(229,229,229,0.4)' }}>
+            Jared D. Dunahay · AEO Trivector LLC · Bedford, NH
+          </p>
+        </motion.div>
 
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-xl text-[#3B82F6] tracking-[0.1em] text-center mb-12"
-          >
-            Publications & Open Source
-          </motion.p>
-        </section>
-
-        {/* Research Papers Section */}
-        <section className="max-w-4xl mx-auto px-6 pb-32 space-y-8">
-          {researchPapers.map((paper, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: index * 0.1 }}
-              onMouseEnter={() => setHoveredNode(index)}
-              onMouseLeave={() => setHoveredNode(null)}
-              className="relative rounded-2xl p-10 border transition-all duration-500"
+        {/* C.2a — In Preparation */}
+        <Section title="In Preparation">
+          <Card>
+            {/* Status badge */}
+            <span
+              className="inline-block px-3 py-1 mb-5 text-xs font-mono tracking-wider"
               style={{
-                background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-                borderColor: hoveredNode === index ? 'rgba(252, 211, 77, 0.3)' : 'rgba(252, 211, 77, 0.15)',
-                boxShadow: hoveredNode === index
-                  ? '0 0 40px rgba(252, 211, 77, 0.2), inset 0 0 60px rgba(252, 211, 77, 0.05)'
-                  : '0 0 20px rgba(252, 211, 77, 0.1), inset 0 0 40px rgba(252, 211, 77, 0.02)',
-                transform: hoveredNode === index ? 'translateY(-4px)' : 'translateY(0)',
+                background: 'rgba(59,130,246,0.1)',
+                border: '1px solid rgba(59,130,246,0.3)',
+                color: '#3B82F6',
               }}
             >
-              {/* Corner glow */}
-              <div
-                className="absolute top-0 right-0 w-32 h-32 rounded-tr-2xl pointer-events-none transition-opacity duration-500"
-                style={{
-                  background: 'radial-gradient(circle at top right, rgba(252, 211, 77, 0.15), transparent 70%)',
-                  opacity: hoveredNode === index ? 1 : 0.5,
-                }}
-              />
+              In revision — peer review feedback received May 2026
+            </span>
 
-              <div className="relative">
-                {/* Status Badge */}
-                <div className="inline-block px-3 py-1 mb-4 rounded-full text-xs font-mono tracking-wider"
-                  style={{
-                    background: 'rgba(59, 130, 246, 0.1)',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    color: '#3B82F6',
-                  }}
-                >
-                  {paper.status}
-                </div>
+            <h3
+              className="font-serif text-xl md:text-2xl mb-2 leading-snug"
+              style={{ color: '#FCD34D' }}
+            >
+              Self-Encoding Geometry on Clifford Manifolds: Dimension Selection from the Lambert W
+              Function
+            </h3>
 
-                {/* Title */}
-                <h3 className="font-serif text-2xl text-[#FCD34D] mb-2 tracking-wide"
-                  style={{ textShadow: '0 0 20px rgba(252, 211, 77, 0.2)' }}
-                >
-                  {paper.title}
-                </h3>
+            <p className="text-sm font-mono mb-4" style={{ color: 'rgba(229,229,229,0.5)' }}>
+              Jared D. Dunahay ·{' '}
+              <a
+                href="https://orcid.org/0009-0004-5735-2872"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#3B82F6', textDecoration: 'none' }}
+              >
+                ORCID 0009-0004-5735-2872
+              </a>{' '}
+              · AEO Trivector LLC, Bedford, NH · Target: <em>Journal of Mathematical Physics</em>
+            </p>
 
-                {/* Subtitle */}
-                <p className="text-lg text-[#E5E5E5]/70 mb-4 italic">
-                  {paper.subtitle}
-                </p>
+            <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(229,229,229,0.78)' }}>
+              Non-commutative deformation of the graded hypertorus T⁸ indexed by Cl(3,0). The
+              self-encoding condition μ = W(1) = e<sup>−μ</sup> uniquely selects three spatial
+              dimensions via three interlocking mechanisms: sphere selection, bridge selection, and
+              threshold selection.
+            </p>
 
-                {/* Description */}
-                <p className="text-[#E5E5E5]/80 leading-relaxed">
-                  {paper.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </section>
+            <p className="text-xs font-mono italic" style={{ color: 'rgba(229,229,229,0.35)' }}>
+              arXiv link forthcoming.
+            </p>
+          </Card>
+        </Section>
+
+        {/* C.2b — Code */}
+        <Section title="Code">
+          <div className="grid gap-4 md:grid-cols-2">
+            {[
+              {
+                repo: 'AEO-TRIVECTOR/aeo-trivector',
+                desc: 'This website — Next.js 15 + Three.js + R3F.',
+                url: 'https://github.com/AEO-TRIVECTOR/aeo-trivector',
+              },
+              {
+                repo: 'Orion-sextant/the-manifold',
+                desc: 'Companion codebase for the T⁸_Θ research program.',
+                url: 'https://github.com/Orion-sextant/the-manifold',
+              },
+            ].map(({ repo, desc, url }) => (
+              <a
+                key={repo}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none' }}
+              >
+                <Card className="h-full transition-all duration-300 hover:border-[rgba(252,211,77,0.35)]">
+                  <p
+                    className="text-sm font-mono mb-2 break-all"
+                    style={{ color: '#FCD34D' }}
+                  >
+                    github.com/{repo}
+                  </p>
+                  <p className="text-sm" style={{ color: 'rgba(229,229,229,0.65)' }}>
+                    {desc}
+                  </p>
+                </Card>
+              </a>
+            ))}
+          </div>
+        </Section>
+
+        {/* C.2c — Citations */}
+        <Section title="Citations">
+          <Card>
+            <p className="text-sm font-mono italic" style={{ color: 'rgba(229,229,229,0.55)' }}>
+              BibTeX available once arXiv preprint is posted.
+            </p>
+          </Card>
+        </Section>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mt-4"
+        >
+          <a
+            href="mailto:jared@trivector.ai"
+            className="inline-block px-8 py-3 text-sm font-mono tracking-widest transition-all duration-300"
+            style={{
+              border: '1px solid rgba(252,211,77,0.45)',
+              color: '#FCD34D',
+              textDecoration: 'none',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(252,211,77,0.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            Collaborate → jared@trivector.ai
+          </a>
+        </motion.div>
       </div>
 
       <Footer />

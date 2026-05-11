@@ -1,5 +1,5 @@
 'use client'
-// Updated: 2026-02-15 - Glassmorphic effect v3 - All inline styles
+// Updated: 2026-05-11 - Phase C nav order: MANIFOLD · MATHEMATICS · RESEARCH · ABOUT · CONTACT
 
 import { useState, useEffect, type CSSProperties } from 'react';
 import Link from 'next/link';
@@ -88,44 +88,19 @@ export function StickyGlassHeader() {
         <nav>
           <ul style={navStyle}>
             <li>
-              <Link
-                href="/manifold"
-                style={getLinkStyle(location === '/manifold')}
-              >
-                MANIFOLD
-              </Link>
+              <Link href="/manifold" style={getLinkStyle(location === '/manifold')}>MANIFOLD</Link>
             </li>
             <li>
-              <Link
-                href="/about"
-                style={getLinkStyle(location === '/about')}
-              >
-                ABOUT
-              </Link>
+              <Link href="/mathematics" style={getLinkStyle(location === '/mathematics')}>MATHEMATICS</Link>
             </li>
             <li>
-              <Link
-                href="/research"
-                style={getLinkStyle(location === '/research')}
-              >
-                RESEARCH
-              </Link>
+              <Link href="/research" style={getLinkStyle(location === '/research')}>RESEARCH</Link>
             </li>
             <li>
-              <Link
-                href="/mathematics"
-                style={getLinkStyle(location === '/mathematics')}
-              >
-                MATHEMATICS
-              </Link>
+              <Link href="/about" style={getLinkStyle(location === '/about')}>ABOUT</Link>
             </li>
             <li>
-              <Link
-                href="/contact"
-                style={getLinkStyle(location === '/contact')}
-              >
-                CONTACT
-              </Link>
+              <Link href="/contact" style={getLinkStyle(location === '/contact')}>CONTACT</Link>
             </li>
           </ul>
         </nav>

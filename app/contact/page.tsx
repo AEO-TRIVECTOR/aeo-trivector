@@ -1,16 +1,59 @@
 import type { Metadata } from 'next'
 import Contact from '../../page-components/Contact'
 
+const OG_IMAGE = '/attractor-torus.png'
+
 export const metadata: Metadata = {
-  title: 'Contact - AEO Trivector',
-  description: 'Get in touch with AEO Trivector LLC. Based in New Hampshire, USA. Inquiries about attractor architecture research and collaboration.',
+  title: { absolute: 'AEO Trivector — Contact' },
+  description:
+    'Academic and general correspondence for AEO Trivector LLC. Write to jared@trivector.ai for research inquiries.',
   openGraph: {
-    title: 'Contact - AEO Trivector',
-    description: 'Get in touch with AEO Trivector LLC. Inquiries about attractor architecture research and collaboration.',
+    title: 'AEO Trivector — Contact',
+    description:
+      'Academic and general correspondence for AEO Trivector LLC. Write to jared@trivector.ai for research inquiries.',
     type: 'website',
+    url: 'https://aeotrivector.com/contact',
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'AEO Trivector — Contact' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AEO Trivector — Contact',
+    description:
+      'Academic and general correspondence for AEO Trivector LLC.',
+    images: [OG_IMAGE],
   },
 }
 
+const contactLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contact AEO Trivector',
+  url: 'https://aeotrivector.com/contact',
+  description: 'Academic and general correspondence for AEO Trivector LLC.',
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      email: 'jared@trivector.ai',
+      contactType: 'academic',
+      availableLanguage: 'English',
+    },
+    {
+      '@type': 'ContactPoint',
+      email: 'link@trivector.ai',
+      contactType: 'customer support',
+      availableLanguage: 'English',
+    },
+  ],
+}
+
 export default function ContactPage() {
-  return <Contact />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactLd) }}
+      />
+      <Contact />
+    </>
+  )
 }

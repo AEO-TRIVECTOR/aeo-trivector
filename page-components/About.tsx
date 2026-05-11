@@ -1,321 +1,273 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useEffect, useState } from 'react';
+import { Canvas } from '@react-three/fiber';
 import { Attractor } from '@/components/Attractor';
 import { motion } from 'framer-motion';
 import { StickyGlassHeader } from '@/components/StickyGlassHeader';
 import Footer from '@/components/Footer';
-import * as THREE from 'three';
+import Link from 'next/link';
 
-// Orbital Rings Component - Signature Visual Element
-function OrbitalRings({ mousePosition }: { mousePosition: { x: number, y: number } }) {
-  const ring1Ref = useRef<THREE.Mesh>(null);
-  const ring2Ref = useRef<THREE.Mesh>(null);
-  const ring3Ref = useRef<THREE.Mesh>(null);
-  const tetrahedronRef = useRef<THREE.Mesh>(null);
-  const octahedronRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    const time = state.clock.elapsedTime;
-
-    // Rotate rings at different speeds
-    if (ring1Ref.current) {
-      ring1Ref.current.rotation.x = time * 0.3;
-      ring1Ref.current.rotation.y = time * 0.2;
-    }
-    if (ring2Ref.current) {
-      ring2Ref.current.rotation.x = time * -0.25;
-      ring2Ref.current.rotation.z = time * 0.15;
-    }
-    if (ring3Ref.current) {
-      ring3Ref.current.rotation.y = time * 0.35;
-      ring3Ref.current.rotation.z = time * -0.2;
-    }
-
-    // Orbit Platonic solids
-    if (tetrahedronRef.current) {
-      const radius = 3;
-      tetrahedronRef.current.position.x = Math.cos(time * 0.5) * radius;
-      tetrahedronRef.current.position.y = Math.sin(time * 0.5) * radius;
-      tetrahedronRef.current.rotation.x = time * 0.5;
-      tetrahedronRef.current.rotation.y = time * 0.3;
-    }
-    if (octahedronRef.current) {
-      const radius = 3.5;
-      octahedronRef.current.position.x = Math.cos(time * -0.4 + Math.PI) * radius;
-      octahedronRef.current.position.z = Math.sin(time * -0.4 + Math.PI) * radius;
-      octahedronRef.current.rotation.x = time * -0.4;
-      octahedronRef.current.rotation.z = time * 0.2;
-    }
-
-    // Mouse parallax (subtle tilt)
-    if (ring1Ref.current && ring2Ref.current && ring3Ref.current) {
-      const targetRotationX = mousePosition.y * 0.1;
-      const targetRotationZ = mousePosition.x * 0.1;
-      
-      ring1Ref.current.rotation.x += (targetRotationX - ring1Ref.current.rotation.x) * 0.05;
-      ring2Ref.current.rotation.z += (targetRotationZ - ring2Ref.current.rotation.z) * 0.05;
-      ring3Ref.current.rotation.x += (targetRotationX - ring3Ref.current.rotation.x) * 0.05;
-    }
-  });
-
+// ── Attractor background ─────────────────────────────────────────────────────
+function AttractorBackground() {
   return (
     <group>
-      {/* Ring 1 - Innermost */}
-      <mesh ref={ring1Ref}>
-        <torusGeometry args={[2, 0.05, 16, 100]} />
-        <meshStandardMaterial 
-          color="#FCD34D" 
-          emissive="#FCD34D" 
-          emissiveIntensity={0.5}
-          transparent
-          opacity={0.8}
-        />
-      </mesh>
-
-      {/* Ring 2 - Middle */}
-      <mesh ref={ring2Ref}>
-        <torusGeometry args={[2.5, 0.04, 16, 100]} />
-        <meshStandardMaterial 
-          color="#FCD34D" 
-          emissive="#FCD34D" 
-          emissiveIntensity={0.4}
-          transparent
-          opacity={0.6}
-        />
-      </mesh>
-
-      {/* Ring 3 - Outermost */}
-      <mesh ref={ring3Ref}>
-        <torusGeometry args={[3, 0.03, 16, 100]} />
-        <meshStandardMaterial 
-          color="#FCD34D" 
-          emissive="#FCD34D" 
-          emissiveIntensity={0.3}
-          transparent
-          opacity={0.4}
-        />
-      </mesh>
-
-      {/* Tetrahedron orbiting */}
-      <mesh ref={tetrahedronRef}>
-        <tetrahedronGeometry args={[0.3]} />
-        <meshStandardMaterial 
-          color="#3B82F6" 
-          emissive="#3B82F6" 
-          emissiveIntensity={0.5}
-          transparent
-          opacity={0.7}
-        />
-      </mesh>
-
-      {/* Octahedron orbiting */}
-      <mesh ref={octahedronRef}>
-        <octahedronGeometry args={[0.25]} />
-        <meshStandardMaterial 
-          color="#3B82F6" 
-          emissive="#3B82F6" 
-          emissiveIntensity={0.5}
-          transparent
-          opacity={0.7}
-        />
-      </mesh>
-
-      {/* Center glow */}
-      <pointLight position={[0, 0, 0]} intensity={2} color="#FCD34D" distance={5} />
-      <ambientLight intensity={0.3} />
+      <Attractor count={8000} opacity={0.42} speed={0.8} />
     </group>
   );
 }
 
-// Lorenz Attractor Background (Ghost Horizon Effect)
-function AttractorBackground({ mousePosition }: { mousePosition: { x: number, y: number } }) {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.05;
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
-      groupRef.current.scale.set(scale, scale, scale);
-      
-      const targetRotationX = mousePosition.y * 0.1;
-      const targetRotationZ = mousePosition.x * 0.1;
-      groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.05;
-      groupRef.current.rotation.z += (targetRotationZ - groupRef.current.rotation.z) * 0.05;
-    }
-  });
-
+// ── Vignette ─────────────────────────────────────────────────────────────────
+function Vignette() {
   return (
-    <group ref={groupRef}>
-      <Attractor count={15000} opacity={0.85} speed={1} />
-    </group>
+    <div
+      className="fixed inset-0 pointer-events-none"
+      style={{
+        zIndex: 1,
+        background:
+          'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.72) 100%)',
+      }}
+    />
   );
 }
 
-export default function About() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [scrollY, setScrollY] = useState(0);
-  
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1
-      });
-    };
+// ── Section wrapper ──────────────────────────────────────────────────────────
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7 }}
+      className="mb-12"
+    >
+      <h2
+        className="text-xs font-mono tracking-[0.25em] mb-5 uppercase"
+        style={{ color: 'rgba(252,211,77,0.55)' }}
+      >
+        {title}
+      </h2>
+      {children}
+    </motion.section>
+  );
+}
 
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+// ── Card wrapper ─────────────────────────────────────────────────────────────
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="p-8"
+      style={{
+        background: 'rgba(0,0,0,0.45)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(252,211,77,0.15)',
+        boxShadow: '0 0 24px rgba(252,211,77,0.06)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ── Main component ───────────────────────────────────────────────────────────
+export default function About() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
-      {/* Header */}
       <StickyGlassHeader />
 
-      {/* Lorenz Attractor Background - Ghost Horizon Effect */}
+      {/* Background */}
       <div className="fixed inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
-          <AttractorBackground mousePosition={mousePosition} />
-        </Canvas>
+        {mounted && (
+          <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
+            <AttractorBackground />
+          </Canvas>
+        )}
       </div>
-
-      {/* Overlay layer for backdrop-filter to work with WebGL */}
-      <div 
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 5,
-          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(59,130,246,0.05) 50%, rgba(0,0,0,0.02) 100%)',
-          pointerEvents: 'none'
-        }}
-      />
+      <Vignette />
 
       {/* Content */}
-      <div className="relative z-10">
-        {/* Hero Section with Orbital Rings */}
-        <section className="min-h-screen flex flex-col items-center justify-center px-6 pt-32 pb-20">
-          {/* Orbital Rings - Signature Visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="w-full max-w-md h-[400px] mb-12"
+      <div className="relative z-10 max-w-3xl mx-auto px-6 pt-40 pb-32">
+        {/* Hero */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9 }}
+          className="mb-20 text-center"
+        >
+          <h1
+            className="font-serif text-5xl md:text-6xl mb-5 tracking-[0.12em]"
+            style={{ color: '#FCD34D', textShadow: '0 0 40px rgba(252,211,77,0.28)' }}
           >
-            <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-              <OrbitalRings mousePosition={mousePosition} />
-            </Canvas>
-          </motion.div>
+            About
+          </h1>
+          <p className="text-base italic mb-3" style={{ color: 'rgba(229,229,229,0.75)' }}>
+            AEO Trivector is the research vehicle of Jared D. Dunahay, an independent investigator
+            in non-commutative geometry and self-encoding dynamics.
+          </p>
+          <p className="text-xs font-mono tracking-widest" style={{ color: 'rgba(229,229,229,0.4)' }}>
+            Jared D. Dunahay · AEO Trivector LLC · Bedford, NH
+          </p>
+        </motion.div>
 
-          {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="font-serif text-5xl md:text-6xl text-[#FCD34D] mb-4 tracking-[0.15em] text-center"
-            style={{ textShadow: '0 0 40px rgba(252, 211, 77, 0.3)' }}
-          >
-            Dr. Jared Dunahay
-          </motion.h1>
+        {/* C.3a — Principal Investigator */}
+        <Section title="Principal Investigator">
+          <Card>
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
+              <div className="flex-1">
+                <h3
+                  className="font-serif text-2xl mb-1"
+                  style={{ color: '#FCD34D' }}
+                >
+                  Jared D. Dunahay
+                </h3>
+                <p className="text-sm font-mono mb-4" style={{ color: 'rgba(229,229,229,0.5)' }}>
+                  Founder &amp; Principal Investigator
+                </p>
+                <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(229,229,229,0.78)' }}>
+                  Independent researcher working at the intersection of spectral geometry, Clifford
+                  algebra, and geometric foundations for interpretable AI. The AEO Trivector program
+                  formalises the self-encoding condition μ = W(1) = e<sup>−μ</sup> and its
+                  implications for dimension selection and attractor-stable dynamics.
+                </p>
+                <p className="text-sm leading-relaxed" style={{ color: 'rgba(229,229,229,0.65)' }}>
+                  For the full academic record, see the{' '}
+                  <a
+                    href="https://orcid.org/0009-0004-5735-2872"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#3B82F6', textDecoration: 'none' }}
+                  >
+                    ORCID profile
+                  </a>
+                  .
+                </p>
+              </div>
 
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-xl text-[#3B82F6] tracking-[0.1em] text-center mb-12"
-          >
-            Founder & Principal Investigator
-          </motion.p>
-        </section>
+              {/* ORCID badge */}
+              <a
+                href="https://orcid.org/0009-0004-5735-2872"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2 self-start"
+                style={{
+                  border: '1px solid rgba(59,130,246,0.35)',
+                  textDecoration: 'none',
+                  background: 'rgba(59,130,246,0.06)',
+                }}
+              >
+                <span className="text-xs font-mono" style={{ color: '#3B82F6' }}>
+                  ORCID
+                </span>
+                <span className="text-xs font-mono" style={{ color: 'rgba(229,229,229,0.55)' }}>
+                  0009-0004-5735-2872
+                </span>
+              </a>
+            </div>
+          </Card>
+        </Section>
 
-        {/* Bio Section - Glass Panels */}
-        <section className="max-w-3xl mx-auto px-6 pb-32 space-y-8">
-          {/* Bio Paragraph 1 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative rounded-2xl p-10 border border-[#FCD34D]/20"
+        {/* C.3b — Affiliation */}
+        <Section title="Affiliation">
+          <Card>
+            <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+              {[
+                { dt: 'Organisation', dd: 'AEO Trivector LLC' },
+                { dt: 'Location', dd: 'Bedford, NH, USA' },
+                { dt: 'Status', dd: 'Independent research programme' },
+                { dt: 'Founded', dd: '2024' },
+              ].map(({ dt, dd }) => (
+                <div key={dt}>
+                  <dt className="font-mono text-xs tracking-widest mb-1" style={{ color: 'rgba(252,211,77,0.5)' }}>
+                    {dt}
+                  </dt>
+                  <dd style={{ color: 'rgba(229,229,229,0.78)' }}>{dd}</dd>
+                </div>
+              ))}
+            </dl>
+          </Card>
+        </Section>
+
+        {/* C.3c — Identifiers */}
+        <Section title="Identifiers">
+          <Card>
+            <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+              {[
+                {
+                  dt: 'ORCID',
+                  dd: '0009-0004-5735-2872',
+                  href: 'https://orcid.org/0009-0004-5735-2872',
+                },
+                {
+                  dt: 'GitHub (research org)',
+                  dd: 'AEO-TRIVECTOR',
+                  href: 'https://github.com/AEO-TRIVECTOR',
+                },
+                {
+                  dt: 'GitHub (personal)',
+                  dd: 'Orion-sextant',
+                  href: 'https://github.com/Orion-sextant',
+                },
+                {
+                  dt: 'Academic email',
+                  dd: 'jared@trivector.ai',
+                  href: 'mailto:jared@trivector.ai',
+                },
+                {
+                  dt: 'General email',
+                  dd: 'link@trivector.ai',
+                  href: 'mailto:link@trivector.ai',
+                },
+              ].map(({ dt, dd, href }) => (
+                <div key={dt}>
+                  <dt className="font-mono text-xs tracking-widest mb-1" style={{ color: 'rgba(252,211,77,0.5)' }}>
+                    {dt}
+                  </dt>
+                  <dd>
+                    <a
+                      href={href}
+                      target={href.startsWith('http') ? '_blank' : undefined}
+                      rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      style={{ color: '#3B82F6', textDecoration: 'none' }}
+                    >
+                      {dd}
+                    </a>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Card>
+        </Section>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mt-4"
+        >
+          <Link
+            href="/mathematics"
+            className="inline-block px-8 py-3 text-sm font-mono tracking-widest transition-all duration-300"
             style={{
-              background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 0 30px rgba(252, 211, 77, 0.1), inset 0 0 50px rgba(252, 211, 77, 0.03)',
+              border: '1px solid rgba(252,211,77,0.45)',
+              color: '#FCD34D',
+              textDecoration: 'none',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = 'rgba(252,211,77,0.08)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = 'transparent';
             }}
           >
-            <div className="absolute top-0 left-0 w-32 h-32 rounded-tl-2xl pointer-events-none"
-              style={{
-                background: 'radial-gradient(circle at top left, rgba(252, 211, 77, 0.15), transparent 70%)',
-              }}
-            />
-            <p className="text-lg leading-relaxed text-[#E5E5E5]/90">
-              Researcher working at the intersection of <span className="text-[#FCD34D]">spectral geometry</span>, <span className="text-[#3B82F6]">category theory</span>, and geometric foundations for interpretable AI. My work focuses on developing mathematical frameworks that bridge continuous and discrete representations of cognitive processes.
-            </p>
-          </motion.div>
-
-          {/* Bio Paragraph 2 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative rounded-2xl p-10 border border-[#FCD34D]/20"
-            style={{
-              background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 0 30px rgba(252, 211, 77, 0.1), inset 0 0 50px rgba(252, 211, 77, 0.03)',
-            }}
-          >
-            <div className="absolute bottom-0 right-0 w-32 h-32 rounded-br-2xl pointer-events-none"
-              style={{
-                background: 'radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.15), transparent 70%)',
-              }}
-            />
-            <p className="text-lg leading-relaxed text-[#E5E5E5]/90">
-              The <span className="text-[#FCD34D]">AEO Trivector framework</span> emerged from the recognition that intelligence—whether biological or artificial—operates through <span className="text-[#3B82F6]">attractor dynamics</span> in structured phase spaces. By formalizing these dynamics through spectral methods and categorical composition, we can build systems that are both powerful and interpretable.
-            </p>
-          </motion.div>
-
-          {/* Contact Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex justify-center gap-8 pt-8"
-          >
-            <a
-              href="mailto:link@trivector.ai"
-              className="text-sm tracking-[0.1em] text-[#E5E5E5]/70 hover:text-[#FCD34D] hover:drop-shadow-[0_0_15px_rgba(252,211,77,0.4)] transition-all duration-300"
-            >
-              EMAIL
-            </a>
-            <a
-              href="https://www.linkedin.com/in/jared-dunahay"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm tracking-[0.1em] text-[#E5E5E5]/70 hover:text-[#FCD34D] hover:drop-shadow-[0_0_15px_rgba(252,211,77,0.4)] transition-all duration-300"
-            >
-              LINKEDIN
-            </a>
-            <a
-              href="https://scholar.google.com/citations?user=XXXXX"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm tracking-[0.1em] text-[#E5E5E5]/70 hover:text-[#FCD34D] hover:drop-shadow-[0_0_15px_rgba(252,211,77,0.4)] transition-all duration-300"
-            >
-              SCHOLAR
-            </a>
-          </motion.div>
-        </section>
+            Read the mathematics →
+          </Link>
+        </motion.div>
       </div>
 
       <Footer />

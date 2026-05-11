@@ -1,13 +1,26 @@
 import type { Metadata } from 'next'
 import Research from '../../page-components/Research'
 
+const OG_IMAGE = '/attractor-torus.png'
+
 export const metadata: Metadata = {
-  title: 'Research - AEO Trivector',
-  description: 'Mathematical research in spectral geometry, attractor dynamics, and geometric foundations for interpretable AI. Open source implementations and experimental code.',
+  title: { absolute: 'AEO Trivector — Research' },
+  description:
+    'Open research on self-encoding dynamics, non-commutative geometry, and Clifford algebra. Preprints, code, and reproducibility materials.',
   openGraph: {
-    title: 'Research - AEO Trivector',
-    description: 'Mathematical research in spectral geometry, attractor dynamics, and geometric foundations for interpretable AI.',
+    title: 'AEO Trivector — Research',
+    description:
+      'Open research on self-encoding dynamics, non-commutative geometry, and Clifford algebra. Preprints, code, and reproducibility materials.',
     type: 'website',
+    url: 'https://aeotrivector.com/research',
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'AEO Trivector — Research' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AEO Trivector — Research',
+    description:
+      'Open research on self-encoding dynamics, non-commutative geometry, and Clifford algebra.',
+    images: [OG_IMAGE],
   },
 }
 
@@ -24,7 +37,8 @@ const articleLd = {
     affiliation: 'AEO Trivector LLC',
     sameAs: 'https://orcid.org/0009-0004-5735-2872',
   },
-  creativeWorkStatus: 'InPreparation',
+  // 'Submitted' is the closest valid Schema.org CreativeWorkStatus for 'in revision'
+  creativeWorkStatus: 'Submitted',
   about:
     'Non-commutative deformation of the graded hypertorus T⁸ indexed by Cl(3,0); dimension selection from the Lambert W function W(1) = 0.567143',
   keywords:
