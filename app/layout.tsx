@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://aeotrivector.com'),
   title: {
-    default: 'AEO Trivector - Attractor Architecture',
+    default: 'AEO Trivector — Attractor Architecture',
     template: '%s | AEO Trivector',
   },
   description: 'Geometric foundations for interpretable AI. AI systems that are interpretable because they\'re stable—geometrically inevitable, not reverse-engineered.',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'Jared Dunahay', url: 'https://orcid.org/0009-0004-5735-2872' }],
   creator: 'AEO Trivector LLC',
   openGraph: {
-    title: 'AEO Trivector - Attractor Architecture',
+    title: 'AEO Trivector — Attractor Architecture',
     description: 'Geometric foundations for interpretable AI. AI systems that are interpretable because they\'re stable—geometrically inevitable, not reverse-engineered.',
     url: 'https://aeotrivector.com',
     siteName: 'AEO Trivector',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AEO Trivector - Attractor Architecture',
+    title: 'AEO Trivector — Attractor Architecture',
     description: 'Geometric foundations for interpretable AI.',
     images: ['/images/attractor-torus.png'],
   },

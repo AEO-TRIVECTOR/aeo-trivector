@@ -119,18 +119,39 @@ export async function generateOgImage({ title, anchor }: OgImageProps): Promise<
             Jared D. Dunahay · AEO Trivector LLC
           </span>
 
-          {/* Bottom-right: triad glyphs */}
-          <span
-            style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: '40px',
-              color: '#C8A84B',
-              letterSpacing: '0.5em',
-              opacity: 0.75,
-            }}
+          {/* Bottom-right: triad glyphs — inline SVG to avoid font missing-glyph boxes */}
+          <svg
+            width="128"
+            height="36"
+            viewBox="0 0 128 36"
+            style={{ opacity: 0.75 }}
           >
-            △ ◯ ◇
-          </span>
+            {/* Triangle (equilateral, pointing up) */}
+            <polygon
+              points="16,2 30,30 2,30"
+              fill="none"
+              stroke="#C8A84B"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            {/* Circle */}
+            <circle
+              cx="64"
+              cy="18"
+              r="14"
+              fill="none"
+              stroke="#C8A84B"
+              stroke-width="2"
+            />
+            {/* Diamond (rotated square) */}
+            <polygon
+              points="112,2 126,18 112,34 98,18"
+              fill="none"
+              stroke="#C8A84B"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+          </svg>
         </div>
       </div>
     ),
