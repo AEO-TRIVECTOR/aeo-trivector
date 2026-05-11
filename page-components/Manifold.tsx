@@ -7,6 +7,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Attractor } from '@/components/Attractor'
 import { motion, useReducedMotion } from 'framer-motion'
 import Footer from '@/components/Footer'
+import { StickyGlassHeader } from '@/components/StickyGlassHeader'
 import * as THREE from 'three'
 
 // 3D Group component for Attractor animation
@@ -141,17 +142,7 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
   )
 }
 
-const interactiveLinkStyle: CSSProperties = {
-  position: 'relative',
-  paddingBottom: '0.25rem',
-  paddingTop: '0.5rem',
-  paddingLeft: '0.5rem',
-  paddingRight: '0.5rem',
-  borderBottom: '1px solid rgba(59, 130, 246, 0.5)',
-  color: 'rgba(255, 255, 255, 0.7)',
-  transition: 'all 0.3s',
-  textDecoration: 'none',
-}
+
 
 export default function Manifold() {
   const reduceMotion = useReducedMotion() || false
@@ -337,77 +328,8 @@ export default function Manifold() {
         </motion.div>
       )}
 
-      {/* Fixed Navigation Header */}
-      <nav
-        aria-label="Primary"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          padding: '1.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '1rem',
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 100%)',
-          backdropFilter: 'blur(30px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(160%)',
-          borderBottom: '1px solid rgba(200, 168, 75, 0.15)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.4)',
-        }}
-      >
-        <Link href="/">
-          <span
-            style={{
-              fontSize: '1.25rem',
-              fontFamily: 'Cormorant Garamond, serif',
-              letterSpacing: '0.05em',
-              fontWeight: 700,
-              cursor: 'pointer',
-              color: 'rgba(200, 168, 75, 0.9)',
-              textShadow: '0 0 20px rgba(200, 168, 75, 0.25)',
-              transition: 'color 0.5s',
-            }}
-          >
-            AEO TRIVECTOR
-          </span>
-        </Link>
-        <div
-          style={{
-            display: 'flex',
-            gap: '2rem',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '0.75rem',
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            opacity: 0.7,
-          }}
-        >
-          <Link
-            href="/manifold"
-            aria-current="page"
-            style={{
-              ...interactiveLinkStyle,
-              borderBottom: '1px solid #C8A84B',
-              color: '#C8A84B',
-            }}
-          >
-            MANIFOLD
-          </Link>
-          <Link href="/research" style={interactiveLinkStyle}>
-            RESEARCH
-          </Link>
-          <Link href="/about" style={interactiveLinkStyle}>
-            ABOUT
-          </Link>
-          <Link href="/contact" style={interactiveLinkStyle}>
-            CONTACT
-          </Link>
-        </div>
-      </nav>
+      {/* Shared navigation header — single source of truth */}
+      <StickyGlassHeader />
 
       {/* Scrollable Content - uses normal document flow */}
       <div style={{ position: 'relative', zIndex: 10, pointerEvents: 'none' }}>
