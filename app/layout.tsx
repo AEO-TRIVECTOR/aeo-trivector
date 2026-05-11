@@ -54,6 +54,67 @@ export const metadata: Metadata = {
   },
 }
 
+// ── A.4 JSON-LD: Organization + Person ──────────────────────────────────────
+const organizationLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'AEO Trivector LLC',
+  alternateName: 'AEO Trivector',
+  url: 'https://aeotrivector.com',
+  logo: 'https://aeotrivector.com/icon.png',
+  email: 'link@trivector.ai',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Bedford',
+    addressRegion: 'NH',
+    addressCountry: 'US',
+  },
+  founder: {
+    '@type': 'Person',
+    name: 'Jared D. Dunahay',
+    sameAs: 'https://orcid.org/0009-0004-5735-2872',
+  },
+  description:
+    'An independent research program in non-commutative geometry, Clifford algebra, and the mathematics of self-encoding dynamics.',
+}
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Jared D. Dunahay',
+  givenName: 'Jared',
+  familyName: 'Dunahay',
+  additionalName: 'D.',
+  url: 'https://aeotrivector.com',
+  email: 'jared@trivector.ai',
+  affiliation: {
+    '@type': 'Organization',
+    name: 'AEO Trivector LLC',
+    url: 'https://aeotrivector.com',
+  },
+  sameAs: [
+    'https://orcid.org/0009-0004-5735-2872',
+    'https://github.com/AEO-TRIVECTOR',
+    'https://github.com/Orion-sextant',
+  ],
+  identifier: [
+    {
+      '@type': 'PropertyValue',
+      propertyID: 'ORCID',
+      value: '0009-0004-5735-2872',
+    },
+  ],
+  knowsAbout: [
+    'Non-commutative geometry',
+    'Clifford algebra',
+    'Self-encoding dynamics',
+    'Spectral triples',
+    'Lambert W function',
+    'Graded hypertorus',
+  ],
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 export default function RootLayout({
   children,
 }: {
@@ -65,6 +126,16 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+        {/* A.4 — Organization JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
+        {/* A.4 — Person JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
+        />
       </head>
       <body>
         <ErrorBoundary>

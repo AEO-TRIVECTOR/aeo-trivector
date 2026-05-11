@@ -1,0 +1,36 @@
+# AEO Trivector
+
+> An independent research program in non-commutative geometry, Clifford algebra, and the mathematics of self-encoding dynamics.
+
+Principal: Jared D. Dunahay
+ORCID: https://orcid.org/0009-0004-5735-2872
+Affiliation: AEO Trivector LLC, Bedford, NH
+Academic correspondence: jared@trivector.ai
+General contact: link@trivector.ai
+
+## Pages
+
+- [Manifold (overview)](https://aeotrivector.com/manifold): The three-pillar framing — Structure, Dynamics, Integration.
+- [Research](https://aeotrivector.com/research): Preprints, code, citations.
+- [Mathematics](https://aeotrivector.com/mathematics): Constraint hierarchy, dimension selection, graded hypertorus T⁸.
+- [About](https://aeotrivector.com/about): Principal investigator, affiliation, identity.
+- [Contact](https://aeotrivector.com/contact): Correspondence.
+
+## Research focus
+
+- Self-encoding dynamics via the Lambert W function: μ = W(1) = 0.567143
+- Dimension selection: x*(W(1)) = 3.006 — three spatial dimensions emerge uniquely
+- Graded hypertorus T⁸ = S¹ × T³ × T³ × S¹ indexed by Cl(3,0)
+- Spectral triples, non-commutative geometry, Clifford algebra
+- Architecture-dependent spectral dynamics in trained recurrent networks
+- Three-regime empirical taxonomy: Gated Precession, Critical Fluidity, Frozen Transport
+
+## Forthcoming publications
+
+- "Self-Encoding Geometry on Clifford Manifolds: Dimension Selection from the Lambert W Function" — target: Journal of Mathematical Physics. Status: in revision.
+- "Architecture-Dependent Spectral Dynamics in Trained Recurrent Networks" — target: computational neuroscience / ML theory venue.
+
+## Code
+
+- https://github.com/AEO-TRIVECTOR/aeo-trivector — this website
+- https://github.com/Orion-sextant/the-manifold — companion codebase
