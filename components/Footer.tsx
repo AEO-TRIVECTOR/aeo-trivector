@@ -137,15 +137,15 @@ export default function Footer() {
                 style={{ width: '1em' }}
                 alt="ORCID iD icon"
               />
-              <span>https://orcid.org/0009-0004-5735-2872</span>
+              <span>ORCID: 0009-0004-5735-2872</span>
             </a>
           </div>
 
-          {/* Attractor Torus Visual */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Attractor Torus Visual + Caption */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
             <img
               src="/images/attractor-torus.png"
-              alt="Attractor Torus - Geometric visualization of attractor architecture"
+              alt="Self-encoding geometry on the graded hypertorus T⁸ = S¹ × T³ × T³ × S¹"
               style={{
                 width: '120px',
                 height: 'auto',
@@ -155,13 +155,26 @@ export default function Footer() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.opacity = '1';
-                e.currentTarget.style.filter = 'drop-shadow(0 0 30px rgba(255, 215, 0, 0.5))';
+                e.currentTarget.style.filter = 'drop-shadow(0 0 30px rgba(200, 168, 75, 0.5))';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.opacity = '0.8';
                 e.currentTarget.style.filter = 'drop-shadow(0 0 20px rgba(96, 165, 250, 0.3))';
               }}
             />
+            <div
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.65rem',
+                letterSpacing: '0.06em',
+                color: 'rgba(156, 163, 175, 0.6)',
+                textAlign: 'center',
+                maxWidth: '28rem',
+                lineHeight: 1.5,
+              }}
+            >
+              Self-encoding geometry on the graded hypertorus T⁸ = S¹ × T³ × T³ × S¹
+            </div>
           </div>
 
           {/* Tagline */}

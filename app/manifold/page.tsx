@@ -2,15 +2,15 @@ import type { Metadata } from 'next'
 import Manifold from '../../page-components/Manifold'
 
 export const metadata: Metadata = {
-  title: 'Vision - AEO Trivector | Attractor Architecture',
+  title: 'AEO Trivector — Attractor Architecture',
   description:
-    'Explore the three pillars of attractor architecture: Structure, Dynamics, and Integration. Geometric foundations for interpretable AI systems.',
+    'An independent research program in non-commutative geometry, Clifford algebra, and the mathematics of self-encoding dynamics. By Jared D. Dunahay, AEO Trivector LLC.',
   alternates: {
     canonical: '/manifold/',
   },
   openGraph: {
-    title: 'Vision - AEO Trivector | Attractor Architecture',
-    description: 'Explore the three pillars of attractor architecture: Structure, Dynamics, and Integration.',
+    title: 'AEO Trivector — Attractor Architecture',
+    description: 'An independent research program in non-commutative geometry, Clifford algebra, and the mathematics of self-encoding dynamics.',
     type: 'website',
     url: '/manifold/',
     images: [

@@ -56,11 +56,10 @@ export function Attractor({
     const rho = 28;
     const beta = 8/3;
 
-    // Three colors for three dominant planes
-    // Gold for XY-dominant, Cyan for XZ-dominant, Purple for YZ-dominant
-    const colorXY = new THREE.Color('#FFD700'); // Gold
-    const colorXZ = new THREE.Color('#3B82F6'); // Cyan/Blue
-    const colorYZ = new THREE.Color('#A78BFA'); // Purple
+    // Muted palette: deep amber, steel blue, soft violet — lower saturation for legibility
+    const colorXY = new THREE.Color('#C8A84B'); // muted gold
+    const colorXZ = new THREE.Color('#2D6A9F'); // steel blue
+    const colorYZ = new THREE.Color('#7C5FA8'); // muted violet
 
     // RK4 Integration Helper
     const f = (x: number, y: number, z: number) => {
@@ -128,11 +127,12 @@ export function Attractor({
     canvas.height = 32;
     const ctx = canvas.getContext('2d')!;
     
-    // Draw circle with soft edges
+    // Draw circle with soft edges — tighter core for a crisper, less bloomy look
     const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
-    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    gradient.addColorStop(0,   'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.6)');
+    gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.15)');
+    gradient.addColorStop(1,   'rgba(255, 255, 255, 0)');
     
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 32, 32);
@@ -156,10 +156,9 @@ export function Attractor({
       mesh.current.rotation.y += 0.002 * speed;
       mesh.current.rotation.z += 0.001 * speed;
       
-      // Subtle breathing effect
-      // Base scale of 6.0 to make attractor fill screen immersively, plus breathing
-      const baseScale = 6.0;
-      const breathingScale = baseScale + Math.sin(state.clock.elapsedTime * 0.5) * 0.25;
+      // Subtle breathing effect — reduced base scale so attractor doesn't overwhelm
+      const baseScale = 4.5;
+      const breathingScale = baseScale + Math.sin(state.clock.elapsedTime * 0.5) * 0.15;
       mesh.current.scale.set(breathingScale, breathingScale, breathingScale);
     }
   });
@@ -169,7 +168,7 @@ export function Attractor({
       <primitive object={geometry} />
       <pointsMaterial 
         ref={materialRef}
-        size={2.5} 
+        size={1.8}
         vertexColors
         transparent 
         opacity={opacity} 

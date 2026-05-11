@@ -44,7 +44,8 @@ function AttractorGroup({
 
   return (
     <group ref={groupRef}>
-      <Attractor count={particleCount} opacity={0.85} speed={1} />
+      {/* Reduced opacity from 0.85 → 0.42 for less visual overwhelm */}
+      <Attractor count={particleCount} opacity={0.42} speed={1} />
     </group>
   )
 }
@@ -74,83 +75,62 @@ function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
       aria-label={`${title}: ${descriptor}`}
     >
       <div
-        className="relative rounded-2xl p-12 transition-all duration-700 ease-out"
+        className="relative rounded-2xl p-10 transition-all duration-700 ease-out"
         style={{
-          background: 'rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
+          background: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(28px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: isHovered
-            ? '0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 60px rgba(255, 215, 0, 0.1)'
-            : '0 0 20px rgba(255, 215, 0, 0.15), inset 0 0 30px rgba(255, 215, 0, 0.05)',
+            ? '0 0 32px rgba(200, 168, 75, 0.2), inset 0 0 48px rgba(200, 168, 75, 0.06)'
+            : '0 0 16px rgba(200, 168, 75, 0.08), inset 0 0 24px rgba(200, 168, 75, 0.03)',
           transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
         }}
       >
         <div
           className="absolute top-0 right-0 w-32 h-32 rounded-tr-2xl pointer-events-none transition-opacity duration-700"
           style={{
-            background: 'radial-gradient(circle at top right, rgba(255, 215, 0, 0.2), transparent 70%)',
-            opacity: isHovered ? 1 : 0.6,
+            background: 'radial-gradient(circle at top right, rgba(200, 168, 75, 0.12), transparent 70%)',
+            opacity: isHovered ? 1 : 0.5,
           }}
         />
 
-        <motion.div
-          className="absolute inset-0 rounded-2xl pointer-events-none"
-          animate={
-            reduceMotion
-              ? undefined
-              : {
-                  background: [
-                    'linear-gradient(135deg, transparent 0%, rgba(255, 215, 0, 0.03) 50%, transparent 100%)',
-                    'linear-gradient(135deg, transparent 30%, rgba(255, 215, 0, 0.05) 70%, transparent 100%)',
-                    'linear-gradient(135deg, transparent 0%, rgba(255, 215, 0, 0.03) 50%, transparent 100%)',
-                  ],
-                }
-          }
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-
-        <div className="relative flex flex-col items-center space-y-6" style={{ textAlign: 'center', width: '100%' }}>
+        <div className="relative flex flex-col items-center space-y-5" style={{ textAlign: 'center', width: '100%' }}>
           <motion.div
-            className="text-5xl"
+            className="text-4xl"
             animate={{
               rotate: isHovered && !reduceMotion ? 5 : 0,
             }}
             transition={{ duration: 0.5 }}
             style={{
-              color: '#FFD700',
-              filter: 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.5))',
-              textShadow: '0 2px 12px rgba(0,0,0,0.9)',
+              color: '#C8A84B',
+              filter: 'drop-shadow(0 0 6px rgba(200, 168, 75, 0.35))',
             }}
           >
             {icon}
           </motion.div>
 
           <h3
-            className="font-serif text-2xl tracking-wider uppercase"
+            className="font-serif text-xl tracking-wider uppercase"
             style={{
-              color: 'rgba(255, 255, 255, 0.95)',
+              color: 'rgba(255, 255, 255, 0.9)',
               letterSpacing: '0.15em',
               fontWeight: 400,
-              textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 4px 24px rgba(0,0,0,0.7)',
+              textShadow: '0 2px 12px rgba(0,0,0,0.9)',
             }}
           >
             {title}
           </h3>
 
           <motion.p
-            className="text-base leading-relaxed max-w-xs"
+            className="text-sm leading-relaxed max-w-xs"
             animate={{
-              opacity: isHovered ? 1 : 0.7,
+              opacity: isHovered ? 0.9 : 0.6,
             }}
             transition={{ duration: 0.5 }}
             style={{
-              color: 'rgba(209, 213, 219, 0.9)',
-              textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)',
+              color: 'rgba(209, 213, 219, 0.85)',
+              textShadow: '0 2px 8px rgba(0,0,0,0.9)',
             }}
           >
             {descriptor}
@@ -254,7 +234,7 @@ export default function Manifold() {
     const cpuThreads = navigator.hardwareConcurrency || 4
     if (reduceMotion) return 4000
     if (isCoarsePointer || cpuThreads <= 4) return 8000
-    return 25000
+    return 22000
   }, [reduceMotion])
 
   return (
@@ -296,7 +276,7 @@ export default function Manifold() {
               letterSpacing: '0.05em',
               fontSize: '0.75rem',
               textTransform: 'uppercase',
-              textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+              textShadow: '0 2px 8px rgba(0,0,0,0.9)',
             }}
           >
             3D visualization unavailable on this device.
@@ -304,13 +284,24 @@ export default function Manifold() {
         )}
       </div>
 
-      {/* Overlay layer for backdrop-filter to work with WebGL */}
+      {/* Dark vignette overlay — improves text contrast without hiding the attractor */}
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 4,
+          background: 'radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 20%, rgba(0,0,0,0.55) 70%, rgba(0,0,0,0.75) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Subtle colour overlay — keeps the palette coherent */}
       <div 
         style={{
           position: 'fixed',
           inset: 0,
           zIndex: 5,
-          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(59,130,246,0.05) 50%, rgba(0,0,0,0.02) 100%)',
+          background: 'radial-gradient(circle at 50% 50%, rgba(200,168,75,0.04) 0%, rgba(45,106,159,0.03) 50%, rgba(0,0,0,0.01) 100%)',
           pointerEvents: 'none'
         }}
       />
@@ -361,11 +352,11 @@ export default function Manifold() {
           justifyContent: 'center',
           alignItems: 'center',
           gap: '1rem',
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 100%)',
-          backdropFilter: 'blur(30px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-          borderBottom: '1px solid rgba(255, 215, 0, 0.2)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 100%)',
+          backdropFilter: 'blur(30px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(160%)',
+          borderBottom: '1px solid rgba(200, 168, 75, 0.15)',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.4)',
         }}
       >
         <Link href="/">
@@ -376,8 +367,8 @@ export default function Manifold() {
               letterSpacing: '0.05em',
               fontWeight: 700,
               cursor: 'pointer',
-              color: 'rgba(255, 215, 0, 0.9)',
-              textShadow: '0 0 20px rgba(255, 215, 0, 0.3)',
+              color: 'rgba(200, 168, 75, 0.9)',
+              textShadow: '0 0 20px rgba(200, 168, 75, 0.25)',
               transition: 'color 0.5s',
             }}
           >
@@ -400,11 +391,11 @@ export default function Manifold() {
             aria-current="page"
             style={{
               ...interactiveLinkStyle,
-              borderBottom: '1px solid #FFD700',
-              color: '#FFD700',
+              borderBottom: '1px solid #C8A84B',
+              color: '#C8A84B',
             }}
           >
-            VISION
+            MANIFOLD
           </Link>
           <Link href="/research" style={interactiveLinkStyle}>
             RESEARCH
@@ -420,7 +411,8 @@ export default function Manifold() {
 
       {/* Scrollable Content - uses normal document flow */}
       <div style={{ position: 'relative', zIndex: 10, pointerEvents: 'none' }}>
-        {/* Title Section */}
+
+        {/* Hero Section */}
         <div
           style={{
             display: 'flex',
@@ -429,8 +421,8 @@ export default function Manifold() {
             justifyContent: 'center',
             textAlign: 'center',
             padding: '0 1.5rem',
-            paddingTop: '20vh',
-            paddingBottom: '4rem',
+            paddingTop: '22vh',
+            paddingBottom: '3rem',
           }}
         >
           <motion.div
@@ -441,10 +433,10 @@ export default function Manifold() {
             <h1
               style={{
                 fontFamily: 'Cormorant Garamond, serif',
-                fontSize: 'clamp(3rem, 10vw, 6rem)',
+                fontSize: 'clamp(2.75rem, 9vw, 5.5rem)',
                 letterSpacing: '0.1em',
                 color: 'rgba(255, 255, 255, 0.95)',
-                textShadow: '0 4px 20px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.7)',
+                textShadow: '0 4px 20px rgba(0,0,0,0.95), 0 8px 40px rgba(0,0,0,0.8)',
                 fontWeight: 300,
                 textAlign: 'center',
                 margin: 0,
@@ -452,23 +444,109 @@ export default function Manifold() {
             >
               AEO TRIVECTOR
             </h1>
+
+            {/* Tagline */}
             <motion.p
               initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 0.7 }}
+              animate={{ opacity: 0.65 }}
               transition={{ duration: 1, delay: 0.3 }}
               style={{
                 fontFamily: 'JetBrains Mono, monospace',
-                fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                fontSize: 'clamp(0.7rem, 1.8vw, 0.8rem)',
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                color: 'rgba(255, 215, 0, 0.8)',
-                textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+                color: 'rgba(200, 168, 75, 0.85)',
+                textShadow: '0 2px 8px rgba(0,0,0,0.95)',
                 textAlign: 'center',
                 marginTop: '1rem',
               }}
             >
               Attractor Architecture
             </motion.p>
+
+            {/* Plain-English anchor — P1 */}
+            <motion.p
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.6 }}
+              style={{
+                fontFamily: 'Cormorant Garamond, serif',
+                fontSize: 'clamp(0.9rem, 2.2vw, 1.1rem)',
+                letterSpacing: '0.02em',
+                color: 'rgba(220, 220, 220, 0.7)',
+                textShadow: '0 2px 12px rgba(0,0,0,0.95)',
+                textAlign: 'center',
+                marginTop: '1.5rem',
+                maxWidth: '42rem',
+                lineHeight: 1.7,
+                fontStyle: 'italic',
+                fontWeight: 300,
+              }}
+            >
+              An independent research program in non-commutative geometry, Clifford algebra,
+              and the mathematics of self-encoding dynamics.
+            </motion.p>
+
+            {/* Byline — P2 */}
+            <motion.p
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.85 }}
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.7rem',
+                letterSpacing: '0.12em',
+                color: 'rgba(180, 180, 180, 0.55)',
+                textShadow: '0 2px 8px rgba(0,0,0,0.95)',
+                textAlign: 'center',
+                marginTop: '1.25rem',
+                textTransform: 'uppercase',
+              }}
+            >
+              Jared D. Dunahay · AEO Trivector LLC · Bedford, NH
+            </motion.p>
+
+            {/* Primary CTA — P2 */}
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.1 }}
+              style={{ marginTop: '2.5rem', pointerEvents: 'auto' }}
+            >
+              <Link
+                href="/research"
+                style={{
+                  display: 'inline-block',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(200, 168, 75, 0.95)',
+                  border: '1px solid rgba(200, 168, 75, 0.45)',
+                  padding: '0.75rem 2.25rem',
+                  textDecoration: 'none',
+                  background: 'rgba(0,0,0,0.55)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  transition: 'all 0.35s ease',
+                  boxShadow: '0 0 20px rgba(200, 168, 75, 0.1)',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement
+                  el.style.background = 'rgba(200, 168, 75, 0.12)'
+                  el.style.boxShadow = '0 0 32px rgba(200, 168, 75, 0.25)'
+                  el.style.borderColor = 'rgba(200, 168, 75, 0.7)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement
+                  el.style.background = 'rgba(0,0,0,0.55)'
+                  el.style.boxShadow = '0 0 20px rgba(200, 168, 75, 0.1)'
+                  el.style.borderColor = 'rgba(200, 168, 75, 0.45)'
+                }}
+              >
+                View Research →
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
 
@@ -478,14 +556,14 @@ export default function Manifold() {
             display: 'flex',
             justifyContent: 'center',
             padding: '0 1.5rem',
-            paddingBottom: '6rem',
+            paddingBottom: '5rem',
           }}
         >
           <div
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '2rem',
+              gap: '1.75rem',
               width: '100%',
               maxWidth: '80rem',
               pointerEvents: 'auto',
