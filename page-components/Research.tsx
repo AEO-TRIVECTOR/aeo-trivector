@@ -1,31 +1,13 @@
-'use client'
-
-import { useEffect, useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Attractor } from '@/components/Attractor';
-import { motion } from 'framer-motion';
-import { StickyGlassHeader } from '@/components/StickyGlassHeader';
-import Footer from '@/components/Footer';
-
-// ── Attractor background (aligned with /manifold and /mathematics) ──────────
-function AttractorBackground() {
-  return (
-    <group>
-      <Attractor count={8000} opacity={0.42} speed={0.8} />
-    </group>
-  );
-}
+// Server component — content renders on SSR for crawlers and noscript visitors.
+// The WebGL canvas is loaded client-side only via next/dynamic (ssr: false).
+import { StickyGlassHeader } from '@/components/StickyGlassHeader'
+import Footer from '@/components/Footer'
+import AttractorCanvasLoader from '@/components/AttractorCanvasLoader'
 
 // ── Section wrapper ──────────────────────────────────────────────────────────
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7 }}
-      className="mb-16"
-    >
+    <section className="mb-16">
       <h2
         className="text-xs font-mono tracking-[0.25em] mb-6 uppercase"
         style={{ color: 'rgba(252,211,77,0.55)' }}
@@ -33,8 +15,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
         {title}
       </h2>
       {children}
-    </motion.section>
-  );
+    </section>
+  )
 }
 
 // ── Card wrapper ─────────────────────────────────────────────────────────────
@@ -52,7 +34,7 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
     >
       {children}
     </div>
-  );
+  )
 }
 
 // ── Vignette overlay ─────────────────────────────────────────────────────────
@@ -65,38 +47,25 @@ function Vignette() {
         background:
           'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.72) 100%)',
       }}
+      aria-hidden="true"
     />
-  );
+  )
 }
 
 // ── Main component ───────────────────────────────────────────────────────────
 export default function Research() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
       <StickyGlassHeader />
 
-      {/* Background */}
-      <div className="fixed inset-0 z-0">
-        {mounted && (
-          <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
-            <AttractorBackground />
-          </Canvas>
-        )}
-      </div>
+      {/* Background — client-only, decorative */}
+      <AttractorCanvasLoader count={8000} opacity={0.42} speed={0.8} />
       <Vignette />
 
-      {/* Content */}
+      {/* Content — server-rendered, visible immediately */}
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-40 pb-32">
         {/* Hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9 }}
-          className="mb-20 text-center"
-        >
+        <div className="mb-20 text-center">
           <h1
             className="font-serif text-5xl md:text-6xl mb-5 tracking-[0.12em]"
             style={{ color: '#FCD34D', textShadow: '0 0 40px rgba(252,211,77,0.28)' }}
@@ -110,9 +79,9 @@ export default function Research() {
           <p className="text-xs font-mono tracking-widest" style={{ color: 'rgba(229,229,229,0.4)' }}>
             Jared D. Dunahay · AEO Trivector LLC · Bedford, NH
           </p>
-        </motion.div>
+        </div>
 
-        {/* C.2a — In Preparation */}
+        {/* In Preparation */}
         <Section title="In Preparation">
           <Card>
             {/* Status badge */}
@@ -173,7 +142,7 @@ export default function Research() {
           </Card>
         </Section>
 
-        {/* C.2b — Code */}
+        {/* Code */}
         <Section title="Code">
           <div className="grid gap-4 md:grid-cols-2">
             {[
@@ -195,7 +164,7 @@ export default function Research() {
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none' }}
               >
-                <Card className="h-full transition-all duration-300 hover:border-[rgba(252,211,77,0.35)]">
+                <Card className="h-full">
                   <p
                     className="text-sm font-mono mb-2 break-all"
                     style={{ color: '#FCD34D' }}
@@ -211,7 +180,7 @@ export default function Research() {
           </div>
         </Section>
 
-        {/* C.2c — Citations */}
+        {/* Citations */}
         <Section title="Citations">
           <Card>
             <p className="text-sm font-mono italic" style={{ color: 'rgba(229,229,229,0.55)' }}>
@@ -221,13 +190,7 @@ export default function Research() {
         </Section>
 
         {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mt-4"
-        >
+        <div className="text-center mt-4">
           <a
             href="mailto:jared@trivector.ai"
             className="inline-block px-8 py-3 text-sm font-mono tracking-widest transition-all duration-300"
@@ -236,19 +199,13 @@ export default function Research() {
               color: '#FCD34D',
               textDecoration: 'none',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(252,211,77,0.08)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-            }}
           >
             Collaborate → jared@trivector.ai
           </a>
-        </motion.div>
+        </div>
       </div>
 
       <Footer />
     </div>
-  );
+  )
 }

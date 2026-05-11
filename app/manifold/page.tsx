@@ -17,19 +17,13 @@ export const metadata: Metadata = {
     description: 'An independent research program in non-commutative geometry, Clifford algebra, and the mathematics of self-encoding dynamics.',
     type: 'website',
     url: '/manifold/',
-    images: [
-      {
-        url: '/images/attractor-torus.png',
-        width: 1200,
-        height: 630,
-        alt: 'AEO Trivector manifold experience',
-      },
-    ],
+    // Dynamic OG image served by app/manifold/opengraph-image.tsx
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AEO Trivector — Attractor Architecture',
-    images: ['/images/attractor-torus.png'],
+    description:
+      'An independent research program in non-commutative geometry, Clifford algebra, and the mathematics of self-encoding dynamics.',
   },
 }
 

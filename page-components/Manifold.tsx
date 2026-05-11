@@ -1,337 +1,131 @@
-'use client'
-
-
-import { useRef, useState, useEffect, useMemo, type CSSProperties, type MutableRefObject } from 'react'
+// Server component — hero text and pillar content renders on SSR for crawlers and noscript visitors.
+// The WebGL canvas and interactive effects are loaded client-side only via next/dynamic (ssr: false).
 import Link from 'next/link'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Attractor } from '@/components/Attractor'
-import { motion, useReducedMotion } from 'framer-motion'
 import Footer from '@/components/Footer'
 import { StickyGlassHeader } from '@/components/StickyGlassHeader'
-import * as THREE from 'three'
+import ManifoldCanvasLoader from '@/components/ManifoldCanvasLoader'
 
-// 3D Group component for Attractor animation
-function AttractorGroup({
-  mousePositionRef,
-  reduceMotion,
-  isTabVisible,
-  particleCount,
-}: {
-  mousePositionRef: MutableRefObject<{ x: number; y: number }>
-  reduceMotion: boolean
-  isTabVisible: boolean
-  particleCount: number
-}) {
-  const groupRef = useRef<THREE.Group>(null)
-
-  useFrame((state) => {
-    if (groupRef.current) {
-      if (reduceMotion || !isTabVisible) {
-        groupRef.current.rotation.y = 0
-        groupRef.current.scale.set(1, 1, 1)
-        return
-      }
-
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.05
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05
-      groupRef.current.scale.set(scale, scale, scale)
-
-      const targetRotationX = mousePositionRef.current.y * 0.1
-      const targetRotationZ = mousePositionRef.current.x * 0.1
-      groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.05
-      groupRef.current.rotation.z += (targetRotationZ - groupRef.current.rotation.z) * 0.05
-    }
-  })
-
+// ── Pillar card ──────────────────────────────────────────────────────────────
+function Pillar({ icon, title, descriptor }: { icon: string; title: string; descriptor: string }) {
   return (
-    <group ref={groupRef}>
-      {/* Reduced opacity from 0.85 → 0.42 for less visual overwhelm */}
-      <Attractor count={particleCount} opacity={0.42} speed={1} />
-    </group>
-  )
-}
-
-interface PillarProps {
-  icon: string
-  title: string
-  descriptor: string
-  delay: number
-  reduceMotion: boolean
-}
-
-function Pillar({ icon, title, descriptor, delay, reduceMotion }: PillarProps) {
-  const [isHovered, setIsHovered] = useState(false)
-
-  return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay, ease: 'easeOut' }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onFocus={() => setIsHovered(true)}
-      onBlur={() => setIsHovered(false)}
-      className="relative group"
-      tabIndex={0}
-      aria-label={`${title}: ${descriptor}`}
+    <div
+      className="relative rounded-2xl p-10"
+      style={{
+        background: 'rgba(0, 0, 0, 0.65)',
+        backdropFilter: 'blur(28px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 0 16px rgba(200, 168, 75, 0.08), inset 0 0 24px rgba(200, 168, 75, 0.03)',
+      }}
     >
       <div
-        className="relative rounded-2xl p-10 transition-all duration-700 ease-out"
+        className="absolute top-0 right-0 w-32 h-32 rounded-tr-2xl pointer-events-none"
         style={{
-          background: 'rgba(0, 0, 0, 0.65)',
-          backdropFilter: 'blur(28px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(28px) saturate(160%)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: isHovered
-            ? '0 0 32px rgba(200, 168, 75, 0.2), inset 0 0 48px rgba(200, 168, 75, 0.06)'
-            : '0 0 16px rgba(200, 168, 75, 0.08), inset 0 0 24px rgba(200, 168, 75, 0.03)',
-          transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+          background: 'radial-gradient(circle at top right, rgba(200, 168, 75, 0.12), transparent 70%)',
+          opacity: 0.5,
         }}
-      >
+        aria-hidden="true"
+      />
+
+      <div className="relative flex flex-col items-center space-y-5" style={{ textAlign: 'center', width: '100%' }}>
         <div
-          className="absolute top-0 right-0 w-32 h-32 rounded-tr-2xl pointer-events-none transition-opacity duration-700"
+          className="text-4xl"
           style={{
-            background: 'radial-gradient(circle at top right, rgba(200, 168, 75, 0.12), transparent 70%)',
-            opacity: isHovered ? 1 : 0.5,
+            color: '#C8A84B',
+            filter: 'drop-shadow(0 0 6px rgba(200, 168, 75, 0.35))',
           }}
-        />
-
-        <div className="relative flex flex-col items-center space-y-5" style={{ textAlign: 'center', width: '100%' }}>
-          <motion.div
-            className="text-4xl"
-            animate={{
-              rotate: isHovered && !reduceMotion ? 5 : 0,
-            }}
-            transition={{ duration: 0.5 }}
-            style={{
-              color: '#C8A84B',
-              filter: 'drop-shadow(0 0 6px rgba(200, 168, 75, 0.35))',
-            }}
-          >
-            {icon}
-          </motion.div>
-
-          <h3
-            className="font-serif text-xl tracking-wider uppercase"
-            style={{
-              color: 'rgba(255, 255, 255, 0.9)',
-              letterSpacing: '0.15em',
-              fontWeight: 400,
-              textShadow: '0 2px 12px rgba(0,0,0,0.9)',
-            }}
-          >
-            {title}
-          </h3>
-
-          <motion.p
-            className="text-sm leading-relaxed max-w-xs"
-            animate={{
-              opacity: isHovered ? 0.9 : 0.6,
-            }}
-            transition={{ duration: 0.5 }}
-            style={{
-              color: 'rgba(209, 213, 219, 0.85)',
-              textShadow: '0 2px 8px rgba(0,0,0,0.9)',
-            }}
-          >
-            {descriptor}
-          </motion.p>
+          aria-hidden="true"
+        >
+          {icon}
         </div>
+
+        <h3
+          className="font-serif text-xl tracking-wider uppercase"
+          style={{
+            color: 'rgba(255, 255, 255, 0.9)',
+            letterSpacing: '0.15em',
+            fontWeight: 400,
+            textShadow: '0 2px 12px rgba(0,0,0,0.9)',
+          }}
+        >
+          {title}
+        </h3>
+
+        <p
+          className="text-sm leading-relaxed max-w-xs"
+          style={{
+            color: 'rgba(209, 213, 219, 0.85)',
+            textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+            opacity: 0.6,
+          }}
+        >
+          {descriptor}
+        </p>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
+// ── Pillar data ──────────────────────────────────────────────────────────────
+const pillars = [
+  {
+    icon: '△',
+    title: 'Structure',
+    descriptor:
+      'Topology is the invariant substrate; implementations may deform, the core does not. Stability is identity preserved under morphism.',
+  },
+  {
+    icon: '◯',
+    title: 'Dynamics',
+    descriptor:
+      'Vector fields evolve state through phase space; attractors compress possibility into trajectory. What converges is what survives iteration.',
+  },
+  {
+    icon: '◇',
+    title: 'Integration',
+    descriptor:
+      'Resonance synthesizes disparate representations into one operational geometry. The nexus is where models collapse into a coherent whole.',
+  },
+]
 
-
+// ── Main component ───────────────────────────────────────────────────────────
 export default function Manifold() {
-  const reduceMotion = useReducedMotion() || false
-  const [isWebGLSupported, setIsWebGLSupported] = useState(true)
-  const [isTabVisible, setIsTabVisible] = useState(true)
-
-  const fromEventHorizon = typeof window !== 'undefined' && sessionStorage.getItem('fromEventHorizon') === 'true'
-  const [showGhostHorizon, setShowGhostHorizon] = useState(fromEventHorizon)
-
-  const mousePositionRef = useRef({ x: 0, y: 0 })
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const canvas = document.createElement('canvas')
-    const context = canvas.getContext('webgl2') || canvas.getContext('webgl')
-    setIsWebGLSupported(Boolean(context))
-  }, [])
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return
-    const handleVisibility = () => setIsTabVisible(document.visibilityState === 'visible')
-    document.addEventListener('visibilitychange', handleVisibility)
-    return () => document.removeEventListener('visibilitychange', handleVisibility)
-  }, [])
-
-  useEffect(() => {
-    if (fromEventHorizon) {
-      const timer = setTimeout(() => {
-        setShowGhostHorizon(false)
-        sessionStorage.removeItem('fromEventHorizon')
-      }, 600)
-      return () => clearTimeout(timer)
-    }
-  }, [fromEventHorizon])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const pointerQuery = window.matchMedia('(pointer: fine)')
-    if (!pointerQuery.matches) return
-
-    let rafId: number | null = null
-    let latestX = 0
-    let latestY = 0
-
-    const updateMouseRef = () => {
-      mousePositionRef.current = {
-        x: (latestX / window.innerWidth) * 2 - 1,
-        y: -(latestY / window.innerHeight) * 2 + 1,
-      }
-      rafId = null
-    }
-
-    const handlePointerMove = (e: PointerEvent) => {
-      latestX = e.clientX
-      latestY = e.clientY
-      if (rafId === null) {
-        rafId = window.requestAnimationFrame(updateMouseRef)
-      }
-    }
-
-    window.addEventListener('pointermove', handlePointerMove, { passive: true })
-    return () => {
-      window.removeEventListener('pointermove', handlePointerMove)
-      if (rafId !== null) window.cancelAnimationFrame(rafId)
-    }
-  }, [])
-
-  const pillars = useMemo(
-    () => [
-      { icon: '△', title: 'Structure', descriptor: 'Topology is the invariant substrate; implementations may deform, the core does not. Stability is identity preserved under morphism.' },
-      { icon: '◯', title: 'Dynamics', descriptor: 'Vector fields evolve state through phase space; attractors compress possibility into trajectory. What converges is what survives iteration.' },
-      { icon: '◇', title: 'Integration', descriptor: 'Resonance synthesizes disparate representations into one operational geometry. The nexus is where models collapse into a coherent whole.' },
-    ],
-    []
-  )
-
-  const particleCount = useMemo(() => {
-    if (typeof window === 'undefined') return 10000
-    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches
-    const cpuThreads = navigator.hardwareConcurrency || 4
-    if (reduceMotion) return 4000
-    if (isCoarsePointer || cpuThreads <= 4) return 8000
-    return 22000
-  }, [reduceMotion])
-
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
-      {/* Lorenz Attractor Background - Fixed Full Viewport */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 0,
-        }}
-      >
-        {isWebGLSupported ? (
-          <Canvas
-            camera={{ position: [0, 0, 12], fov: 75 }}
-            dpr={[1, 1.5]}
-            gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
-          >
-            <AttractorGroup
-              mousePositionRef={mousePositionRef}
-              reduceMotion={reduceMotion}
-              isTabVisible={isTabVisible}
-              particleCount={particleCount}
-            />
-          </Canvas>
-        ) : (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'rgba(255,255,255,0.8)',
-              fontFamily: 'JetBrains Mono, monospace',
-              letterSpacing: '0.05em',
-              fontSize: '0.75rem',
-              textTransform: 'uppercase',
-              textShadow: '0 2px 8px rgba(0,0,0,0.9)',
-            }}
-          >
-            3D visualization unavailable on this device.
-          </div>
-        )}
-      </div>
 
-      {/* Dark vignette overlay — improves text contrast without hiding the attractor */}
+      {/* Background canvas — client-only, decorative */}
+      <ManifoldCanvasLoader />
+
+      {/* Dark vignette overlay */}
       <div
         style={{
           position: 'fixed',
           inset: 0,
           zIndex: 4,
-          background: 'radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 20%, rgba(0,0,0,0.55) 70%, rgba(0,0,0,0.75) 100%)',
+          background:
+            'radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 20%, rgba(0,0,0,0.55) 70%, rgba(0,0,0,0.75) 100%)',
           pointerEvents: 'none',
         }}
+        aria-hidden="true"
       />
 
-      {/* Subtle colour overlay — keeps the palette coherent */}
-      <div 
+      {/* Subtle colour overlay */}
+      <div
         style={{
           position: 'fixed',
           inset: 0,
           zIndex: 5,
-          background: 'radial-gradient(circle at 50% 50%, rgba(200,168,75,0.04) 0%, rgba(45,106,159,0.03) 50%, rgba(0,0,0,0.01) 100%)',
-          pointerEvents: 'none'
+          background:
+            'radial-gradient(circle at 50% 50%, rgba(200,168,75,0.04) 0%, rgba(45,106,159,0.03) 50%, rgba(0,0,0,0.01) 100%)',
+          pointerEvents: 'none',
         }}
+        aria-hidden="true"
       />
 
-      {/* Ghost Horizon Effect */}
-      {showGhostHorizon && (
-        <motion.div
-          initial={{ opacity: 0.3 }}
-          animate={{ opacity: 0 }}
-          transition={{ duration: reduceMotion ? 0.01 : 0.6 }}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 5,
-            pointerEvents: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: '24rem',
-              height: '24rem',
-              borderRadius: '50%',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: '0 0 100px rgba(255, 255, 255, 0.3), inset 0 0 100px rgba(255, 255, 255, 0.1)',
-            }}
-          />
-        </motion.div>
-      )}
-
-      {/* Shared navigation header — single source of truth */}
+      {/* Shared navigation header */}
       <StickyGlassHeader />
 
-      {/* Scrollable Content - uses normal document flow */}
+      {/* Scrollable Content — server-rendered, visible immediately */}
       <div style={{ position: 'relative', zIndex: 10, pointerEvents: 'none' }}>
 
         {/* Hero Section */}
@@ -347,11 +141,7 @@ export default function Manifold() {
             paddingBottom: '3rem',
           }}
         >
-          <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-          >
+          <div>
             <h1
               style={{
                 fontFamily: 'Cormorant Garamond, serif',
@@ -368,10 +158,7 @@ export default function Manifold() {
             </h1>
 
             {/* Tagline */}
-            <motion.p
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 0.65 }}
-              transition={{ duration: 1, delay: 0.3 }}
+            <p
               style={{
                 fontFamily: 'JetBrains Mono, monospace',
                 fontSize: 'clamp(0.7rem, 1.8vw, 0.8rem)',
@@ -381,16 +168,14 @@ export default function Manifold() {
                 textShadow: '0 2px 8px rgba(0,0,0,0.95)',
                 textAlign: 'center',
                 marginTop: '1rem',
+                opacity: 0.65,
               }}
             >
               Attractor Architecture
-            </motion.p>
+            </p>
 
-            {/* Plain-English anchor — P1 */}
-            <motion.p
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.6 }}
+            {/* Plain-English anchor */}
+            <p
               style={{
                 fontFamily: 'Cormorant Garamond, serif',
                 fontSize: 'clamp(0.9rem, 2.2vw, 1.1rem)',
@@ -407,13 +192,10 @@ export default function Manifold() {
             >
               An independent research program in non-commutative geometry, Clifford algebra,
               and the mathematics of self-encoding dynamics.
-            </motion.p>
+            </p>
 
-            {/* Byline — P2 */}
-            <motion.p
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.85 }}
+            {/* Byline */}
+            <p
               style={{
                 fontFamily: 'JetBrains Mono, monospace',
                 fontSize: '0.7rem',
@@ -426,15 +208,10 @@ export default function Manifold() {
               }}
             >
               Jared D. Dunahay · AEO Trivector LLC · Bedford, NH
-            </motion.p>
+            </p>
 
-            {/* Primary CTA — P2 */}
-            <motion.div
-              initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.1 }}
-              style={{ marginTop: '2.5rem', pointerEvents: 'auto' }}
-            >
+            {/* Primary CTA */}
+            <div style={{ marginTop: '2.5rem', pointerEvents: 'auto' }}>
               <Link
                 href="/research"
                 style={{
@@ -453,23 +230,11 @@ export default function Manifold() {
                   transition: 'all 0.35s ease',
                   boxShadow: '0 0 20px rgba(200, 168, 75, 0.1)',
                 }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLAnchorElement
-                  el.style.background = 'rgba(200, 168, 75, 0.12)'
-                  el.style.boxShadow = '0 0 32px rgba(200, 168, 75, 0.25)'
-                  el.style.borderColor = 'rgba(200, 168, 75, 0.7)'
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLAnchorElement
-                  el.style.background = 'rgba(0,0,0,0.55)'
-                  el.style.boxShadow = '0 0 20px rgba(200, 168, 75, 0.1)'
-                  el.style.borderColor = 'rgba(200, 168, 75, 0.45)'
-                }}
               >
                 View Research →
               </Link>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
 
         {/* Three Pillars */}
@@ -491,14 +256,12 @@ export default function Manifold() {
               pointerEvents: 'auto',
             }}
           >
-            {pillars.map((pillar, index) => (
+            {pillars.map((pillar) => (
               <Pillar
                 key={pillar.title}
                 icon={pillar.icon}
                 title={pillar.title}
                 descriptor={pillar.descriptor}
-                delay={0.5 + index * 0.2}
-                reduceMotion={reduceMotion}
               />
             ))}
           </div>

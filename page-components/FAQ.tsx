@@ -1,22 +1,11 @@
-'use client'
+// Server component — static FAQ content renders on SSR for crawlers and noscript visitors.
+// The accordion interactivity and WebGL canvas are client-only.
+import { StickyGlassHeader } from '@/components/StickyGlassHeader'
+import Footer from '@/components/Footer'
+import AttractorCanvasLoader from '@/components/AttractorCanvasLoader'
+import FaqAccordionLoader from '@/components/FaqAccordionLoader'
 
-import { useEffect, useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Attractor } from '@/components/Attractor';
-import { motion, AnimatePresence } from 'framer-motion';
-import { StickyGlassHeader } from '@/components/StickyGlassHeader';
-import Footer from '@/components/Footer';
-
-// ── Attractor background ─────────────────────────────────────────────────────
-function AttractorBackground() {
-  return (
-    <group>
-      <Attractor count={8000} opacity={0.42} speed={0.8} />
-    </group>
-  );
-}
-
-// ── Vignette ─────────────────────────────────────────────────────────────────
+// ── Vignette overlay ─────────────────────────────────────────────────────────
 function Vignette() {
   return (
     <div
@@ -26,12 +15,13 @@ function Vignette() {
         background:
           'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.72) 100%)',
       }}
+      aria-hidden="true"
     />
-  );
+  )
 }
 
 // ── FAQ data — 8 accurate Q&As ───────────────────────────────────────────────
-const faqs = [
+export const faqs = [
   {
     question: 'What is AEO Trivector?',
     answer:
@@ -60,50 +50,34 @@ const faqs = [
   {
     question: 'How do I cite this work?',
     answer:
-      'The primary paper — "Self-Encoding Geometry on Clifford Manifolds: Dimension Selection from the Lambert W Function" by Jared D. Dunahay — is currently in revision at the Journal of Mathematical Physics. An arXiv preprint is forthcoming. A BibTeX entry will be posted on the Research page once the arXiv identifier is assigned.',
+      'The primary paper — "Self-Encoding Geometry on Clifford Manifolds: Dimension Selection from the Lambert W Function" by Jared D. Dunahay — is currently a working paper targeting the Journal of Mathematical Physics. An arXiv preprint is forthcoming. A BibTeX entry will be posted on the Research page once the arXiv identifier is assigned.',
   },
   {
     question: 'Is the research peer-reviewed?',
     answer:
-      'The paper has been submitted to the Journal of Mathematical Physics and peer review feedback was received in May 2026. The manuscript is currently in revision. It has not yet been accepted or published. Claims on this website reflect the submitted manuscript and should be treated as preliminary until publication.',
+      'The paper is a working paper currently undergoing revisions. It has received AI-assisted technical critique (Perplexity Deep Research, May 2026) and is targeting submission to the Journal of Mathematical Physics. Human peer review is pending journal submission. Claims on this website should be treated as preliminary until publication.',
   },
   {
     question: 'How do I get in touch?',
     answer:
       'For academic correspondence — research collaboration, preprint feedback, or peer review — write to jared@trivector.ai. For press, speaking, and general inquiries, write to link@trivector.ai. Response time is typically within one week.',
   },
-];
+]
 
 // ── Main component ───────────────────────────────────────────────────────────
 export default function FAQ() {
-  const [mounted, setMounted] = useState(false);
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  useEffect(() => setMounted(true), []);
-
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
       <StickyGlassHeader />
 
-      {/* Background */}
-      <div className="fixed inset-0 z-0">
-        {mounted && (
-          <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
-            <AttractorBackground />
-          </Canvas>
-        )}
-      </div>
+      {/* Background — client-only, decorative */}
+      <AttractorCanvasLoader count={8000} opacity={0.42} speed={0.8} />
       <Vignette />
 
-      {/* Content */}
+      {/* Content — server-rendered, visible immediately */}
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-40 pb-32">
         {/* Hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9 }}
-          className="mb-16 text-center"
-        >
+        <div className="mb-16 text-center">
           <h1
             className="font-serif text-5xl md:text-6xl mb-5 tracking-[0.12em]"
             style={{ color: '#FCD34D', textShadow: '0 0 40px rgba(252,211,77,0.28)' }}
@@ -116,76 +90,13 @@ export default function FAQ() {
           <p className="text-xs font-mono tracking-widest" style={{ color: 'rgba(229,229,229,0.4)' }}>
             Jared D. Dunahay · AEO Trivector LLC · Bedford, NH
           </p>
-        </motion.div>
-
-        {/* Accordion */}
-        <div className="space-y-4">
-          {faqs.map((faq, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.06 }}
-            >
-              <div
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="cursor-pointer transition-all duration-300"
-                style={{
-                  background: 'rgba(0,0,0,0.45)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: `1px solid ${openIndex === index ? 'rgba(252,211,77,0.35)' : 'rgba(252,211,77,0.12)'}`,
-                  boxShadow: openIndex === index
-                    ? '0 0 24px rgba(252,211,77,0.1)'
-                    : '0 0 12px rgba(252,211,77,0.04)',
-                }}
-              >
-                {/* Question row */}
-                <div className="flex items-start justify-between gap-4 px-7 py-6">
-                  <h3
-                    className="font-serif text-lg leading-snug flex-1"
-                    style={{ color: openIndex === index ? '#FCD34D' : 'rgba(229,229,229,0.9)' }}
-                  >
-                    {faq.question}
-                  </h3>
-                  <motion.span
-                    animate={{ rotate: openIndex === index ? 45 : 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="flex-shrink-0 text-2xl font-light leading-none mt-0.5"
-                    style={{ color: '#3B82F6' }}
-                  >
-                    +
-                  </motion.span>
-                </div>
-
-                {/* Answer */}
-                <AnimatePresence initial={false}>
-                  {openIndex === index && (
-                    <motion.div
-                      key="answer"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.35, ease: 'easeOut' }}
-                      style={{ overflow: 'hidden' }}
-                    >
-                      <p
-                        className="px-7 pb-7 text-sm leading-relaxed"
-                        style={{ color: 'rgba(229,229,229,0.72)' }}
-                      >
-                        {faq.answer}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          ))}
         </div>
+
+        {/* Accordion — client-only for interactivity */}
+        <FaqAccordionLoader faqs={faqs} />
       </div>
 
       <Footer />
     </div>
-  );
+  )
 }

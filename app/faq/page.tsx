@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import FAQ from '../../page-components/FAQ'
 
-const OG_IMAGE = '/attractor-torus.png'
-
 export const metadata: Metadata = {
   title: { absolute: 'AEO Trivector — FAQ' },
   description:
@@ -13,14 +11,13 @@ export const metadata: Metadata = {
       'Common questions about AEO Trivector: the research programme, its mathematics, the preprint status, and how to engage.',
     type: 'website',
     url: 'https://aeotrivector.com/faq',
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'AEO Trivector — FAQ' }],
+    // Dynamic OG image served by app/faq/opengraph-image.tsx
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AEO Trivector — FAQ',
     description:
       'Common questions about AEO Trivector: the research programme, its mathematics, and how to engage.',
-    images: [OG_IMAGE],
   },
 }
 

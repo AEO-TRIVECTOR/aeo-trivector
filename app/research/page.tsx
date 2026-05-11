@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import Research from '../../page-components/Research'
 
-const OG_IMAGE = '/attractor-torus.png'
-
 export const metadata: Metadata = {
   title: { absolute: 'AEO Trivector — Research' },
   description:
@@ -13,14 +11,13 @@ export const metadata: Metadata = {
       'Open research on self-encoding dynamics, non-commutative geometry, and Clifford algebra. Preprints, code, and reproducibility materials.',
     type: 'website',
     url: 'https://aeotrivector.com/research',
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'AEO Trivector — Research' }],
+    // Dynamic OG image served by app/research/opengraph-image.tsx
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AEO Trivector — Research',
     description:
       'Open research on self-encoding dynamics, non-commutative geometry, and Clifford algebra.',
-    images: [OG_IMAGE],
   },
 }
 

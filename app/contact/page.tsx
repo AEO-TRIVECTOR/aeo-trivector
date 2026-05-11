@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import Contact from '../../page-components/Contact'
 
-const OG_IMAGE = '/attractor-torus.png'
-
 export const metadata: Metadata = {
   title: { absolute: 'AEO Trivector — Contact' },
   description:
@@ -13,14 +11,13 @@ export const metadata: Metadata = {
       'Academic and general correspondence for AEO Trivector LLC. Write to jared@trivector.ai for research inquiries.',
     type: 'website',
     url: 'https://aeotrivector.com/contact',
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'AEO Trivector — Contact' }],
+    // Dynamic OG image served by app/contact/opengraph-image.tsx
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AEO Trivector — Contact',
     description:
       'Academic and general correspondence for AEO Trivector LLC.',
-    images: [OG_IMAGE],
   },
 }
 

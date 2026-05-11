@@ -1,22 +1,10 @@
-'use client'
+// Server component — content renders on SSR for crawlers and noscript visitors.
+// The WebGL canvas is loaded client-side only via next/dynamic (ssr: false).
+import { StickyGlassHeader } from '@/components/StickyGlassHeader'
+import Footer from '@/components/Footer'
+import AttractorCanvasLoader from '@/components/AttractorCanvasLoader'
 
-import { useEffect, useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Attractor } from '@/components/Attractor';
-import { motion } from 'framer-motion';
-import { StickyGlassHeader } from '@/components/StickyGlassHeader';
-import Footer from '@/components/Footer';
-
-// ── Attractor background ─────────────────────────────────────────────────────
-function AttractorBackground() {
-  return (
-    <group>
-      <Attractor count={8000} opacity={0.42} speed={0.8} />
-    </group>
-  );
-}
-
-// ── Vignette ─────────────────────────────────────────────────────────────────
+// ── Vignette overlay ─────────────────────────────────────────────────────────
 function Vignette() {
   return (
     <div
@@ -26,38 +14,25 @@ function Vignette() {
         background:
           'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.72) 100%)',
       }}
+      aria-hidden="true"
     />
-  );
+  )
 }
 
 // ── Main component ───────────────────────────────────────────────────────────
 export default function Contact() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
       <StickyGlassHeader />
 
-      {/* Background */}
-      <div className="fixed inset-0 z-0">
-        {mounted && (
-          <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
-            <AttractorBackground />
-          </Canvas>
-        )}
-      </div>
+      {/* Background — client-only, decorative */}
+      <AttractorCanvasLoader count={8000} opacity={0.42} speed={0.8} />
       <Vignette />
 
-      {/* Content */}
+      {/* Content — server-rendered, visible immediately */}
       <div className="relative z-10 max-w-2xl mx-auto px-6 pt-40 pb-32">
         {/* Hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9 }}
-          className="mb-20 text-center"
-        >
+        <div className="mb-20 text-center">
           <h1
             className="font-serif text-5xl md:text-6xl mb-5 tracking-[0.12em]"
             style={{ color: '#FCD34D', textShadow: '0 0 40px rgba(252,211,77,0.28)' }}
@@ -70,33 +45,20 @@ export default function Contact() {
           <p className="text-xs font-mono tracking-widest" style={{ color: 'rgba(229,229,229,0.4)' }}>
             Jared D. Dunahay · AEO Trivector LLC · Bedford, NH
           </p>
-        </motion.div>
+        </div>
 
         {/* Two mailto buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="grid gap-6 md:grid-cols-2 mb-16"
-        >
+        <div className="grid gap-6 md:grid-cols-2 mb-16">
           {/* Academic */}
           <a href="mailto:jared@trivector.ai" style={{ textDecoration: 'none' }}>
             <div
-              className="p-8 h-full transition-all duration-300 cursor-pointer"
+              className="p-8 h-full"
               style={{
                 background: 'rgba(0,0,0,0.45)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
                 border: '1px solid rgba(252,211,77,0.2)',
                 boxShadow: '0 0 24px rgba(252,211,77,0.06)',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(252,211,77,0.45)';
-                (e.currentTarget as HTMLElement).style.background = 'rgba(252,211,77,0.04)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(252,211,77,0.2)';
-                (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.45)';
               }}
             >
               <p
@@ -117,21 +79,13 @@ export default function Contact() {
           {/* General */}
           <a href="mailto:link@trivector.ai" style={{ textDecoration: 'none' }}>
             <div
-              className="p-8 h-full transition-all duration-300 cursor-pointer"
+              className="p-8 h-full"
               style={{
                 background: 'rgba(0,0,0,0.45)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
                 border: '1px solid rgba(59,130,246,0.2)',
                 boxShadow: '0 0 24px rgba(59,130,246,0.06)',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(59,130,246,0.45)';
-                (e.currentTarget as HTMLElement).style.background = 'rgba(59,130,246,0.04)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(59,130,246,0.2)';
-                (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.45)';
               }}
             >
               <p
@@ -148,22 +102,18 @@ export default function Contact() {
               </p>
             </div>
           </a>
-        </motion.div>
+        </div>
 
         {/* Footer detail */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+        <p
           className="text-center text-xs font-mono tracking-widest"
           style={{ color: 'rgba(229,229,229,0.3)' }}
         >
           AEO Trivector LLC · Bedford, NH, USA
-        </motion.p>
+        </p>
       </div>
 
       <Footer />
     </div>
-  );
+  )
 }

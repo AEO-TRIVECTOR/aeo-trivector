@@ -1,23 +1,11 @@
-'use client'
+// Server component — content renders on SSR for crawlers and noscript visitors.
+// The WebGL canvas is loaded client-side only via next/dynamic (ssr: false).
+import Link from 'next/link'
+import { StickyGlassHeader } from '@/components/StickyGlassHeader'
+import Footer from '@/components/Footer'
+import AttractorCanvasLoader from '@/components/AttractorCanvasLoader'
 
-import { useEffect, useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Attractor } from '@/components/Attractor';
-import { motion } from 'framer-motion';
-import { StickyGlassHeader } from '@/components/StickyGlassHeader';
-import Footer from '@/components/Footer';
-import Link from 'next/link';
-
-// ── Attractor background ─────────────────────────────────────────────────────
-function AttractorBackground() {
-  return (
-    <group>
-      <Attractor count={8000} opacity={0.42} speed={0.8} />
-    </group>
-  );
-}
-
-// ── Vignette ─────────────────────────────────────────────────────────────────
+// ── Vignette overlay ─────────────────────────────────────────────────────────
 function Vignette() {
   return (
     <div
@@ -27,20 +15,15 @@ function Vignette() {
         background:
           'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.72) 100%)',
       }}
+      aria-hidden="true"
     />
-  );
+  )
 }
 
 // ── Section wrapper ──────────────────────────────────────────────────────────
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7 }}
-      className="mb-12"
-    >
+    <section className="mb-12">
       <h2
         className="text-xs font-mono tracking-[0.25em] mb-5 uppercase"
         style={{ color: 'rgba(252,211,77,0.55)' }}
@@ -48,8 +31,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
         {title}
       </h2>
       {children}
-    </motion.section>
-  );
+    </section>
+  )
 }
 
 // ── Card wrapper ─────────────────────────────────────────────────────────────
@@ -67,37 +50,23 @@ function Card({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>
-  );
+  )
 }
 
 // ── Main component ───────────────────────────────────────────────────────────
 export default function About() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden' }}>
       <StickyGlassHeader />
 
-      {/* Background */}
-      <div className="fixed inset-0 z-0">
-        {mounted && (
-          <Canvas camera={{ position: [0, 0, 12], fov: 80 }}>
-            <AttractorBackground />
-          </Canvas>
-        )}
-      </div>
+      {/* Background — client-only, decorative */}
+      <AttractorCanvasLoader count={8000} opacity={0.42} speed={0.8} />
       <Vignette />
 
-      {/* Content */}
+      {/* Content — server-rendered, visible immediately */}
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-40 pb-32">
         {/* Hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9 }}
-          className="mb-20 text-center"
-        >
+        <div className="mb-20 text-center">
           <h1
             className="font-serif text-5xl md:text-6xl mb-5 tracking-[0.12em]"
             style={{ color: '#FCD34D', textShadow: '0 0 40px rgba(252,211,77,0.28)' }}
@@ -111,9 +80,9 @@ export default function About() {
           <p className="text-xs font-mono tracking-widest" style={{ color: 'rgba(229,229,229,0.4)' }}>
             Jared D. Dunahay · AEO Trivector LLC · Bedford, NH
           </p>
-        </motion.div>
+        </div>
 
-        {/* C.3a — Principal Investigator */}
+        {/* Principal Investigator */}
         <Section title="Principal Investigator">
           <Card>
             <div className="flex flex-col md:flex-row md:items-start gap-6">
@@ -170,7 +139,7 @@ export default function About() {
           </Card>
         </Section>
 
-        {/* C.3b — Affiliation */}
+        {/* Affiliation */}
         <Section title="Affiliation">
           <Card>
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
@@ -191,7 +160,7 @@ export default function About() {
           </Card>
         </Section>
 
-        {/* C.3c — Identifiers */}
+        {/* Identifiers */}
         <Section title="Identifiers">
           <Card>
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
@@ -243,13 +212,7 @@ export default function About() {
         </Section>
 
         {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mt-4"
-        >
+        <div className="text-center mt-4">
           <Link
             href="/mathematics"
             className="inline-block px-8 py-3 text-sm font-mono tracking-widest transition-all duration-300"
@@ -258,19 +221,13 @@ export default function About() {
               color: '#FCD34D',
               textDecoration: 'none',
             }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(252,211,77,0.08)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.background = 'transparent';
-            }}
           >
             Read the mathematics →
           </Link>
-        </motion.div>
+        </div>
       </div>
 
       <Footer />
     </div>
-  );
+  )
 }
