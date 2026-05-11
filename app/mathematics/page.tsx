@@ -2,12 +2,23 @@ import type { Metadata } from 'next'
 import Mathematics from '../../page-components/Mathematics'
 
 export const metadata: Metadata = {
-  title: 'Mathematics - AEO Trivector',
-  description: 'The mathematical foundations of attractor architecture. Spectral geometry, Laplacian eigenmaps, and category-theoretic frameworks for stable AI systems.',
+  title: {
+    absolute: 'AEO Trivector — Mathematics',
+  },
+  description:
+    'The mathematical spine of AEO Trivector: self-encoding dynamics, constraint hierarchy, dimension selection on the graded hypertorus T⁸, and spectral triple structure.',
   openGraph: {
-    title: 'Mathematics - AEO Trivector',
-    description: 'The mathematical foundations of attractor architecture. Spectral geometry and category-theoretic frameworks.',
+    title: 'AEO Trivector — Mathematics',
+    description:
+      'Self-encoding geometry: constraint hierarchy, dimension selection via W(1), and spectral triple on the graded hypertorus T⁸_Θ.',
     type: 'website',
+    url: 'https://aeotrivector.com/mathematics',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'AEO Trivector — Mathematics',
+    description:
+      'Self-encoding geometry: constraint hierarchy, dimension selection via W(1), and spectral triple on T⁸_Θ.',
   },
 }
 
