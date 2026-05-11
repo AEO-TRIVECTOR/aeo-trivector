@@ -37,8 +37,7 @@ const articleLd = {
     affiliation: 'AEO Trivector LLC',
     sameAs: 'https://orcid.org/0009-0004-5735-2872',
   },
-  // 'Submitted' is the closest valid Schema.org CreativeWorkStatus for 'in revision'
-  creativeWorkStatus: 'Submitted',
+  creativeWorkStatus: 'Draft',
   about:
     'Non-commutative deformation of the graded hypertorus T⁸ indexed by Cl(3,0); dimension selection from the Lambert W function W(1) = 0.567143',
   keywords:

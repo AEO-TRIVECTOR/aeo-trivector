@@ -124,8 +124,20 @@ export default function Research() {
                 color: '#3B82F6',
               }}
             >
-              In revision — peer review feedback received May 2026
+              Working paper · revisions in progress · target J. Math. Phys.
             </span>
+
+            {/* AI-assistance acknowledgment */}
+            <p
+              className="text-xs font-mono mt-3 mb-5"
+              style={{ color: 'rgba(229,229,229,0.45)' }}
+            >
+              <span style={{ color: 'rgba(229,229,229,0.55)' }}>Review</span>{' '}·{' '}
+              <em>
+                AI-assisted technical critique (Perplexity Deep Research, May 2026). Human peer
+                review pending journal submission.
+              </em>
+            </p>
 
             <h3
               className="font-serif text-xl md:text-2xl mb-2 leading-snug"
